@@ -74,7 +74,7 @@ SKAT_Optiaml_Each_Q<-function(param.m, Q.all, r.all, lambda.all, method=NULL){
 
 		# get pvalue
 		Q.Norm<-(Q - muQ)/sqrt(varQ) * sqrt(2*df) + df
-		pval[,i]<- 1-pchisq(Q.Norm,  df = df)
+		pval[,i]<- pchisq(Q.Norm,  df = df, lower.tail=FALSE)
 		# will be changed later
 		
 		if(!is.null(method)){
@@ -142,18 +142,25 @@ SKAT_Optimal_Integrate_Func_Davies<-function(x,pmin.q,param.m,r.all){
 
 }
 
-SKAT_Optimal_PValue_Davies<-function(pmin.q,param.m,r.all){
+# add pmin on 02-13-2013 
+SKAT_Optimal_PValue_Davies<-function(pmin.q,param.m,r.all, pmin=NULL){
 
 	#re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=30, subdivisions=500, pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-15), silent = TRUE)
 
 	re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=40, subdivisions=1000, pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-25), silent = TRUE)
 
 	if(class(re) == "try-error"){
-		re<-SKAT_Optimal_PValue_Liu(pmin.q,param.m,r.all)
+		re<-SKAT_Optimal_PValue_Liu(pmin.q,param.m,r.all, pmin)
 		return(re)
 	} 
 
 	pvalue<-1-re[[1]]
+	if(!is.null(pmin)){
+		if(pmin *length(r.all) < pvalue){
+			pvalue = pmin *length(r.all)
+		}
+	}
+	
 	
 	return(pvalue)
 
@@ -183,13 +190,20 @@ SKAT_Optimal_Integrate_Func_Liu<-function(x,pmin.q,param.m,r.all){
 
 }
 
-
-SKAT_Optimal_PValue_Liu<-function(pmin.q,param.m,r.all){
+# add pmin on 02-13-2013 
+SKAT_Optimal_PValue_Liu<-function(pmin.q,param.m,r.all, pmin=NULL){
 
 	 re<-integrate(SKAT_Optimal_Integrate_Func_Liu, lower=0, upper=40, subdivisions=2000
 	,pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-25)
 	
 	pvalue<-1-re[[1]]
+	
+	if(!is.null(pmin)){
+		if(pmin *length(r.all) < pvalue){
+			pvalue = pmin *length(r.all)
+		}
+	}
+	
 	return(pvalue)
 
 }
@@ -268,19 +282,21 @@ SKAT_Optimal_Get_Pvalue<-function(Q.all, Z1, r.all, method){
 	param.m<-SKAT_Optimal_Param(Z1,r.all)
 	Each_Info<-SKAT_Optiaml_Each_Q(param.m, Q.all, r.all, lambda.all, method=method)
 	pmin.q<-Each_Info$pmin.q
+	pmin<-Each_Info$pmin
 	pval<-rep(0,n.q)
 
 	if(method == "davies" || method=="optimal" || method=="optimal.mod" || method=="optimal.adj"){
 
 		for(i in 1:n.q){
-			pval[i]<-SKAT_Optimal_PValue_Davies(pmin.q[i,],param.m,r.all)
+			pval[i]<-SKAT_Optimal_PValue_Davies(pmin.q[i,],param.m,r.all, pmin[i])
+			
 		}
 
 
 	} else if(method =="liu" || method =="liu.mod" || method=="optimal.moment" || method=="optimal.moment.adj" ){
 		
 		for(i in 1:n.q){
-			pval[i]<-SKAT_Optimal_PValue_Liu(pmin.q[i,],param.m,r.all)
+			pval[i]<-SKAT_Optimal_PValue_Liu(pmin.q[i,],param.m,r.all, pmin[i])
 		}
 
 	} else {

@@ -45,6 +45,46 @@ Check_File_Exists<-function(FileName){
 
 }
 
+Check_Duplicate<-function(SSD.Info){
+
+	cat("\nCheck duplicated SNPs in each SNP set\n")
+	colnames(SSD.Info)<-c("SetID","SNPID")
+
+	ID.u<-unique(SSD.Info[,1])
+	ID.n<-length(ID.u)
+	ID.d<-data.frame(SetID=ID.u, idx=1:ID.n)
+	
+	temp<-merge(ID.d, SSD.Info, by.x="SetID", by.y="SetID")
+	temp1<-temp[order(temp$idx),]
+	
+	idx.int.end<-findInterval(1:ID.n,temp1$idx)
+	idx.int.start<-c(1,idx.int.end[-ID.n]+1)
+
+	for(i in 1:ID.n){
+	
+		idx.start<-idx.int.start[i]
+		idx.end<-idx.int.end[i]
+		
+		SetID1<-temp1$SetID[idx.start]
+		SetID2<-temp1$SetID[idx.end]
+		
+		if(SetID1 != SetID2){
+			msg<-sprintf("Check Duplicate, SetIDs don't match [%s] [%s]\n", SetID1, SetID2)
+			stop(msg)
+		}
+		if(length(unique(temp1$SNPID[idx.start:idx.end])) != length(temp1$SNPID[idx.start:idx.end])){
+			msg<-sprintf("%s has duplicates! Check following variants : ", SetID1);
+			tbl<-table(temp1$SNPID[idx.start:idx.end])
+			idx<-which(tbl > 1)
+			
+			msg<-paste(msg, names(tbl[idx]))
+			stop(msg)
+		}
+	}
+	
+	cat("No duplicate\n")
+}
+
 
 Check_ID_Length<-function(FileName){
 	
@@ -54,17 +94,21 @@ Check_ID_Length<-function(FileName){
 		stop("Error in SetID file!") 
 	}
 
-	n1<-length(which(nchar(SSD.Info[,1]) > 25))
-	n2<-length(which(nchar(SSD.Info[,2]) > 25))
+	# increase the limit ot 50
+	n1<-length(which(nchar(SSD.Info[,1]) > 50))
+	n2<-length(which(nchar(SSD.Info[,2]) > 50))
 
 	if(n1 > 0){
-		stop("Some SetIDs have more than 25 characters!") 
+		stop("Some SetIDs have more than 50 characters!") 
 	}
 	if(n2 > 0){
-		stop("Some SNP_IDs have more than 25 characters!") 
+		stop("Some SNP_IDs have more than 50 characters!") 
 	}	
 
 	nSets<-length(unique(SSD.Info[,1]))
+	
+	Check_Duplicate(SSD.Info)
+	
 	return(list(nSets=nSets))
 }
 

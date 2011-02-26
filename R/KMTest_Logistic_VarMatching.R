@@ -63,15 +63,19 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
 		p.value.resampling<-re$p.value[-1]
 	}
 
-	p.value.noadj= re$p.value.noadj[1]
-	if(length(Q.all) > 1){
+	p.value.noadj=NULL
+	if(!is.null(re$p.value.noadj)){
+		p.value.noadj= re$p.value.noadj[1]
+		if(length(Q.all) > 1){
 	
-		p.value.noadj.resampling<-re$p.value.noadj[-1]
+			p.value.noadj.resampling<-re$p.value.noadj[-1]
+		}
 	}
 
 	re<-list(p.value = p.value, p.value.resampling = p.value.resampling
 , p.value.noadj = p.value.noadj, p.value.noadj.resampling = p.value.noadj.resampling
-, Test.Type = method, Q = Q,  Q.resampling = Q.res, param=NULL)  
+, Test.Type = method, Q = Q,  Q.resampling = Q.res, param=NULL
+, pval.zero.msg=re$pval.msg)  
   
   	return(re)
 }
@@ -87,26 +91,35 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 	# aSKAT pvalue
 	Q.Norm<-(Q - param$muQ)/sqrt(param$varQ)
 	Q.Norm1<-Q.Norm * sqrt(2*param$df) + param$df
-	p.value<- 1-pchisq(Q.Norm1,  df = param$df, ncp=0)
+	p.value<- pchisq(Q.Norm1,  df = param$df, ncp=0, lower.tail=FALSE)
 
+	df1=param$df
 	if(is.null(Q.sim) && param$n.lambda==1){
 		re<-Get_Satterthwaite(param$muQ, param$varQ)
 		Q.Norm1<-Q / re$a 
-		p.value<- 1-pchisq(Q.Norm1,  df = re$df, ncp=0)
-		
+		p.value<- pchisq(Q.Norm1,  df = re$df, ncp=0, lower.tail=FALSE)
+		df1=re$df
 		#cat("df1:", re$df, "\n")
 		
 	}
+	pval.msg = NULL
+	if(p.value[1] == 0){
+		pval.msg<-Get_Liu_PVal.MOD.Lambda.Zero(Q.Norm1, muQ=0, muX=0, sigmaQ=1, sigmaX=1, l=df1, d=0)
+	
+	}
+	
 
 	# SKAT pvalue
-	param.noadj<-param$param.noadj
-	Q.Norm<-(Q - param.noadj$muQ)/param.noadj$sigmaQ
-	Q.Norm1<-Q.Norm * param.noadj$sigmaX + param.noadj$muX
-	p.value.noadj<- 1-pchisq(Q.Norm1,  df = param.noadj$l,ncp=0)
-
+	p.value.noadj = NULL
+	if(!is.null(param$param.noadj)){
+		param.noadj<-param$param.noadj
+		Q.Norm<-(Q - param.noadj$muQ)/param.noadj$sigmaQ
+		Q.Norm1<-Q.Norm * param.noadj$sigmaX + param.noadj$muX
+		p.value.noadj<- pchisq(Q.Norm1,  df = param.noadj$l,ncp=0, lower.tail=FALSE)
+	}
 	#cat("df2:", param.noadj$l, "\n")
 	
-	out<-list(p.value=p.value, p.value.noadj=p.value.noadj, param=param)	
+	out<-list(p.value=p.value, p.value.noadj=p.value.noadj, param=param, pval.msg=pval.msg)	
 
 	return(out)
 
@@ -181,13 +194,16 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 
 }
 
-
+################################
+# ver 0.82 changed
 SKAT_Logistic_VarMatching_GetParam1_OnlySim<-function(Z1, p_all, Q.sim){
 
-
-	out.svd = Get_Lambda_U_From_Z(Z1)
-	lambda<-out.svd$lambda
+	#out.svd = Get_Lambda_U_From_Z(Z1)
+	#lambda<-out.svd$lambda
 	
+	lambda<-Get_Lambda(t(Z1) %*% Z1)
+
+
 	muQ = sum(lambda)
 	varQ.sim<-var(Q.sim)
 

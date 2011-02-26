@@ -122,7 +122,7 @@ Get_Liu_PVal<-function(Q, W, Q.resampling = NULL){
 
 	Q.Norm<-(Q.all - param$muQ)/param$sigmaQ
 	Q.Norm1<-Q.Norm * param$sigmaX + param$muX
-	p.value<- 1-pchisq(Q.Norm1,  df = param$l,ncp=param$d)
+	p.value<- pchisq(Q.Norm1,  df = param$l,ncp=param$d, lower.tail=FALSE)
 
 	p.value.resampling = NULL
 	if(length(Q.resampling) > 0){
@@ -149,7 +149,7 @@ Get_Liu_PVal.MOD<-function(Q, W, Q.resampling = NULL){
 
 	Q.Norm<-(Q.all - param$muQ)/param$sigmaQ
 	Q.Norm1<-Q.Norm * param$sigmaX + param$muX
-	p.value<- 1-pchisq(Q.Norm1,  df = param$l,ncp=param$d)
+	p.value<- pchisq(Q.Norm1,  df = param$l,ncp=param$d, lower.tail=FALSE)
 
 	p.value.resampling = NULL
 	if(length(Q.resampling) > 0){
@@ -167,9 +167,28 @@ Get_Liu_PVal.MOD.Lambda<-function(Q.all, lambda){
 
 	Q.Norm<-(Q.all - param$muQ)/param$sigmaQ
 	Q.Norm1<-Q.Norm * param$sigmaX + param$muX
-	p.value<- 1-pchisq(Q.Norm1,  df = param$l,ncp=param$d)
+	p.value<- pchisq(Q.Norm1,  df = param$l,ncp=param$d, lower.tail=FALSE)
 
 	return(p.value)
+
+}
+
+
+Get_Liu_PVal.MOD.Lambda.Zero<-function(Q, muQ, muX, sigmaQ, sigmaX, l, d){
+
+
+	Q.Norm<-(Q - muQ)/sigmaQ
+	Q.Norm1<-Q.Norm * sigmaX + muX
+	
+	temp<-c(0.05,10^-10, 10^-20,10^-30,10^-40,10^-50, 10^-60, 10^-70, 10^-80, 10^-90, 10^-100)
+	#qchisq(temp, df=1000000000,lower.tail=FALSE)	
+	out<-qchisq(temp,df = l,ncp=d, lower.tail=FALSE)
+	#cat(c(Q.Norm1,l,d, out))
+	#cat("\n")
+	IDX<-max(which(out < Q.Norm1))
+	
+	pval.msg<-sprintf("Pvalue < %e", temp[IDX])
+	return(pval.msg)
 
 }
 
@@ -195,7 +214,8 @@ Get_Davies_PVal<-function(Q, W, Q.resampling = NULL){
 	}
 	
 
-	re<-list(p.value = re$p.value[1], param=param,p.value.resampling = p.value.resampling )  
+	re<-list(p.value = re$p.value[1], param=param,p.value.resampling = p.value.resampling
+	, pval.zero.msg=re$pval.zero.msg )  
 	return(re)
 }
 
@@ -219,7 +239,7 @@ Get_Lambda<-function(K){
 		stop("No Eigenvalue is bigger than 0!!")
 	}
 	lambda<-lambda1[IDX2]
-	lambda
+	return(lambda)
 
 }
 
@@ -302,8 +322,17 @@ Get_PValue.Lambda<-function(lambda,Q){
 			p.val[i]<-p.val.liu[i]
 		}
 	}
+	
+	p.val.msg = NULL
+	#cat(p.val[1])
+	if(p.val[1] == 0){
 
-	return(list(p.value=p.val, p.val.liu=p.val.liu, is_converge=is_converge))
+		param<-Get_Liu_Params_Mod_Lambda(lambda)
+		p.val.msg<-Get_Liu_PVal.MOD.Lambda.Zero(Q[1], param$muQ, param$muX, param$sigmaQ, param$sigmaX, param$l, param$d)
+
+	}
+
+	return(list(p.value=p.val, p.val.liu=p.val.liu, is_converge=is_converge, pval.zero.msg=p.val.msg))
 
 }
 

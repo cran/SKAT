@@ -1,3 +1,5 @@
+SKATPower.env <- new.env()
+
 trace.SKAT = function(x){
   sum(diag(x))
 }
@@ -253,7 +255,7 @@ Get_Power_Logistic<-function(Z,eta,Beta0,ratio,alpha.ALL,N.Sample.ALL,Weight.Par
 
 			param<-Get_Liu_Params(c_a)
 			t = (param$sigmaX/param$sigmaQ)*(out$q.crit-param$muQ) + param$muX
-			power<-1-pchisq(t, df = param$l, ncp = param$d)
+			power<-pchisq(t, df = param$l, ncp = param$d, lower.tail = FALSE)
 
 			#re<-list(N.Sample=N.Sample, alpha=alpha, power=power
 			#,q.crit=out$q.crit,out=out,param=param,param.null=out$param.null
@@ -340,7 +342,7 @@ Get_Power_Continuous<-function(Z,eta,alpha.ALL,N.Sample.ALL,Weight.Param=c(1,25)
 
 			param<-Get_Liu_Params(c_a)
 			t = (param$sigmaX/param$sigmaQ)*(out$q.crit-param$muQ) + param$muX
-			power<-1-pchisq(t, df = param$l, ncp = param$d)
+			power<-pchisq(t, df = param$l, ncp = param$d, lower.tail = FALSE)
 
 			#re<-list(N.Sample=N.Sample, alpha=alpha, power=power
 			#,q.crit=out$q.crit,out=out,param=param,param.null=out$param.null
@@ -388,10 +390,11 @@ Power_Logistic<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1
 	if(is.null(Haplotypes)){
 	
 		MSG_SKAT_Example()
-		data(SKAT.haplotypes)
+		data(SKAT.haplotypes, package="SKAT", envir=SKATPower.env)
+		SKAT.haplotypes1<-get("SKAT.haplotypes", envir=SKATPower.env)
+		Haplotypes<-SKAT.haplotypes1$Haplotype
+		SNP.Location<-SKAT.haplotypes1$SNPInfo$CHROM_POS
 
-		Haplotypes<-SKAT.haplotypes$Haplotype
-		SNP.Location<-SKAT.haplotypes$SNPInfo$CHROM_POS
 
 	}
 	if(is.null(SNP.Location)){
@@ -466,10 +469,10 @@ Power_Continuous<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 	if(is.null(Haplotypes)){
 
 		MSG_SKAT_Example()
-		data(SKAT.haplotypes)
-
-		Haplotypes<-SKAT.haplotypes$Haplotype
-		SNP.Location<-SKAT.haplotypes$SNPInfo$CHROM_POS
+		data(SKAT.haplotypes, package="SKAT", envir=SKATPower.env)
+		SKAT.haplotypes1<-get("SKAT.haplotypes", envir=SKATPower.env)
+		Haplotypes<-SKAT.haplotypes1$Haplotype
+		SNP.Location<-SKAT.haplotypes1$SNPInfo$CHROM_POS
 
 	}
 	if(is.null(SNP.Location)){
@@ -547,6 +550,200 @@ MSG_SKAT_Example<-function(){
 		cat("SKAT uses a haplotype dataset (200kb, 10,000 haplotypes) in SKAT.haplotypes to compute power. This dataset was generated using the calibrated coalescent model with mimicking LD structure of European ancestry. See SKAT.haplotypes.\n")
 
 }
+
+
+
+
+
+
+
+Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1, Prevalence=0.01, Case.Prop=0.5, Causal.Percent=5, Causal.MAF.Cutoff=0.03, alpha =c(0.01,10^(-3),10^(-6)),N.Sample.ALL = 500 * (1:10), Weight.Param=c(1,25),N.Sim=100, OR.Type = "Log", MaxOR=5, Negative.Percent=0,r.corr=0){
+	
+	if(r.corr == 2){
+		r.corr = Get_Optimal_rho_est(Causal.Percent/100,Negative.Percent/100)
+	}
+	
+	if(r.corr < 0 || r.corr > 1){
+		msg<-("Error: r.corr should be either 0<= r.corr <=1 or r.corr=2 (SKAT-O)")
+		stop(msg)	
+	}
+	
+	if(is.null(Haplotypes)){
+	
+		MSG_SKAT_Example()
+		data(SKAT.haplotypes, package="SKAT", envir=SKATPower.env)
+		SKAT.haplotypes1<-get("SKAT.haplotypes", envir=SKATPower.env)
+		Haplotypes<-SKAT.haplotypes1$Haplotype
+		SNP.Location<-SKAT.haplotypes1$SNPInfo$CHROM_POS
+
+		
+
+	}
+	if(is.null(SNP.Location)){
+		stop("Error : SNP.Location is NULL")
+	}
+
+	Marker.MAF.ALL<-colMeans(Haplotypes) 
+
+
+	# approximated Beta0
+	Beta0<-log(Prevalence/(1-Prevalence))
+	
+	#####################################
+	# 	Compute Power
+	######################################	
+	OUT.ALL<-NULL
+	n1<-dim(Haplotypes)[1]
+
+	for(i in 1:N.Sim){
+		
+		IDX.Marker<-Get_RandomRegion(SNP.Location,SubRegion.Length)	
+		if(n1 >= 5000){		
+			H1<-sample(1:n1,replace=FALSE)
+			H2<-sample(1:n1,replace=FALSE)
+		} else {
+			H1<-sample(1:10000,replace=TRUE)
+			H2<-sample(1:10000,replace=TRUE)
+			H1[1:n1]<-sample(1:n1,replace=FALSE)
+			H2[1:n1]<-sample(1:n1,replace=FALSE)
+		}
+	
+			
+		X1<-Haplotypes[H1,IDX.Marker] + Haplotypes[H2,IDX.Marker]
+		Marker.MAF<-Marker.MAF.ALL[IDX.Marker]
+		#print(Marker.MAF)
+
+		Causal.Idx<-Get_CausalSNPs(Marker.MAF,  Causal.Percent/100, Causal.MAF.Cutoff)
+		Marker.Causal.MAF<-Marker.MAF[Causal.Idx]
+		#print(length(Causal.Idx))
+		#print(Marker.Causal.MAF)
+		Beta = Get_Beta(OR.Type, Marker.Causal.MAF, log(MaxOR),Negative.Percent/100)
+
+		#print(Marker.Causal.MAF)
+		#print(Beta)
+
+		Causal.Idx1<-IDX.Marker[Causal.Idx]
+
+		# Seunggeun Change
+		#eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		#eta1<-eta[H1] + eta[H2]
+		eta1<-(as.matrix(X1[,Causal.Idx]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+
+		#print(Beta)
+		#####################################
+		#
+		#	Power
+
+		OUT<-Get_Power_Logistic_R(X1,eta1,Beta0, Case.Prop, alpha,N.Sample.ALL,Weight.Param,r.corr)
+		if(i==1){
+			OUT.ALL<-OUT/N.Sim
+		} else {
+			OUT.ALL<-OUT.ALL + OUT/N.Sim
+		}
+		if(floor(i/10) * 10 == i){
+			msg<-sprintf("%d/%d",i,N.Sim)
+			print(msg)
+		}
+	}
+	re<-list(Power = OUT.ALL, r.corr=r.corr)
+	class(re)<-"SKAT_Power"
+
+	return(re)
+}
+
+
+Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1, Causal.Percent=5, Causal.MAF.Cutoff=0.03, alpha =c(0.01,10^(-3),10^(-6)),N.Sample.ALL = 500 * (1:10)
+,Weight.Param=c(1,25),N.Sim=100,BetaType = "Log", MaxBeta=1.6, Negative.Percent=0,r.corr=0){
+	
+	if(r.corr == 2){
+		r.corr = Get_Optimal_rho_est(Causal.Percent/100,Negative.Percent/100)
+	}
+	
+	if(r.corr < 0 || r.corr > 1){
+		msg<-("Error: r.corr should be either 0<= r.corr <=1 or r.corr=2 (SKAT-O)")
+		stop(msg)	
+	}
+	
+	if(is.null(Haplotypes)){
+	
+		MSG_SKAT_Example()
+		data(SKAT.haplotypes, package="SKAT", envir=SKATPower.env)
+		SKAT.haplotypes1<-get("SKAT.haplotypes", envir=SKATPower.env)
+		Haplotypes<-SKAT.haplotypes1$Haplotype
+		SNP.Location<-SKAT.haplotypes1$SNPInfo$CHROM_POS
+
+
+	}
+	if(is.null(SNP.Location)){
+		stop("Error : SNP.Location is NULL")
+	}
+
+
+	Marker.MAF.ALL<-colMeans(Haplotypes) 
+
+	#####################################
+	# 	Compute Power
+	######################################	
+	OUT.ALL<-NULL
+	n1<-dim(Haplotypes)[1]
+	out.r_2<-rep(0,N.Sim)
+
+	for(i in 1:N.Sim){
+		
+		IDX.Marker<-Get_RandomRegion(SNP.Location,SubRegion.Length)
+		
+		if(n1 >= 5000){		
+			H1<-sample(1:n1,replace=FALSE)
+			H2<-sample(1:n1,replace=FALSE)
+		} else {
+			H1<-sample(1:10000,replace=TRUE)
+			H2<-sample(1:10000,replace=TRUE)
+			H1[1:n1]<-sample(1:n1,replace=FALSE)
+			H2[1:n1]<-sample(1:n1,replace=FALSE)
+		}
+				
+		X1<-Haplotypes[H1,IDX.Marker] + Haplotypes[H2,IDX.Marker]
+		Marker.MAF<-Marker.MAF.ALL[IDX.Marker]
+
+		Causal.Idx<-Get_CausalSNPs(Marker.MAF, Causal.Percent/100, Causal.MAF.Cutoff)
+		Marker.Causal.MAF<-Marker.MAF[Causal.Idx]
+		Beta = Get_Beta(BetaType, Marker.Causal.MAF, MaxBeta,Negative.Percent/100)
+		Causal.Idx1<-IDX.Marker[Causal.Idx]
+
+		out.r_2[i]<-sum(Beta^2*2*Marker.Causal.MAF*(1-Marker.Causal.MAF))
+
+		
+		# Seunggeun Change
+		#eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		#eta1<-eta[H1] + eta[H2]
+		eta1<-(as.matrix(X1[,Causal.Idx]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+
+		#print(Causal.Idx)
+		#print(Beta)
+		#####################################
+		#
+		#	Power
+		
+		OUT<-Get_Power_Continuous_R(X1,eta1,alpha,N.Sample.ALL,Weight.Param,r.corr)
+		
+		if(i==1){
+			OUT.ALL<-OUT/N.Sim
+		} else {
+			OUT.ALL<-OUT.ALL + OUT/N.Sim
+		}
+
+		if(floor(i/10) * 10 == i){
+			msg<-sprintf("%d/%d",i,N.Sim)
+			print(msg)
+		}
+	}
+	r_sq.v<-mean(out.r_2 /(out.r_2 +1))
+	re<-list(Power = OUT.ALL, R.sq = r_sq.v, r.corr=r.corr)
+	class(re)<-"SKAT_Power"
+
+	return(re)
+}
+
 
 
 

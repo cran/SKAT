@@ -50,16 +50,17 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
 	\item{p.value.resampling}{the p-value from resampled outcome. You can get it when you use obj from SKAT_Null_Model function with resampling. See the SKAT_Null_Model. }
 	\item{p.value.noadj}{the p-value of SKAT without the small sample adjustment. It only appears when small sample adjustment is applied.}
 	\item{p.value.noadj.resampling}{the p-value from resampled outcome without the small sample adjustment. It only appears when small sample adjustment is applied. }
+  	\item{pval.zero.msg}{(only when p.value=0) text message that shows how small the p.value is. ex. "Pvalue < 1.000000e-60" when p.value is smaller than \eqn{10^{-60}} } 
   	\item{Q}{the test statistic of SKAT. It has NA when method="optimal.adj" or "optimal".}
 	\item{param}{estimated parameters of each method.}   
 	\item{param$Is_Converged}{ (only with method="davies") an indicator of the convergence. 1 indicates the method is converged, and 0 indicates the method is not converged. When 0 (not converged), "liu" method is used to compute p-value. }  
 	\item{param$n.marker}{a number of SNPs in the genotype matrix}  
 	\item{param$n.marker.test}{a number of SNPs used for the test. It can be different from param$n.marker when 
-	some markers are monomorphic or have higher missing rates than the missing_cutoff. }  
-
+	some markers are monomorphic or have higher missing rates than the missing_cutoff. } 
+	
 }
 \details{
-The old interface is defunct. Please use the output object of SKAT_Null_Model to run SKAT.
+
 
 There are pre-specified 6 types of kernels:
 "linear", "linear.weighted", "IBS", "IBS.weighted", "quadratic" and "2wayIX".
@@ -96,7 +97,10 @@ using method="optimal.adj". It use a grid of eight points \eqn{\rho=(0, 0.1^2, 0
 to perform the search of the optimal \eqn{\rho}.   
 If you want to use the original implementation of SKAT-), use method="optimal", which conducts SKAT-O with equal sized grid of 11 points (from 0 to 1).
 When the method is either "optimal.adj" or "optimal", the Q is NA.
-                                          
+
+If the true p.value is very small, you can have p.value=0 due to numerical reason. In this case, 
+please see pval.zero.msg that shows how small it is. 
+For example, if the p.value is smaller than \eqn{10^{-60}}, it has "Pvalue < 1.000000e-60".                                           
 
 }
 

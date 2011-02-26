@@ -61,21 +61,25 @@ KMTest.linear.Linear = function(res,Z,X1, kernel, weights, s2, method,res.out,n.
   if( method == "liu" ){
 
 	out<-Get_Liu_PVal(Q, W.1, Q.res)    
+	pval.zero.msg=NULL
 
   } else if( method == "liu.mod" ){
 
 	out<-Get_Liu_PVal.MOD(Q, W.1, Q.res)    
+	pval.zero.msg = NULL
 
   } else if( method == "davies"  ){
 
 	out<-Get_Davies_PVal(Q, W.1, Q.res)    
+	pval.zero.msg = out$pval.zero.msg
 
   } else {
 	stop("Invalid Method!")
   }
 
 
-  re<-list(p.value = out$p.value, p.value.resampling = out$p.value.resampling, Test.Type = method, Q = Q, param=out$param )  
+  re<-list(p.value = out$p.value, p.value.resampling = out$p.value.resampling
+  , Test.Type = method, Q = Q, param=out$param ,pval.zero.msg=pval.zero.msg )  
 
   return(re)
 
@@ -123,14 +127,17 @@ SKAT.linear.Other = function(res,Z,X1, kernel, weights = NULL, s2, method,res.ou
   if( method == "liu" ){
 
 	out<-Get_Liu_PVal(Q, W,Q.res)    
+	pval.zero.msg=NULL
 
   } else if( method == "liu.mod" ){
 
-	out<-Get_Liu_PVal.MOD(Q, W,Q.res)    
+	out<-Get_Liu_PVal.MOD(Q, W,Q.res)   
+	pval.zero.msg = NULL 
 
   } else if( method == "davies" ){
 
-	out<-Get_Davies_PVal(Q, W1,Q.res)    
+	out<-Get_Davies_PVal(Q, W1,Q.res)  
+	pval.zero.msg = out$pval.zero.msg  
 
   } else {
 	stop("Invalid Method!")
@@ -138,7 +145,8 @@ SKAT.linear.Other = function(res,Z,X1, kernel, weights = NULL, s2, method,res.ou
 
   
 
-  re<-list(p.value = out$p.value, p.value.resampling = out$p.value.resampling, Test.Type = method, Q = Q, param=out$param )  
+  re<-list(p.value = out$p.value, p.value.resampling = out$p.value.resampling
+  , Test.Type = method, Q = Q, param=out$param, pval.zero.msg=pval.zero.msg )  
 
   return(re)
 
