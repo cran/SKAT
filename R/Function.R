@@ -399,6 +399,7 @@ Beta.Weights<-function(MAF,weights.beta){
 	} else {
 		weights[-IDX_0]<-dbeta(MAF[-IDX_0],weights.beta[1],weights.beta[2])
 	}
+
 	
 	#print(length(IDX_0))
 	#print(weights[-IDX_0])
@@ -459,4 +460,19 @@ Get_Matrix_Square.1<-function(A){
 	return(out1)
 }
 
+Get_Resampling_Bin<-function(ncase, prob, n.Resampling){
+
+	n<-length(prob)
+	err<-0
+	temp<-.C("SL_Binary_Boot", as.integer(n), as.integer(n.Resampling), 
+	as.integer(ncase), as.double(prob), integer(n), integer(n), integer( n * n.Resampling), as.integer(err) )
+	
+	if(temp[[8]] != 1){
+		return(NULL)
+	}
+	
+	out<-matrix(temp[[7]],byrow=FALSE, ncol=n.Resampling)
+	return(out)
+
+}
 

@@ -24,10 +24,11 @@ SKAT_Null_Model(formula, data=NULL, out_type="C", n.Resampling=0
 }
 \details{
 
-There are 2 different methods to get resampled residuals.
+There are 3 different methods to get resampled residuals.
 "bootstrap" conducts the parametric bootstrap to resample residuals under the NULL model with considering covariates. 
+"bootstrap.fast" (only for binary traits) is a fast implementation of "bootstrap".
 If there is no covariate, "bootstrap" is equivalent to the permutation method.
-"perturbation" perturbs the residuals by multiplying mean zero and variance one normal random variable. The default method is "bootstrap".
+"perturbation" perturbs the residuals by multiplying mean zero and variance one normal random variable. 
 
 We no longer provide "perturbation" method! 
 

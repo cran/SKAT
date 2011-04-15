@@ -35,6 +35,88 @@ Read_Plink_FAM<-function(Filename, Is.binary=TRUE, flag1=0){
 
 }
 
+Read_Plink_FAM_Cov<-function(Filename, File_Cov, Is.binary=TRUE, flag1=0, cov_header=TRUE){
+
+	Check_File_Exists(Filename)
+	Check_File_Exists(File_Cov)
+	Fam.Obj<-read.table(Filename, header=FALSE)
+	
+	colnames(Fam.Obj)<-c("FID","IID","PID","MID", "Sex", "Phenotype")
+	
+	Cov.Obj<-read.table(File_Cov, header=cov_header)
+	ncov<-dim(Cov.Obj)[2]
+	
+	if(ncov <= 3){
+		msg<-sprintf("Error: Cov file only has <= 2 columns!\n")
+		stop(msg)
+	}
+		
+	if(cov_header == FALSE){
+		
+		colnames(Cov.Obj)<-c("FID", "IID", sprintf("COV%d",1:(ncov-2)))
+	}
+	
+	if(colnames(Cov.Obj)[1] != "FID" || colnames(Cov.Obj)[2] != "IID"){
+		msg<-sprintf("Error: the first two columns of Cov file must be labelled as FID and IID. If the Cov file does not have a header row, please set cov_header=FALSE!\n")
+		
+		stop(msg) 
+	}
+	
+	for(i in 3:ncov){
+		# check numeric coding
+		if(is.numeric(Cov.Obj[,i]) == FALSE){
+			msg<-sprintf("Error: column [%d] in Cov file isn't numerically coded! If the Cov file has a header row, please set cov_header=TRUE!", i)
+			stop(msg)
+		}
+		id.missing<-which(Cov.Obj[,i] == -9)
+		if(length(id.missing) > 0){
+			Cov.Obj[id.missing,i]<-NA
+		}
+	}
+
+	id.missing<-which(Fam.Obj$Phenotype == -9)
+	if(length(id.missing) > 0){
+		Fam.Obj$Phenotype[id.missing]<-NA
+	}
+	if(Is.binary && flag1 == 0){
+		
+		id_0<-which(Fam.Obj$Phenotype == 0)
+		id_1<-which(Fam.Obj$Phenotype == 1)
+		id_2<-which(Fam.Obj$Phenotype == 2)
+
+		if(length(id_0)> 0){
+			Fam.Obj$Phenotype[id_0] <-NA
+		}
+		if(length(id_1)> 0){
+			Fam.Obj$Phenotype[id_0] <-0
+		}
+		if(length(id_2)> 0){
+			Fam.Obj$Phenotype[id_0] <-1
+		}
+
+	}
+
+	# Combine
+	Fam.Obj$idx_fam<-1:(dim(Fam.Obj)[1])
+	ID1<-paste(as.character(Fam.Obj$FID), as.character(Fam.Obj$IID))
+	ID2<-paste(as.character(Cov.Obj$FID), as.character(Cov.Obj$IID))
+	
+	Fam.Obj$MergeID_SKAT=ID1
+	Cov.Obj$MergeID_SKAT=ID2
+	
+	Cov.Obj$FID=NULL
+	Cov.Obj$IID=NULL
+	
+	Out<-merge(Fam.Obj, Cov.Obj, by.x="MergeID_SKAT", by.y="MergeID_SKAT", all.x=TRUE, all.y=FALSE, sort=FALSE)
+	Out<-Out[order(Out$idx_fam),]
+	Out$idx_fam<-NULL
+	Out$MergeID_SKAT<-NULL
+	
+	return(Out)
+
+}
+
+
 #
 # x is either y or SKAT_NULL_Model 
 #

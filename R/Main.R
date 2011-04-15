@@ -134,31 +134,6 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	MAF<-colMeans(Z, na.rm = TRUE)/2
 	MAF1<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
-	IDX.Err<-which(MAF > 0.5)	
-	if(length(IDX.Err) > 0){
-		#msg<-sprintf("Genotypes of some variants are not the number of minor allele! It is fixed!")
-		msg<-sprintf("Genotypes of some variants are not the number of minor alleles!")
-		warning(msg,call.=FALSE)
-
-		# Fixed by SLEE
-		#Z[,IDX.Err]<-2 - Z[,IDX.Err]
-		#MAF[IDX.Err]<-1- MAF[IDX.Err]
-	}
-
-	###########################################
-	# Check non-polymorphic
-
-	if(length(which(MAF1 > 0)) == 0){
-		
-		if(is.null(SetID)){
-			msg<-sprintf("No polymorphic SNP. P-value = 1" )
-		} else {
-			msg<-sprintf("In %s, No polymorphic SNP. P-value = 1",SetID )
-		}
-		warning(msg,call.=FALSE)
-		re<-list(p.value = 1, p.value.resampling =NA, Test.Type = NA, Q = NA, param=list(n.marker=0, n.marker.test=0), return=1 )   
-		return(re)
-	}
 
 	##########################################
 	# Missing Imputation
@@ -173,6 +148,42 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		warning(msg,call.=FALSE)
 		Z<-Impute(Z,impute.method)
 	} 
+
+	#########################################
+	# Check and recal
+	MAF<-colMeans(Z, na.rm = TRUE)/2
+	IDX.Err<-which(MAF > 0.5)	
+	if(length(IDX.Err) > 0){
+		#msg<-sprintf("Genotypes of some variants are not the number of minor allele! It is fixed!")
+		msg<-sprintf("Genotypes of some variants are not the number of minor alleles! Flipped the genotypes!")
+		warning(msg,call.=FALSE)
+		
+		Z[,IDX.Err]<-2-Z[,IDX.Err]
+	}
+
+	MAF<-colMeans(Z, na.rm = TRUE)/2
+	MAF1<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
+	IDX.Err<-which(MAF > 0.5)	
+	if(length(IDX.Err) > 0){
+		
+		msg<-sprintf("ERROR! genotype flipping")
+		stop(msg)
+		
+	}
+	
+	###########################################
+	# Check non-polymorphic
+	if(length(which(MAF1 > 0)) == 0){
+		
+		if(is.null(SetID)){
+			msg<-sprintf("No polymorphic SNP. P-value = 1" )
+		} else {
+			msg<-sprintf("In %s, No polymorphic SNP. P-value = 1",SetID )
+		}
+		warning(msg,call.=FALSE)
+		re<-list(p.value = 1, p.value.resampling =NA, Test.Type = NA, Q = NA, param=list(n.marker=0, n.marker.test=0), return=1 )   
+		return(re)
+	}
 	
 	##########################################
 	# Get Weights

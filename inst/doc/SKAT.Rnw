@@ -236,6 +236,25 @@ out<-SKAT.SSD.All(SSD.INFO, obj)
 out
 @
 
+If you have a plink covariate file, you can use Read\_Plink\_FAM\_Cov file to read both FAM and covariate files. 
+
+<<SKAT_B2Cov>>=
+File.Cov<-"./Example1.Cov"
+FAM_Cov<-Read_Plink_FAM_Cov(File.Fam, File.Cov, Is.binary=FALSE)
+
+# First 5 rows
+FAM_Cov[1:5,]
+
+# Run with covariates
+X1 = FAM_Cov$X1
+X2 = FAM_Cov$X2
+y<-FAM_Cov$Phenotype
+
+obj<-SKAT_Null_Model(y ~ X1 + X2, out_type="C")
+out<-SKAT.SSD.All(SSD.INFO, obj)
+out
+@
+
 If you have more than one gene/SNP set to test an association, 
 you should adjust multiple testing. 
 It can be done either by conducting bonferroni correction or 

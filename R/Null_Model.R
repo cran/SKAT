@@ -52,6 +52,15 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 	res.out<-NULL
 
 	if(n.Resampling > 0){
+		if(type.Resampling=="bootstrap.fast"){
+		
+			res.out<-Get_Resampling_Bin(n.case, mu, n.Resampling)
+			if(is.null(res.out)){
+				type.Resampling="bootstrap"
+			}
+		
+		} 
+		
 		if(type.Resampling=="permutation"){
 			res.out1<-res %x% t(rep(1,n.Resampling))
 			res.out<-apply(res.out1,2,sample)
@@ -92,7 +101,9 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 			res.out<-res.out * res
 			stop("Error: Perturbation is no more provided!")
 		} else {
-			stop("Error: Wrong resampling method!")
+			if(is.null(res.out)){
+				stop("Error: Wrong resampling method!")
+			}
 		}
 		res.out<-res.out - mu
 	}
@@ -136,7 +147,7 @@ SKAT_Null_Model = function(formula, data=NULL, out_type="C", n.Resampling=0, typ
 		#}
 
 		
-		re<-SKAT_Null_Model_MomentAdjust(formula, data, n.Resampling, type.Resampling="bootstrap", is_kurtosis_adj=TRUE, n.Resampling.kurtosis=n.Resampling.kurtosis)
+		re<-SKAT_Null_Model_MomentAdjust(formula, data, n.Resampling, type.Resampling=type.Resampling, is_kurtosis_adj=TRUE, n.Resampling.kurtosis=n.Resampling.kurtosis)
 		return(re)
 	}
 
@@ -151,6 +162,7 @@ SKAT_Null_Model = function(formula, data=NULL, out_type="C", n.Resampling=0, typ
 	} else {
 		re<-Get_SKAT_Residuals.logistic (formula, data, n.Resampling, type.Resampling, id_include )
 	}
+
 
 	class(re)<-"SKAT_NULL_Model"
 	return(re)
@@ -184,6 +196,7 @@ SKAT_Null_Model_MomentAdjust = function(formula, data=NULL, n.Resampling=0, type
 	class(re1)<-"SKAT_NULL_Model"
 	re<-list(re1=re1, re2=re2, is_kurtosis_adj= is_kurtosis_adj, type = "binary")
 
+	
 	class(re)<-"SKAT_NULL_Model_ADJ"
 	return(re)
 	
