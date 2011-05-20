@@ -58,7 +58,7 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 			if(is.null(res.out)){
 				type.Resampling="bootstrap"
 			}
-		
+			res.out<-res.out - mu
 		} 
 		
 		if(type.Resampling=="permutation"){
@@ -96,6 +96,7 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 				
 				res.out[id_case,i]<-1
 			}	
+			res.out<-res.out - mu
 		} else if(type.Resampling=="perturbation"){
 			res.out<-matrix(rnorm(n1*n.Resampling,mean=0,sd=1),ncol=n.Resampling)
 			res.out<-res.out * res
@@ -105,7 +106,7 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 				stop("Error: Wrong resampling method!")
 			}
 		}
-		res.out<-res.out - mu
+		
 	}
 
   	return(list(res=res, X1=X1,res.out=res.out,out_type="D", 

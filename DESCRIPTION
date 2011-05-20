@@ -1,14 +1,15 @@
 Package: SKAT
 Type: Package
 Title: SNP-set (Sequence) Kernel Association Test
-Version: 0.83
-Date: 2011-04-15
+Version: 0.90
+Date: 2011-05-20
 Author: Seunggeun Lee, Larisa Miropolsky and Micheal Wu
 Maintainer: Seunggeun (Shawn) Lee <phila78@gmail.com>
 Description: Kernel based SNP set test
 License: GPL (>= 2)
 Depends: R (>= 2.13.0)
-Packaged: 2013-04-28 04:38:54 UTC; sglee
+Suggests: seqminer
+Packaged: 2013-05-23 17:18:38 UTC; sglee
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-05-09 16:59:57
+Date/Publication: 2013-05-23 19:55:04

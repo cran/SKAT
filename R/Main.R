@@ -62,6 +62,7 @@ SKAT_MAIN_Check_OutType<-function(out_type){
 #	Check the Z, and do imputation
 #
 #
+
 SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff){
 
 	#############################################
@@ -155,7 +156,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 	IDX.Err<-which(MAF > 0.5)	
 	if(length(IDX.Err) > 0){
 		#msg<-sprintf("Genotypes of some variants are not the number of minor allele! It is fixed!")
-		msg<-sprintf("Genotypes of some variants are not the number of minor alleles! Flipped the genotypes!")
+		msg<-sprintf("Genotypes of some variants are not the number of minor alleles! These genotypes are flipped!")
 		warning(msg,call.=FALSE)
 		
 		Z[,IDX.Err]<-2-Z[,IDX.Err]

@@ -110,9 +110,9 @@ SKAT(Z, obj, kernel = "linear.weighted", weights=weights)$p.value
 
 
 
-\subsection{Unified Test}
+\subsection{Combined Test of collapsing and SKAT}
 
-The test statistic of the unified test is
+The test statistic of the combined test is
 $$Q_{\rho} = (1-\rho) Q_S + \rho Q_B,$$
 where $Q_S$ is a test statistic of SKAT, and $Q_B$ is a score test statistic of weighted burden test. Thus, $\rho=0$ results in the original weighted linear kernel SKAT, and $\rho=1$ results in the weighted burden test.
 You can specify $\rho$ value using the r.corr parameter (default: , r.corr=0).
@@ -139,6 +139,29 @@ SKAT(Z, obj, method="optimal.adj")$p.value
 
 @
 
+\subsection{Combined test of rare and common variants}
+
+If you want to test the combined effects of common and rare variants,  you can use SKAT\_CommonRare function. 
+
+<<SKAT43>>=
+# Combined sum test (SKAT-C and Burden-C)
+
+SKAT_CommonRare(Z, obj)$p.value
+SKAT_CommonRare(Z, obj, r.corr.rare=1, r.corr.common=1 )$p.value
+
+# Adaptive test (SKAT-A and Burden-A)
+
+SKAT_CommonRare(Z, obj, method="A")$p.value
+SKAT_CommonRare(Z, obj, r.corr.rare=1, r.corr.common=1, method="A" )$p.value
+
+@
+
+The detailed description of each method can be found in the following reference. \\
+
+Ionita-Laza, I.*, Lee, S.*, Makarov, V., Buxbaum, J. Lin, X. (2013). 
+Sequence kernel association tests for the combined effect of rare and common variants.  
+\emph{American Journal of Human Genetics}, in press.  \\
+* contributed equally. 
 
 \subsection{Imputing missing genotypes.}
 
@@ -297,6 +320,19 @@ weights = Get_Logistic_Weights(Z, par1=0.07, par2=150)
 SKAT(Z, obj, weights=weights)$p.value
 
 @
+
+SKAT\_CommonRare function also can be used with SSD files. 
+
+<<SKAT_B5>>==
+
+# test all genes in SSD file
+obj<-SKAT_Null_Model(y ~ X1 + X2, out_type="C")
+out<-SKAT_CommonRare.SSD.All(SSD.INFO, obj)
+out
+
+
+@
+
 
 After finishing, please close the SSD file. 
 

@@ -26,8 +26,9 @@ type.Resampling="bootstrap", is_kurtosis_adj=TRUE, n.Resampling.kurtosis=10000)
 
 When the trait is binary, the SKAT can produce conservative results when the sample size is small. To address this, we recently have developed a small sample adjustment method, which adjust asymptotic null distribution by estimating small sample variance and kurtosis. The small smaple variance is estimated analytically, and the small sample kurtosis is estimated using the resampling approach.
 
-There are 2 different methods to get resampled residuals.
+There are 3 different methods to get resampled residuals.
 "bootstrap" conducts the parametric bootstrap to resample residuals under the NULL model with considering covariates. 
+"bootstrap.fast" (only for binary traits) is a fast implementation of "bootstrap".
 If there is no covariate, "bootstrap" is equivalent to the permutation method.
 "perturbation" perturbs the residuals by multiplying mean zero and variance one normal random variable. The default method is "bootstrap".
 
