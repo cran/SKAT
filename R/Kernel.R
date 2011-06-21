@@ -22,6 +22,9 @@ call_Kernel_IBS_Weight<-function(Z,n,p,weights){
 	if( is.null(weights)){
 		weights = rep(0,p);
 		given_weight = 0;
+	} else {
+		# change!!
+		weights<-weights^2;
 	}
 	K<- matrix(rep(0,n*n),nrow = n, ncol = n)	
 	temp<-.C("Kernel_IBS_Weight",as.integer(as.vector(t(Z))),as.integer(n), as.integer(p),as.integer(given_weight),
@@ -39,18 +42,6 @@ call_Kernel_2wayIX<-function(Z,n,p){
 
 lskmTest.GetKernel = function(Z, kernel, weights,n,m){
 
-	if (kernel == "linear") {
-      		K = Z%*%t(Z)/m
-    	}
-    	if (kernel == "linear.weighted") {
-     		#K = matrix(nrow = n, ncol = n)
-      		if (is.null(weights)) {
-        		qs = apply(Z, 2, mean)/(2)
-        		weights = 1/sqrt(qs)
-      		}
-      		Z1 = t(t(Z)*(weights))
-      		K = Z1%*%t(Z1)/m
-    	} 
     	if (kernel == "quadratic") {
       		K = (Z%*%t(Z)+1)**2
     	}
@@ -60,6 +51,7 @@ lskmTest.GetKernel = function(Z, kernel, weights,n,m){
       		K = call_Kernel_IBS(Z,n,m)
     	}
     	if (kernel == "IBS.weighted") {
+
       		K = call_Kernel_IBS_Weight(Z,n,m,weights)
     	}
   	if (kernel == "2wayIX") {
@@ -70,7 +62,9 @@ lskmTest.GetKernel = function(Z, kernel, weights,n,m){
       		if (is.null(weights)) {
         		qs = apply(Z, 2, mean)/(2)
         		weights = 1/sqrt(qs)
-      		}
+      		} else {
+			weights<-weights^2
+		}
       		K1 = matrix(nrow =n, ncol = n)
       		for (i in 1:n) {
         		K1[i,] = apply(abs(t(Z)-Z[i,])*weights,2, sum)

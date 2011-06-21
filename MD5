@@ -1,4 +1,4 @@
-eae8b2eba785ee6a4494dc0d57b00136 *DESCRIPTION
+d4fe116718a9dfafd72644e5bde22884 *DESCRIPTION
 91200fad1a7abf0bd2a6288f33694ee3 *NAMESPACE
 1d71c5f98b8afed87f2c55f4f1e62190 *R/Function.R
 1dfb97d6d0ed6d4e023825ed0b22627a *R/Function_Power_Resampling.R
@@ -7,12 +7,12 @@ aeb01912fa7696ed7dae5b8012f1249a *R/KMTest_Logistic.R
 33f8c08f2ccd000b7cd2e89e6e7312da *R/KMTest_Logistic_VarMatching.R
 92b59aadbbac15eed256268a8fc72803 *R/KMTest_Optimal.R
 853c16efc7c8e7230286a5b79d2c92be *R/KMTest_Optimal_VarMatching.R
-69e58ee1e1abd3b6a1011f561d105927 *R/Kernel.R
+a270d1f8802d88edb99d9e9ed343d164 *R/Kernel.R
 22bdf30d46adf06b4a9b695037501297 *R/Main.R
 dedd98339da2922e136233176d41fdfa *R/Main_SSD.R
 66ce4e65dc9e3840c24b919a3c6d2b5e *R/Null_Model.R
-d19eb43269d41058ac658f4772ec5d1b *R/Power.R
-3ee5aca07101be9b950d6fd8bf463047 *R/Power_Corr.R
+5704ca2797f81bf19b6e6ed7dfd96e6e *R/Power.R
+42a6078313aaa5c3ee2826f7cbe907a9 *R/Power_Corr.R
 192e270bf689a25409a2b16e5aaaab5e *R/SKAT_CompQuadForm.R
 7e3fb60e086155509a9f6915f75c506a *R/SSD.R
 00d8424ccbb4423afa3fed1a15bc05e7 *data/SKAT.example.rda
@@ -23,7 +23,7 @@ ba60f2917612cca53407a1933d988f39 *inst/doc/Example1.SetID
 e3b99ed0a36686c879c840e293e7687d *inst/doc/Example1.bim
 9a8d91e7b3c8d88b3d465b2c5ee5e614 *inst/doc/Example1.fam
 40344d9daf587ad38eda15074535dbc5 *inst/doc/SKAT.Rnw
-fefcf0e8a61bb0c9c58d45141a584a5b *inst/doc/SKAT.pdf
+611f2ff6bf64f04eed181c2bea4185d8 *inst/doc/SKAT.pdf
 c15e095daf297308d467f36902f60e62 *man/Close_SSD.rd
 d49220922e600dfd17ba774ebcab9aae *man/Generate_SSD_SetID.rd
 f9800e7e2bc262cf021d87dd53df0876 *man/Get_Genotypes_SSD.rd

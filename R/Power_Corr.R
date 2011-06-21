@@ -180,7 +180,7 @@ Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 		# Seunggeun Change
 		#eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 		#eta1<-eta[H1] + eta[H2]
-		eta1<-(X1[,Causal.Idx] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		eta1<-(as.matrix(X1[,Causal.Idx]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 
 		#print(Beta)
 		#####################################
@@ -259,7 +259,7 @@ Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Lengt
 		# Seunggeun Change
 		#eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 		#eta1<-eta[H1] + eta[H2]
-		eta1<-(X1[,Causal.Idx] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		eta1<-(as.matrix(X1[,Causal.Idx]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 
 		#print(Causal.Idx)
 		#print(Beta)

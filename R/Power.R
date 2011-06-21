@@ -77,7 +77,16 @@ Get_RequiredSampleSize_OLD<-function(Power.Est, Power=0.8){
 Get_CausalSNPs<-function(MAF, Causal.Ratio, Causal.MAF.Cutoff){
 
 	IDX<-which(MAF < Causal.MAF.Cutoff)
+	if(length(IDX) == 0){
+		msg<-sprintf("No SNPs with MAF < %f",Causal.MAF.Cutoff)
+		stop(msg)
+	}
+	
+
 	N.causal<-round(Causal.Ratio * length(IDX))
+	if(N.causal < 1){
+		N.causal = 1
+	}
 	#print(N.causal)
 	#print(Causal.Ratio)
 	#print(length(IDX))
@@ -423,7 +432,7 @@ Power_Logistic<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1
 		Beta = Get_Beta(OR.Type, Marker.Causal.MAF, log(MaxOR),Negative.Percent/100)
 
 		Causal.Idx1<-IDX.Marker[Causal.Idx]
-		eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		eta<-(as.matrix(Haplotypes[,Causal.Idx1]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 		eta1<-eta[H1] + eta[H2]
 
 		#print(Beta)
@@ -498,8 +507,10 @@ Power_Continuous<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 		Beta = Get_Beta(BetaType, Marker.Causal.MAF, MaxBeta,Negative.Percent/100)
 
 		Causal.Idx1<-IDX.Marker[Causal.Idx]
-		eta<-(Haplotypes[,Causal.Idx1] %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
+		eta<-(as.matrix(Haplotypes[,Causal.Idx1]) %*% Beta)[,1] - (t(Marker.Causal.MAF *2)  %*% Beta)[1,1]
 		eta1<-eta[H1] + eta[H2]
+		
+
 		out.r_2[i]<-sum(Beta^2*2*Marker.Causal.MAF*(1-Marker.Causal.MAF))
 
 		
