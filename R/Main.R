@@ -113,7 +113,8 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		}
 		warning(msg,call.=FALSE)
 		
-		re<-list(p.value = 1, p.value.resampling =NA, Test.Type = NA, Q = NA, param=list(n.marker=0, n.marker.test=0), return=1 )   
+		re<-list(p.value = 1, p.value.resampling =NA, Test.Type = NA, Q = NA, param=list(n.marker=0, n.marker.test=0), return=1 ) 
+		return(re)		  
 
 	} else if(m - length(ID_INCLUDE_SNP) > 0 ){
 

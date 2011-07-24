@@ -166,7 +166,8 @@ SKAT_Optimal_Integrate_Func_VarMatching<-function(x, pmin.q, muQ, varQ, df, tau,
 SKAT_Optimal_PValue_VarMatching<-function(pmin.q, muQ, varQ, df, tau, r.all){
 	
 	
-	re<-integrate(SKAT_Optimal_Integrate_Func_VarMatching, lower=0, upper=30, subdivisions=500, pmin.q=pmin.q, muQ=muQ, varQ=varQ, df=df, tau=tau, r.all=r.all, abs.tol = 10^-15)
+	re<-integrate(SKAT_Optimal_Integrate_Func_VarMatching, lower=0, upper=40, subdivisions=2000, pmin.q=pmin.q, muQ=muQ, varQ=varQ, df=df
+	, tau=tau, r.all=r.all, abs.tol = 10^-25)
 	
 	pvalue<-1-re[[1]]
 	return(pvalue)
@@ -213,6 +214,36 @@ SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all
 		# there was bug in this part, and fixed it
 		pval[i]<-SKAT_Optimal_PValue_VarMatching(pmin.q[i,], muQ, varQ, df, tau, r.all)
 	}
+	
+	# Check the pval 
+	# If there is any Each_Info$pval ==0, it does not work properly.
+	# Since SKAT-O is between burden and SKAT, SKAT-O p-value should be <= min(p-values) * 2
+	# To correct conservatively, we use min(p-values) * 3 when number(r.all) >= 3
+	
+	
+	multi<-3
+	if(length(r.all) < 3){
+		multi<-2
+	}
+	
+	for(i in 1:n.q){
+		pval.each<-Each_Info$pval[i,]
+		IDX<-which(pval.each > 0)
+		
+		pval1<-min(pval.each) * multi
+		if(pval[i] < 0 || length(IDX) < length(r.all)){
+			pval[i]<-pval1
+		}
+		
+		# if pval==0, use nonzero min each.pval as p-value
+		if(pval[i] == 0){
+			if(length(IDX) > 0){
+				pval[i] = min(pval.each[IDX])
+			}
+		}
+	}
+	
+	
 	
 	return(list(p.value=pval, p.val.each=p.val.each))
 

@@ -39,12 +39,14 @@
 
 
 #include <iostream>  
+using namespace std;
+
 
 enum DATA2SORT
 {
 	D_INT,
 	D_DOUBLE,
-	D_CHARSTAR,
+	D_CHARSTAR
 };
 
 class sort_data  

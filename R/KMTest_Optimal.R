@@ -118,7 +118,7 @@ SKAT_Optimal_Integrate_Func_Davies<-function(x,pmin.q,param.m,r.all){
 			sd1<-sqrt(param.m$VarQ - param.m$VarRemain)/sqrt(param.m$VarQ)
 			min1.st<-min1.temp *sd1 + param.m$MuQ
 			
-			dav.re<-SKAT_davies(min1.st,param.m$lambda,acc=10^(-6))
+			dav.re<-SKAT:::SKAT_davies(min1.st,param.m$lambda,acc=10^(-6))
 			temp<-dav.re$Qq
 			if(dav.re$ifault != 0){
 				stop("dav.re$ifault is not 0")
@@ -137,16 +137,17 @@ SKAT_Optimal_Integrate_Func_Davies<-function(x,pmin.q,param.m,r.all){
 
 SKAT_Optimal_PValue_Davies<-function(pmin.q,param.m,r.all){
 
-	re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=30, subdivisions=500,pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-15), silent = TRUE)
+	#re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=30, subdivisions=500, pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-15), silent = TRUE)
+
+	re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=40, subdivisions=1000, pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-25), silent = TRUE)
+
 	if(class(re) == "try-error"){
 		re<-SKAT_Optimal_PValue_Liu(pmin.q,param.m,r.all)
 		return(re)
 	} 
 
 	pvalue<-1-re[[1]]
-	if(pvalue < 0){
-		pvalue=0
-	}
+	
 	return(pvalue)
 
 }
@@ -170,6 +171,7 @@ SKAT_Optimal_Integrate_Func_Liu<-function(x,pmin.q,param.m,r.all){
 
 	temp.q<-(temp.min - param.m$MuQ)/sqrt(param.m$VarQ)*sqrt(2*param.m$Df) + param.m$Df
 	re<-pchisq(temp.q ,df=param.m$Df) * dchisq(x,df=1)
+	
 	return(re)
 
 }
@@ -177,8 +179,8 @@ SKAT_Optimal_Integrate_Func_Liu<-function(x,pmin.q,param.m,r.all){
 
 SKAT_Optimal_PValue_Liu<-function(pmin.q,param.m,r.all){
 
-	 re<-integrate(SKAT_Optimal_Integrate_Func_Liu, lower=0, upper=30, subdivisions=500
-	,pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-15)
+	 re<-integrate(SKAT_Optimal_Integrate_Func_Liu, lower=0, upper=40, subdivisions=2000
+	,pmin.q=pmin.q,param.m=param.m,r.all=r.all,abs.tol = 10^-25)
 	
 	pvalue<-1-re[[1]]
 	return(pvalue)
@@ -277,6 +279,36 @@ SKAT_Optimal_Get_Pvalue<-function(Q.all, Z1, r.all, method){
 	} else {
 		stop("Invalid Method!")
 	}
+	
+	# Check the pval 
+	# Since SKAT-O is between burden and SKAT, SKAT-O p-value should be <= min(p-values) * 2
+	# To correct conservatively, we use min(p-values) * 3
+	
+	multi<-3
+	if(length(r.all) < 3){
+		multi<-2
+	}
+
+	for(i in 1:n.q){
+		pval.each<-Each_Info$pval[i,]
+		IDX<-which(pval.each > 0)
+		
+		pval1<-min(pval.each) * multi
+		if(pval[i] <= 0 || length(IDX) < length(r.all)){
+			pval[i]<-pval1
+		}
+		
+		# if pval==0, use nonzero min each.pval as p-value
+		if(pval[i] == 0){
+			if(length(IDX) > 0){
+				pval[i] = min(pval.each[IDX])
+			}
+		}
+	
+		
+		
+	}
+	
 	return(list(p.value=pval,p.val.each=Each_Info$pval))
 
 }
