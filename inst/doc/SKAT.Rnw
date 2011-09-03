@@ -308,7 +308,7 @@ attach(SKAT.haplotypes)
 
 SKAT package provides functions to compute the power/sample size 
 for future sequence association studies.  
-We conducted sample size calculation using the haplotypes in SKAT.haplotypes with 
+In the following example, we conducted sample size calculation using the haplotypes in SKAT.haplotypes with 
 the following parameters. 
 
 \begin{enumerate}
@@ -335,14 +335,42 @@ Get_RequiredSampleSize(out.b, Power=0.8)
 @
 
 In this example, we used N.Sim=10 to get results quickly. 
-When you do power calculation, please increase it to more than 100. 
-If you use  BetaType = ``Log'' or OR.Type = ``Log'', the effect size of  continuous trait 
+When you do the power calculation, please increase it to more than 100. 
+When BetaType = ``Log'' or OR.Type = ``Log'', the effect size of  continuous trait 
 and the log odds ratio of binary traits are $c |log_{10}(MAF)|$, 
 where $c$ is determined by Max\_Beta or Max\_OR. 
 For example, $ c= 2/4 = 0.5$ when the Max\_Beta = 2. 
 In this case, a causal variant with MAF=0.01 has $\beta = 1$. 
 For binary traits, $c= log(7)/4 = 0.486$ with MAX\_OR=7. 
 And thus, a causal variant with MAF=0.01 has log OR = 0.972.
+
+If different r.corr ($\rho$) values to be used to compute the power, 
+Power\_Continuous\_R or Power\_Logistic\_R functions can be used instead.
+For example, r.corr=0 is SKAT and r.corr=1 is a burden test.
+Since they use slightly different method to compute the power, 
+the powers from Power\_Continuous\_R and Power\_Logistic\_R can be slightly different from 
+the powers from Power\_Continuous and Power\_Logistic although r.corr=0.
+
+If you want to computer the power of SKAT-O by estimating the optimal r.corr, use r.corr=2. 
+The estimated optimal r.corr is 
+$$
+r.corr = p_1^2 ( 2p_2-1)^2,
+$$
+where $p_1$ is the proportion of nonzero $\beta$s, and $p_2$ is the proportion of negative (or positive) $\beta$s 
+among the non-zero $\beta$s. 
+
+
+<<SKAT_P2>>==
+set.seed(500)
+out.c<-Power_Continuous_R(Haplotype,SNPInfo$CHROM_POS, SubRegion.Length=5000,    
+Causal.Percent= 20, N.Sim=10, MaxBeta=2,Negative.Percent=20, r.corr=2)
+
+out.c
+
+Get_RequiredSampleSize(out.c, Power=0.8)
+
+@
+
 
 \end{document}
 

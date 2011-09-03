@@ -86,25 +86,30 @@ The Q has NA, when you use this method.
 
 \references{
 
-Lee, S., Wu, M. C., and Lin, X. (2012)  Optimal tests for rare variant effects in sequencing association studies. \emph{Biostatistics} in press.
+Lee, S., Emond, M.J., Bamshad, M.J., Barnes, K.C., Rieder, M.J., Nickerson, D.A., 
+NHLBI GO Exome Sequencing Project-ESP Lung Project Team, Christiani, D.C., Wurfel, M.M. and Lin, X. (2012) 
+Optimal unified approach for rare variant association testing with application to small sample 
+case-control whole-exome sequencing studies. \emph{American Journal of Human Genetics}, 91, 224-237.
+
+Lee, S., Wu, M. C., and Lin, X. (2012)  Optimal tests for rare variant effects in sequencing association studies. \emph{Biostatistics}, in press.
 
 Wu, M. C.*, Lee, S.*, Cai, T., Li, Y., Boehnke, M., and Lin, X. (2011)  Rare Variant Association Testing for Sequencing Data Using the Sequence Kernel Association Test (SKAT). \emph{American Journal of Human Genetics}, 89, 82-93. \\
 * contributed equally. 
 
-Wu, M. C., Kraft, P., Epstein, M. P.,Taylor, D., M., Chanock, S. J., Hunter, D., J., and Lin, X. (2010)  Powerful SNP Set Analysis for Case-Control GenomeWide Association Studies. \emph{American Journal of Human Genetics}, 86, 929-942.
+Wu, M. C., Kraft, P., Epstein, M. P.,Taylor, D., M., Chanock, S. J., Hunter, D., J., and Lin, X. (2010)  Powerful SNP Set Analysis for Case-Control Genome-wide Association Studies. \emph{American Journal of Human Genetics}, 86, 929-942.
 
 
 Davies R.B. (1980) Algorithm AS 155: The Distribution of a Linear
   Combination of chi-2 Random Variables, \emph{ Journal of the Royal
-  Statistical Society. Series C }, 29(3), p. 323-333,
+  Statistical Society. Series C }, 29(3), 323-333.
 
 H. Liu, Y. Tang, H.H. Zhang (2009) A new chi-square approximation
   to the distribution of non-negative definite quadratic forms in
-  non-central normal variables, \emph{Computational Statistics and Data Analysis}, 53, 853-856
+  non-central normal variables, \emph{Computational Statistics and Data Analysis}, 53, 853-856.
 
-Duchesne, P. and Lafaye De Micheaux, P. (2010) Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, \emph{Computational Statistics and Data Analysis}, 54, 858-862 
+Duchesne, P. and Lafaye De Micheaux, P. (2010) Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, \emph{Computational Statistics and Data Analysis}, 54, 858-862. 
 
-Madsen, B. E. and Browning S. R. (2009) A Groupwise Association Test for Rare Mutations Using a Weighted Sum Statistic. \emph{PLOS Genetics}, 5: e1000384
+Madsen, B. E. and Browning S. R. (2009) A Groupwise Association Test for Rare Mutations Using a Weighted Sum Statistic. \emph{PLOS Genetics}, 5: e1000384.
 }
 
 \examples{

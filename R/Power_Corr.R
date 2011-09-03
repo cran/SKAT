@@ -121,7 +121,27 @@ Get_Power_Continuous_R<-function(Z,eta,alpha.ALL,N.Sample.ALL,Weight.Param=c(1,2
 
 }
 
+
+#
+#	p1: causal prop
+#	p2: negative prop
+Get_Optimal_rho_est<-function(p1,p2){
+	rho_est<-p1^2* (p2^2 + (1-p2)^2 - 2* p2*(1-p2))
+	return(rho_est)
+}
+
+
+
 Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1, Prevalence=0.01, Case.Prop=0.5, Causal.Percent=5, Causal.MAF.Cutoff=0.03, alpha =c(0.01,10^(-3),10^(-6)),N.Sample.ALL = 500 * (1:10), Weight.Param=c(1,25),N.Sim=100, OR.Type = "Log", MaxOR=5, Negative.Percent=0,r.corr=0){
+	
+	if(r.corr == 2){
+		r.corr = Get_Optimal_rho_est(Causal.Percent/100,Negative.Percent/100)
+	}
+	
+	if(r.corr < 0 || r.corr > 1){
+		msg<-("Error: r.corr should be either 0<= r.corr <=1 or r.corr=2 (SKAT-O)")
+		stop(msg)	
+	}
 	
 	if(is.null(Haplotypes)){
 	
@@ -198,7 +218,7 @@ Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 			print(msg)
 		}
 	}
-	re<-list(Power = OUT.ALL)
+	re<-list(Power = OUT.ALL, r.corr=r.corr)
 	class(re)<-"SKAT_Power"
 
 	return(re)
@@ -207,6 +227,15 @@ Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 
 Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1, Causal.Percent=5, Causal.MAF.Cutoff=0.03, alpha =c(0.01,10^(-3),10^(-6)),N.Sample.ALL = 500 * (1:10)
 ,Weight.Param=c(1,25),N.Sim=100,BetaType = "Log", MaxBeta=1.6, Negative.Percent=0,r.corr=0){
+	
+	if(r.corr == 2){
+		r.corr = Get_Optimal_rho_est(Causal.Percent/100,Negative.Percent/100)
+	}
+	
+	if(r.corr < 0 || r.corr > 1){
+		msg<-("Error: r.corr should be either 0<= r.corr <=1 or r.corr=2 (SKAT-O)")
+		stop(msg)	
+	}
 	
 	if(is.null(Haplotypes)){
 	
@@ -281,7 +310,7 @@ Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Lengt
 		}
 	}
 	r_sq.v<-mean(out.r_2 /(out.r_2 +1))
-	re<-list(Power = OUT.ALL, R.sq = r_sq.v)
+	re<-list(Power = OUT.ALL, R.sq = r_sq.v, r.corr=r.corr)
 	class(re)<-"SKAT_Power"
 
 	return(re)

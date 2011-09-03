@@ -40,6 +40,7 @@ Power_Continuous_R(Haplotypes=NULL, SNP.Location, SubRegion.Length=-1
 	\item{Power}{A matrix with each row as a different 
 	sample size and each column as a different significance level. Each element of the matrix is the estimated power.}
   	\item{R.sq}{Proportion of phenotype variance explained by genetic variants.}
+  	\item{r.corr}{r.corr value. When r.corr=2 is used, it provides the estimated r.corr value. See details.}
 }
 \details{
 By default it use the haplotype information in the SKAT.haplotypes dataset. 
@@ -52,11 +53,17 @@ When the SubRegion.Length is small such as 3kb or 5kb, it is possible that you c
              
 R.sq is computed under the no linkage disequilibrium assumption.  
 
-Power_Continuous_R computes the power with new class of kernels with compound symmetric correlation structure. 
-It uses a slightly different method to compute power, and thus 
-Power_Continuous and Power_Continuous_R will produce slightly different results although r.corr=0.
+Power_Continuous_R computes the power with new class of kernels with the compound symmetric correlation structure. 
+It uses a slightly different approach, and thus 
+Power_Continuous and Power_Continuous_R can produce slightly different results although r.corr=0.
 
-                 
+If you want to computer the power of SKAT-O by estimating the optimal r.corr, use r.corr=2. 
+The estimated optimal r.corr is 
+\eqn{r.corr = p_1^2 ( 2p_2-1)^2},
+where \eqn{p_1} is the proportion of causal variants, and \eqn{p_2} is the proportion of negatively associated causal variants
+among the causal variants.
+
+         
 }
 
 \author{Seunggeun Lee}

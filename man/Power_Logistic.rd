@@ -38,7 +38,7 @@ Power_Logistic_R(Haplotypes = NULL, SNP.Location = NULL, SubRegion.Length=-1
       \item{OR.Type}{a function type of effect sizes (default= ``Log''). ``Log'' indicates that log odds ratio of each causal variant equals to \eqn{c|log10(MAF)|}, and ``Fixed'' indicates that log odds ratio of all causal variants are the same.}
       \item{MaxOR}{a numeric value of the maximum odds ratio (default= 5). When OR.Type=``Log'', the maximum odds ratio is MaxOR (when MAF=0.0001). When OR.Type=``Fixed'', all causal variants have the same odds ratio (= MaxOR). See details}
       \item{Negative.Percent}{a numeric value of the percentage of coefficients of causal variants that are negative (default= 0).}
-	\item{r.corr}{(Power_Logistic_R only) the \eqn{\rho} parameter of new class of kernels with compound symmetric correlation structure for genotype effects  (default= 0). See details.}
+	 \item{r.corr}{(Power_Logistic_R only) the \eqn{\rho} parameter of new class of kernels with compound symmetric correlation structure for genotype effects  (default= 0). See details.}
 
 
   
@@ -46,6 +46,7 @@ Power_Logistic_R(Haplotypes = NULL, SNP.Location = NULL, SubRegion.Length=-1
 \value{
 	\item{Power}{A matrix with each row as a different 
 	sample size and each column as a different significance level. Each element of the matrix is the estimated power.}
+  	\item{r.corr}{r.corr value. When r.corr=2 is used, it provides the estimated r.corr value. See details.}
   
 }
 \details{
@@ -57,9 +58,15 @@ and used to obtain c value in the function \eqn{\log OR = c|log10(MAF)|}. For ex
 
 When the SubRegion.Length is small such as 3kb or 5kb, it is possible that you can have different estimated power for each run with N.Sim = \eqn{50 \sim 100}. Then, please increase N.Sim to \eqn{500 \sim 1000} to obtain stable results. 
 
-Power_Logistic_R computes the power with new class of kernels with compound symmetric correlation structure. 
-It uses a slightly different method to compute power, and thus 
-Power_Logistic and Power_Logistic_R will produce slightly different results although r.corr=0.
+Power_Logistic_R computes the power with new class of kernels with the compound symmetric correlation structure. 
+It uses a slightly different approach, and thus 
+Power_Logistic and Power_Logistic_R can produce slightly different results although r.corr=0.
+
+If you want to computer the power of SKAT-O by estimating the optimal r.corr, use r.corr=2. 
+The estimated optimal r.corr is 
+\eqn{r.corr = p_1^2 ( 2p_2-1)^2},
+where \eqn{p_1} is the proportion of causal variants, and \eqn{p_2} is the proportion of negatively associated causal variants
+among the causal variants.
 
                         
 }

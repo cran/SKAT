@@ -162,6 +162,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	##########################################
 	# Missing Imputation
+	IDX_MISS<-union(which(is.na(Z)),which(Z == 9))
 	if(length(IDX_MISS) > 0){
 		if(is.null(SetID)){
 			msg<-sprintf("The missing genotype rate is %f. Imputation is applied.", (length(IDX_MISS))/length(Z) )
@@ -299,7 +300,8 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 	}
 
 	if(obj.res$out_type == "C"){
-		  if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
+		  #if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
+		  if( kernel =="linear" || kernel == "linear.weighted"){
 		    re = SKAT.linear.Linear(obj.res$res,out.z$Z.test
 			,obj.res$X1, kernel, out.z$weights,obj.res$s2,method
 			,obj.res$res.out, obj.res$n.Resampling,r.corr=r.corr)
@@ -310,7 +312,8 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 		  }
 	} else if (obj.res$out_type == "D"){
 
-		if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
+		#if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
+		if( kernel =="linear" || kernel == "linear.weighted"){
 			re = SKAT.logistic.Linear(obj.res$res, out.z$Z.test
 			,obj.res$X1, kernel, out.z$weights, obj.res$pi_1,method
 			,obj.res$res.out, obj.res$n.Resampling,r.corr=r.corr)
