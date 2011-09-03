@@ -275,6 +275,10 @@ SKAT_Get_Cov_Param<-function(lambda,p_all,U){
 				Cov_Mat[i,j]<-Cov_Mat[i,j]* lambda[i]* lambda[j]
 			}
 		}
+	} else{
+		msg<-sprintf("Error SKAT_Get_Cov_Param: p.m=%d \n", p.m)
+		stop(msg)
+	
 	}
 	
 	Cov_Mat<-Cov_Mat + t(Cov_Mat)

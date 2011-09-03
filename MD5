@@ -1,11 +1,11 @@
-aebfad68e398a03b265a6a92150613d7 *DESCRIPTION
+d397c335c64d24259c74da9213b9ee57 *DESCRIPTION
 91200fad1a7abf0bd2a6288f33694ee3 *NAMESPACE
-1d71c5f98b8afed87f2c55f4f1e62190 *R/Function.R
+180e0ec5e99043829aea1fff22cc43fa *R/Function.R
 1dfb97d6d0ed6d4e023825ed0b22627a *R/Function_Power_Resampling.R
 ecee6a0f727be4fe62d5a6494bf1e11b *R/KMTest_Linear.R
 aeb01912fa7696ed7dae5b8012f1249a *R/KMTest_Logistic.R
-33f8c08f2ccd000b7cd2e89e6e7312da *R/KMTest_Logistic_VarMatching.R
-81009ecb31e01e1f9ad7753dbd135254 *R/KMTest_Optimal.R
+81f9f70109fa2dc8eb37fcb35bc0889c *R/KMTest_Logistic_VarMatching.R
+8caaada8528885ea14d159b18c88038e *R/KMTest_Optimal.R
 5ff61f1e2188ea06c83a4b5f9b3345c8 *R/KMTest_Optimal_VarMatching.R
 a270d1f8802d88edb99d9e9ed343d164 *R/Kernel.R
 a7d14a52e9b3e106898d232a34a95ff1 *R/Main.R
@@ -23,7 +23,7 @@ ba60f2917612cca53407a1933d988f39 *inst/doc/Example1.SetID
 e3b99ed0a36686c879c840e293e7687d *inst/doc/Example1.bim
 9a8d91e7b3c8d88b3d465b2c5ee5e614 *inst/doc/Example1.fam
 40344d9daf587ad38eda15074535dbc5 *inst/doc/SKAT.Rnw
-7ab9d0482742037b617a20b0a15595c9 *inst/doc/SKAT.pdf
+0dbff698c6987f6b7624cc5ae2712b55 *inst/doc/SKAT.pdf
 c15e095daf297308d467f36902f60e62 *man/Close_SSD.rd
 d49220922e600dfd17ba774ebcab9aae *man/Generate_SSD_SetID.rd
 f9800e7e2bc262cf021d87dd53df0876 *man/Get_Genotypes_SSD.rd
@@ -38,7 +38,7 @@ b277bfda9f567a5c01ac8e28432ab457 *man/Open_SSD.rd
 3aba9ec25d378071cedfcb7fc8bb7554 *man/SKAT.SSD.All.rd
 8d815f91cd850341802b9ecc334a1569 *man/SKAT.example.rd
 32db14db92e122e11566931363c6ded8 *man/SKAT.haplotypes.rd
-37acc83a37176b7163e1201ae08b04e1 *man/SKAT.rd
+a78603ed8536b6fbaf2a917d6414691a *man/SKAT.rd
 d8b382740ac36d34123e8d634119df14 *man/SKAT_Null_Model.rd
 e28440439fe71f4e6500ad5b642b2d96 *man/SKAT_Null_Model_MomentAdjust.rd
 6abae0d1663d5a07b8e6cf01898f810c *man/SSD_FILE_OPEN.rd

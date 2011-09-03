@@ -49,9 +49,13 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
 	\item{p.value.resampling}{the p-value from resampled outcome. You can get it when you use obj from SKAT_Null_Model function with resampling. See the SKAT_Null_Model. }
 	\item{p.value.noadj}{the p-value of SKAT without the small sample adjustment. It only appears when small sample adjustment is applied.}
 	\item{p.value.noadj.resampling}{the p-value from resampled outcome without the small sample adjustment. It only appears when small sample adjustment is applied. }
-  	\item{Q}{the test statistic of SKAT.}
+  	\item{Q}{the test statistic of SKAT. It has NA when method="optimal".}
 	\item{param}{estimated parameters of each method.}   
 	\item{param$Is_Converged}{ (only with method="davies") an indicator of the convergence. 1 indicates the method is converged, and 0 indicates the method is not converged. When 0 (not converged), "liu" method is used to compute p-value. }  
+	\item{param$n.marker}{a number of SNPs in the genotype matrix}  
+	\item{param$n.marker.test}{a number of SNPs used for the test. It can be different from param$n.marker when 
+	some markers are monomorphic or have higher missing rates than the missing_cutoff. }  
+
 }
 \details{
 The old interface is defunct. Please use the output object of SKAT_Null_Model to run SKAT.
@@ -72,6 +76,7 @@ r.corr represents the \eqn{\rho} parameter of the unified test,
 , where \eqn{Q_S} is a test statistic of SKAT, and \eqn{Q_B} is a score test statistic of weighted burden test. Thus, \eqn{\rho=0} results in the original weighted linear kernel SKAT, and \eqn{\rho=1} results in the weighted burden test (default: \eqn{\rho=0}). If r.corr is a vector, the optimal test will be conducted with automatically seleting \eqn{\rho} from given r.corr. \eqn{\rho} should be a value between 0 and 1. 
 
 If method="optimal", the optimal test is conducted with equal sized grid of 11 points (from 0 to 1).
+The Q has NA, when you use this method.
                                           
 
 }

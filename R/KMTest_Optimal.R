@@ -305,8 +305,6 @@ SKAT_Optimal_Get_Pvalue<-function(Q.all, Z1, r.all, method){
 			}
 		}
 	
-		
-		
 	}
 	
 	return(list(p.value=pval,p.val.each=Each_Info$pval))

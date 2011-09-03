@@ -212,12 +212,16 @@ Get_Lambda_U_From_Z<-function(Z1){
 		return(list( lambda = lambda, U = cbind(U)))
 	}
 
-	try1<-try(svd(Z1, LINPACK = TRUE),silent = TRUE)
-	if(class(try1) == "try-error"){
-		# try LAPACK
-		try1<-try(svd(Z1, LINPACK = FALSE),silent = TRUE)
-	}
+	#########################################
+	#try1<-try(svd(Z1, LINPACK = TRUE),silent = TRUE)
+	#
+	#if(class(try1) == "try-error"){
+	#	# try LAPACK
+	#	try1<-try(svd(Z1, LINPACK = FALSE),silent = TRUE)
+	#}
 
+	try1<-try(svd(Z1),silent = TRUE)
+	
 	if(class(try1) == "try-error"){
 		stop("SVD error!");
 	} else {
