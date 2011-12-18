@@ -1,3 +1,6 @@
+SSD.env <- new.env()
+
+
 Print_Error_SSD<-function(code){
 
 	if(code == 0 ){
@@ -281,20 +284,18 @@ Kill_SSD_MovingWindow<-function(){
 #
 #	Open and Close the SSD Files
 
-SSD_FILE_OPEN.isOpen = 0
-SSD_FILE_OPEN.FileName = ""
 
-#assign("SSD_FILE_OPEN.isOpen", 0, envir=.GlobalEnv)
-#assign("SSD_FILE_OPEN.FileName","", envir=.GlobalEnv)
+assign("SSD_FILE_OPEN.isOpen", 0, envir=SSD.env)
+assign("SSD_FILE_OPEN.FileName","", envir=SSD.env)
 
 Close_SSD<-function(){
 
-	if(get("SSD_FILE_OPEN.isOpen", envir=.GlobalEnv) == 1){
+	if(get("SSD_FILE_OPEN.isOpen", envir=SSD.env) == 1){
 		temp<-.C("R_Close_MWA")
 		Msg<-sprintf("Close the opened SSD file: %s\n"
-		,get("SSD_FILE_OPEN.FileName", envir=.GlobalEnv));
+		,get("SSD_FILE_OPEN.FileName", envir=SSD.env));
 		cat(Msg)
-		assign("SSD_FILE_OPEN.isOpen", 0, envir=.GlobalEnv);
+		assign("SSD_FILE_OPEN.isOpen", 0, envir=SSD.env);
 	} else{
 		Msg<-sprintf("No opened SSD file!\n");
 		cat(Msg)		
@@ -310,7 +311,7 @@ Open_SSD<-function(File.SSD, File.Info){
 	Check_File_Exists(File.SSD)
 	Check_File_Exists(File.Info)
 
-	if(get("SSD_FILE_OPEN.isOpen", envir=.GlobalEnv) == 1){
+	if(get("SSD_FILE_OPEN.isOpen", envir=SSD.env) == 1){
 		Close_SSD();
 	}
 
@@ -331,8 +332,8 @@ Open_SSD<-function(File.SSD, File.Info){
 	#SSD_FILE_OPEN.isOpen<<-1
 	#SSD_FILE_OPEN.FileName<<-File.SSD
 
-	assign("SSD_FILE_OPEN.isOpen", 1, envir=.GlobalEnv)
-	assign("SSD_FILE_OPEN.FileName",File.SSD, envir=.GlobalEnv)
+	assign("SSD_FILE_OPEN.isOpen", 1, envir=SSD.env)
+	assign("SSD_FILE_OPEN.FileName",File.SSD, envir=SSD.env)
 
 
 	return(INFO)
@@ -350,7 +351,7 @@ Open_SSD<-function(File.SSD, File.Info){
 Get_Genotypes_SSD<-function(SSD_INFO, Set_Index){
 
 	Is_MakeFile=0
-	if(get("SSD_FILE_OPEN.isOpen", envir=.GlobalEnv) == 0){
+	if(get("SSD_FILE_OPEN.isOpen", envir=SSD.env) == 0){
 		stop("SSD file is not opened. Please open it first!")
 	}
 

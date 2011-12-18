@@ -26,13 +26,14 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
       "davies" represents an exact method that  computes the p-value by inverting the characteristic function of the mixture chisq, 
       "liu" represents an approximation method that matches the first 3 moments, 
       "liu.mod" represents modified "liu" method that matches kurtosis instead of skewness 
-      to improve tail probability approximation, and "optimal" represents a recently proposed optimal test based on an unified approach. See details.}
+      to improve tail probability approximation, "optimal.adj" represents a SKAT-O based on an unified approach, 
+      and "optimal" is an old version of the implementation of SKAT-O. See details.}
       \item{weights.beta}{a numeric vector of parameters of beta weights. 
-      It is only used with weighted kernels. 
+      It is only used for weighted kernels. 
       If you want to use your own  weights, please specify the ``weights'' parameter.}
       \item{weights}{a numeric vector of weights for the weighted kernels. 
       It is \eqn{\sqrt{w}} in the SKAT paper. 
-      So if you want to use Madsen and Browning (2009) type of weight, you should set each element of weights as \eqn{1/ \sqrt{p(1-p)}}, 
+      So if you want to use the Madsen and Browning (2009) weight, you should set each element of weights as \eqn{1/ \sqrt{p(1-p)}}, 
       not \eqn{1/ p(1-p)}. When it is NULL, the beta weight with the ``weights.beta'' parameter is used. }
       \item{impute.method}{a method to impute missing genotypes (default= "fixed"). "random" imputes missing genotypes by generating binomial(2,p) random variables (p is the MAF), and "fixed" imputes missing genotypes by assigning the mean genotype value (2p). If you use "random", you will have different p-values for different runs because imputed values are randomly assigned.}
       \item{r.corr}{the \eqn{\rho} parameter of new class of kernels with compound symmetric correlation structure for genotype effects (default= 0). If you give a vector value, SKAT will conduct the optimal test. See details.}
@@ -49,7 +50,7 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
 	\item{p.value.resampling}{the p-value from resampled outcome. You can get it when you use obj from SKAT_Null_Model function with resampling. See the SKAT_Null_Model. }
 	\item{p.value.noadj}{the p-value of SKAT without the small sample adjustment. It only appears when small sample adjustment is applied.}
 	\item{p.value.noadj.resampling}{the p-value from resampled outcome without the small sample adjustment. It only appears when small sample adjustment is applied. }
-  	\item{Q}{the test statistic of SKAT. It has NA when method="optimal".}
+  	\item{Q}{the test statistic of SKAT. It has NA when method="optimal.adj" or "optimal".}
 	\item{param}{estimated parameters of each method.}   
 	\item{param$Is_Converged}{ (only with method="davies") an indicator of the convergence. 1 indicates the method is converged, and 0 indicates the method is not converged. When 0 (not converged), "liu" method is used to compute p-value. }  
 	\item{param$n.marker}{a number of SNPs in the genotype matrix}  
@@ -62,21 +63,39 @@ The old interface is defunct. Please use the output object of SKAT_Null_Model to
 
 There are pre-specified 6 types of kernels:
 "linear", "linear.weighted", "IBS", "IBS.weighted", "quadratic" and "2wayIX".
-Among them, "2wayIX" is a product kernel consisting of main effects and interaction terms. You can use one of them or you can give your own kernel matrix as a parameter. 
+Among them, "2wayIX" is a product kernel consisting of main effects and SNP-SNP interaction terms. 
+You can use one of them or your own kernel matrix as a parameter. 
 
-The kernel matrix of weighted linear kernel is
+If you want to use dosage values instead of genotypes, set is_dosage=TRUE. 
+Please keep in mind that you cannot use plink formatted files (so SSD files) when you use dosages. Instead, 
+you should make a genotype matrix Z to run SKAT.
+
+The kernel matrix of the weighted linear kernel is
 \eqn{K = G W W G }, where G is a genotype matrix and W is a diagonal weight matrix. 
-Please note that this notation is different from the notation we used in the original SKAT paper, which was \eqn{K = G W G }. The Madsen and Browning (2009) type of weight is \eqn{w = 1/ \sqrt{p(1-p)}} in our current notation. By the previous notation, it is
-\eqn{w = 1/ p(1-p)}
+Please note that it is different from the notation we used in the original SKAT paper, 
+which was \eqn{K = G W G }. 
+The Madsen and Browning (2009) weight is \eqn{w = 1/ \sqrt{p(1-p)}} in the current notation. 
+By the previous notation, it is \eqn{w = 1/ p(1-p)}.
 
-If you want to use the SSD file, open it first, and then use either SKAT.SSD.OneSet  or SKAT.SSD.OneSet_SetIndex. Set index is a numeric value and it is automatically assigned to each set (from 1).
+If you want to use the SSD file, open it first,
+and then use either SKAT.SSD.OneSet  or SKAT.SSD.OneSet_SetIndex. 
+Set index is a numeric value and automatically assigned to each set (from 1).
 
-r.corr represents the \eqn{\rho} parameter of the unified test, 
+The r.corr represents a \eqn{\rho} parameter of the unified test, 
 \eqn{Q_{\rho} = (1-\rho) Q_S + \rho Q_B}
-, where \eqn{Q_S} is a test statistic of SKAT, and \eqn{Q_B} is a score test statistic of weighted burden test. Thus, \eqn{\rho=0} results in the original weighted linear kernel SKAT, and \eqn{\rho=1} results in the weighted burden test (default: \eqn{\rho=0}). If r.corr is a vector, the optimal test will be conducted with automatically seleting \eqn{\rho} from given r.corr. \eqn{\rho} should be a value between 0 and 1. 
+, where \eqn{Q_S} is a test statistic of SKAT, 
+and \eqn{Q_B} is a test statistic of the weighted burden test. 
+Thus, \eqn{\rho=0} results in the original weighted linear kernel SKAT, 
+and \eqn{\rho=1} results in the weighted burden test (default: \eqn{\rho=0}). 
+If r.corr is a vector, the optimal test will be conducted with adaptively seleting \eqn{\rho} from given r.corr. 
+\eqn{\rho} should be a value between 0 and 1. 
 
-If method="optimal", the optimal test is conducted with equal sized grid of 11 points (from 0 to 1).
-The Q has NA, when you use this method.
+
+We slightly changed the implementation of SKAT-O to improve the tail probability. You can run it by 
+using method="optimal.adj". It use a grid of eight points \eqn{\rho=(0, 0.1^2, 0.2^2, 0.3^2, 0.4^2, 0.5^2, 0.5, 1)} 
+to perform the search of the optimal \eqn{\rho}.   
+If you want to use the original implementation of SKAT-), use method="optimal", which conducts SKAT-O with equal sized grid of 11 points (from 0 to 1).
+When the method is either "optimal.adj" or "optimal", the Q is NA.
                                           
 
 }
@@ -148,25 +167,14 @@ SKAT(Z, obj.b)$p.value
 #	Compute the P-value of SKAT with default Beta(1,25) Weights
 #		- Optimal Test
 
-SKAT(Z, obj, method="optimal")$p.value
-SKAT(Z, obj.b, method="optimal")$p.value
+SKAT(Z, obj, method="optimal.adj")$p.value
+SKAT(Z, obj.b, method="optimal.adj")$p.value
 
 
 #############################################################
 #	Compute the P-value of SKAT with Beta(1,30) Weights
 
 SKAT(Z, obj, weights.beta=c(1,30))$p.value
-
-#############################################################
-#	Resampling 
-
-# parametric boostrap under the NULL
-obj<-SKAT_Null_Model(y.b ~ X, out_type="D",n.Resampling=5000, type.Resampling="bootstrap")
-
-# SKAT p-value
-re<- SKAT(Z, obj, kernel = "linear.weighted")
-re$p.value	# SKAT p-value
-Get_Resampling_Pvalue(re)	# get resampling p-value
 
 
 }

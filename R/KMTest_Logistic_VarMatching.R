@@ -89,6 +89,14 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 	Q.Norm1<-Q.Norm * sqrt(2*param$df) + param$df
 	p.value<- 1-pchisq(Q.Norm1,  df = param$df, ncp=0)
 
+	if(is.null(Q.sim) && param$n.lambda==1){
+		re<-Get_Satterthwaite(param$muQ, param$varQ)
+		Q.Norm1<-Q / re$a 
+		p.value<- 1-pchisq(Q.Norm1,  df = re$df, ncp=0)
+		
+		#cat("df1:", re$df, "\n")
+		
+	}
 
 	# SKAT pvalue
 	param.noadj<-param$param.noadj
@@ -96,6 +104,8 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 	Q.Norm1<-Q.Norm * param.noadj$sigmaX + param.noadj$muX
 	p.value.noadj<- 1-pchisq(Q.Norm1,  df = param.noadj$l,ncp=0)
 
+	#cat("df2:", param.noadj$l, "\n")
+	
 	out<-list(p.value=p.value, p.value.noadj=p.value.noadj, param=param)	
 
 	return(out)
@@ -150,6 +160,7 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 			lambda<-out.svd$lambda
     			U<-out.svd$U
 			param<-SKAT_Logistic_VarMatching_GetParam(lambda, U, p_all, Q.sim)
+			
 		}
 
 	}
@@ -157,8 +168,14 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 	if(type == "OnlySim"){
 		param<-SKAT_Logistic_VarMatching_GetParam1_OnlySim(Z1, p_all, Q.sim)
 		
-	} 
+	}
+	
+	#if(!is.null(Q.sim)){
+	#	param<-SKAT_Logistic_VarMatching_GetParam1_OnlySim(Z1, p_all, Q.sim)
+	#	cat("hmm")
+	#} 
 
+	#param1<<-param
 	
 	return(param)
 
@@ -184,7 +201,7 @@ SKAT_Logistic_VarMatching_GetParam1_OnlySim<-function(Z1, p_all, Q.sim){
 	}	
 	param<-Get_Liu_Params_Mod(c1)
 
-	return(list(muQ = muQ, varQ = varQ.sim, df=df.sim, lambda.new=NULL, param.noadj = param))
+	return(list(muQ = muQ, varQ = varQ.sim, df=df.sim, lambda.new=NULL, param.noadj = param, n.lambda=0))
 
 }
 
@@ -211,6 +228,7 @@ SKAT_Logistic_VarMatching_GetParam<-function(lambda, U, p_all, Q.sim){
 	# df
 	s2 = sum(lambda.new^4) / sum(lambda.new^2)^2
 	df<-1/s2
+		
 
 	if(!is.null(Q.sim)){
 		df<-SKAT_Get_DF_Sim(Q.sim)
@@ -224,7 +242,7 @@ SKAT_Logistic_VarMatching_GetParam<-function(lambda, U, p_all, Q.sim){
 	}	
 	param<-Get_Liu_Params_Mod(c1)
 
-	return(list(muQ = muQ, varQ = varQ, df=df, lambda.new=lambda.new, param.noadj = param))
+	return(list(muQ = muQ, varQ = varQ, df=df, lambda.new=lambda.new, param.noadj = param, n.lambda=length(lambda.new)))
 
 }
 
@@ -251,6 +269,8 @@ SKAT_Get_Cov_Param<-function(lambda,p_all,U){
 	#U<-out$U
 	#lambda<-out$lambda
 
+	#cat("1", dim(U), "lambda:", lambda, "\n")
+	
 	p.m<-length(lambda)
 	m4<-p_all*(1-p_all)*(3*p_all^2-3*p_all +1) / (p_all*(1-p_all))^2
 		
@@ -287,7 +307,9 @@ SKAT_Get_Cov_Param<-function(lambda,p_all,U){
 	varQ<-sum(Cov_Mat) - sum(lambda)^2	
 	muQ=sum(lambda)
 	lambda.new<-lambda * sqrt(var_i)/sqrt(2)
-	return(list(zeta=zeta, var_i=var_i, varQ = varQ, muQ=muQ, lambda.new=lambda.new))
+	
+	
+	return(list(zeta=zeta, var_i=var_i, varQ = varQ, muQ=muQ, lambda.new=lambda.new, n.lambda=p.m))
 	
 }
 

@@ -31,7 +31,7 @@
 #define WRONG_ALLOCATED_SIZE4OUTPUT_ARRAY	13  //check Number of individuals and Number of SNPs in for current set
 #define REQUESTED_SET_ID_DOESNOT_EXISTS		14  //check setID in info file
 #define WARNING_CANT_OPEN_FILE4WRITE_2PRINTSET		15 // warning - if can't print - skip printing
-
+#define BIM_FILE_TOKEN_WRONG 16 
 
 
 #endif //_ERROR_MESSAGES_H

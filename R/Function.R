@@ -3,6 +3,15 @@
 # Get Parameter for the Liu et. al 
 #
 
+Get_Satterthwaite<-function(muQ, varQ){
+
+	a1<-varQ/muQ /2
+	a2<-muQ/a1
+
+	re<-list(df=a2, a=a1)
+	return(re)
+}
+
 Get_Liu_Params<-function(c1){
   ## Helper function for getting the parameters for the null approximation
   muQ<-c1[1]
@@ -152,6 +161,19 @@ Get_Liu_PVal.MOD<-function(Q, W, Q.resampling = NULL){
 	return(re)
 }
 
+Get_Liu_PVal.MOD.Lambda<-function(Q.all, lambda){
+
+	param<-Get_Liu_Params_Mod_Lambda(lambda)
+
+	Q.Norm<-(Q.all - param$muQ)/param$sigmaQ
+	Q.Norm1<-Q.Norm * param$sigmaX + param$muX
+	p.value<- 1-pchisq(Q.Norm1,  df = param$l,ncp=param$d)
+
+	return(p.value)
+
+}
+
+
 Get_Davies_PVal<-function(Q, W, Q.resampling = NULL){
     
 	K<-W/2
@@ -244,18 +266,26 @@ Get_Lambda_U_From_Z<-function(Z1){
 Get_PValue<-function(K,Q){
 	
 	lambda<-Get_Lambda(K)
+	re<-Get_PValue.Lambda(lambda,Q)
+	return(re)
+}
+
+
+Get_PValue.Lambda<-function(lambda,Q){
+	
 	#print(lambda)
 	n1<-length(Q)
 
 	p.val<-rep(0,n1)
 	p.val.liu<-rep(0,n1)
 	is_converge<-rep(0,n1)
+	p.val.liu<-Get_Liu_PVal.MOD.Lambda(Q, lambda)
 
 	for(i in 1:n1){
 		out<-SKAT_davies(Q[i],lambda,acc=10^(-6))
 
 		p.val[i]<-out$Qq
-		p.val.liu[i]<-SKAT_liu(Q[i],lambda)
+		#p.val.liu[i]<-SKAT_liu(Q[i],lambda)
 
 		is_converge[i]<-1
 		
@@ -276,7 +306,6 @@ Get_PValue<-function(K,Q){
 	return(list(p.value=p.val, p.val.liu=p.val.liu, is_converge=is_converge))
 
 }
-
 
 
 

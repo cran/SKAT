@@ -85,7 +85,7 @@ among the causal variants.
 #	When you use this function, please increase N.Sim (more than 100)	
 #
 out.b<-Power_Logistic(SubRegion.Length=3000, 
-Causal.Percent= 20, N.Sim=10 ,MaxOR=7,Negative.Percent=20)
+Causal.Percent= 20, N.Sim=5 ,MaxOR=7,Negative.Percent=20)
 
 out.b
 

@@ -48,7 +48,7 @@ SKAT_Optimal_Param<-function(Z1,r.all){
 #	Function get SKAT statistics with given rho
 #		Q.all is a matrix with n.q x n.r
 
-SKAT_Optiaml_Each_Q<-function(param.m, Q.all, r.all, lambda.all){
+SKAT_Optiaml_Each_Q<-function(param.m, Q.all, r.all, lambda.all, method=NULL){
 
 	n.r<-length(r.all)
 	c1<-rep(0,4)
@@ -75,7 +75,14 @@ SKAT_Optiaml_Each_Q<-function(param.m, Q.all, r.all, lambda.all){
 		# get pvalue
 		Q.Norm<-(Q - muQ)/sqrt(varQ) * sqrt(2*df) + df
 		pval[,i]<- 1-pchisq(Q.Norm,  df = df)
-
+		# will be changed later
+		
+		if(!is.null(method)){
+			if(method=="optimal.mod" || method=="optimal.adj" || method=="optimal.moment.adj" ){
+				pval[,i]<-Get_PValue.Lambda(lambda.temp,Q)$p.value
+			}
+		}
+		
 		param.mat<-rbind(param.mat,c(muQ,varQ,df))
 	}
 
@@ -259,18 +266,18 @@ SKAT_Optimal_Get_Pvalue<-function(Q.all, Z1, r.all, method){
 
 	# Get Mixture param 
 	param.m<-SKAT_Optimal_Param(Z1,r.all)
-	Each_Info<-SKAT_Optiaml_Each_Q(param.m, Q.all, r.all, lambda.all)
+	Each_Info<-SKAT_Optiaml_Each_Q(param.m, Q.all, r.all, lambda.all, method=method)
 	pmin.q<-Each_Info$pmin.q
 	pval<-rep(0,n.q)
 
-	if(method == "davies" || method=="optimal"){
+	if(method == "davies" || method=="optimal" || method=="optimal.mod" || method=="optimal.adj"){
 
 		for(i in 1:n.q){
 			pval[i]<-SKAT_Optimal_PValue_Davies(pmin.q[i,],param.m,r.all)
 		}
 
 
-	} else if(method =="liu" || method =="liu.mod"){
+	} else if(method =="liu" || method =="liu.mod" || method=="optimal.moment" || method=="optimal.moment.adj" ){
 		
 		for(i in 1:n.q){
 			pval[i]<-SKAT_Optimal_PValue_Liu(pmin.q[i,],param.m,r.all)

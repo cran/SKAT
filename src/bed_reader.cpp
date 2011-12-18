@@ -395,11 +395,11 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 			//=== This part converts Byte "buff[i]" to bits values "bits_val"
 			//=== for example byte buff[0] = "w" ->  bits_val = 11101110
 			memset(bits_val, NULL, sizeof(bits_val));
-			int j = MY_CHAR_BIT;  //8
-			while (j > 0)
+			int k = MY_CHAR_BIT;  //8
+			while (k > 0)
 			{
-				-- j;
-				bits_val[j] = (buff[i]&(1 << j) ? 1 : 0);
+				-- k;
+				bits_val[k] = (buff[i]&(1 << k) ? 1 : 0);
 			}
 			//==========================================================
 			//=== here interpret Bit information "bits_val" to snps and count it - decode it
@@ -417,7 +417,9 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 			//if (this->m_encode_output == 1)
 			{
 				memset(encoded_snp_info,0,sizeof(encoded_snp_info));
-				if (this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0] > this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1])
+				
+                //printf("%d:%d-%d\n",ht->m_hash_table[j],  m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0], this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1]);
+                if (this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0] > this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1])
 				{
 					//write snp information as encoded 
 					this->encode(temp_snp_info1,encoded_snp_info );
@@ -930,6 +932,7 @@ void BedFileReader::decode_byte(int* bits_val,int* individuals_counter,
 			flag = 5 ; //Error
 	}
 
+    //printf("Dec[%d]%d-%d\n",snp_set_ind,  m_snp_sets[snp_set_ind].total_counter_per_letter[0], m_snp_sets[snp_set_ind].total_counter_per_letter[1]);
 }
 
 //==========================================================

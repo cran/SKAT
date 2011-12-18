@@ -82,7 +82,7 @@ among the causal variants.
 #
 
 out.c<-Power_Continuous(SubRegion.Length=3000, 
-Causal.Percent= 20, N.Sim=10, MaxBeta=2,Negative.Percent=20)
+Causal.Percent= 20, N.Sim=5, MaxBeta=2,Negative.Percent=20)
 out.c
 
 #

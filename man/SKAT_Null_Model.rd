@@ -48,10 +48,6 @@ attach(SKAT.example)
 #############################################################
 #	Compute the P-value of SKAT 
 
-# continuous trait
-obj<-SKAT_Null_Model(y.c ~ X, out_type="C")
-SKAT(Z, obj, kernel = "linear.weighted")$p.value
-
 # binary trait
 obj<-SKAT_Null_Model(y.b ~ X, out_type="D")
 SKAT(Z, obj, kernel = "linear.weighted")$p.value
@@ -60,27 +56,10 @@ SKAT(Z, obj, kernel = "linear.weighted")$p.value
 #############################################################
 # 	When you have no covariate to adjust.
 
-# continuous trait
-obj<-SKAT_Null_Model(y.c ~ 1, out_type="C")
-SKAT(Z, obj, kernel = "linear.weighted")$p.value
-
 # binary trait
 obj<-SKAT_Null_Model(y.b ~ 1, out_type="D")
 SKAT(Z, obj, kernel = "linear.weighted")$p.value
 
-
-
-
-#############################################################
-#	Resampling 
-
-# parametric boostrap under the NULL, without covariates
-obj<-SKAT_Null_Model(y.b ~ X , out_type="D",n.Resampling=5000)
-
-# SKAT p-value
-re<- SKAT(Z, obj, kernel = "linear.weighted")
-re$p.value	# SKAT p-value
-Get_Resampling_Pvalue(re)	# get resampling p-value
 
 
 #########################################################

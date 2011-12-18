@@ -152,7 +152,7 @@ void Hasht::upload_snpid_from_setid_build_hash(int * myerror)
     {
 		tokens.clear();
 		getline(this->m_setid, line);
-		Tokenize(line, tokens, "\t");
+		Tokenize(line, tokens, " \t\n\r");
 		if (tokens.size() < 2)
 		{
 			tokens.clear();
@@ -294,7 +294,25 @@ void Hasht::upload_snpid_from_bim(int * myerror)
     {
 		tokens.clear();
 		getline(this->m_bim, line);
-		Tokenize(line, tokens, "	");
+        //Tokenize(line, tokens, "	");
+        Tokenize(line, tokens, " \t\n");
+		if (tokens.size() < 6)
+		{
+			tokens.clear();
+			Tokenize(line, tokens, " ");
+		}
+        if (tokens.size() < 6)
+		{
+			tokens.clear();
+			Tokenize(line, tokens, "\t");
+		}
+        
+        if(tokens.size() < 6){
+            *myerror = BIM_FILE_TOKEN_WRONG;
+            return;
+            
+        }
+        
 		strcpy (this->m_snp_sets[i].snp_id , tokens.at(1).c_str());
 		this->m_snp_sets[i].letters[0] = tokens.at(4).c_str()[0];
 		this->m_snp_sets[i].letters[1] = tokens.at(5).c_str()[0];
