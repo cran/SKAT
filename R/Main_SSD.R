@@ -23,10 +23,10 @@ Read_Plink_FAM<-function(Filename, Is.binary=TRUE, flag1=0){
 			Fam.Obj$Phenotype[id_0] <-NA
 		}
 		if(length(id_1)> 0){
-			Fam.Obj$Phenotype[id_0] <-0
+			Fam.Obj$Phenotype[id_1] <-0
 		}
 		if(length(id_2)> 0){
-			Fam.Obj$Phenotype[id_0] <-1
+			Fam.Obj$Phenotype[id_2] <-1
 		}
 
 	}
@@ -88,10 +88,10 @@ Read_Plink_FAM_Cov<-function(Filename, File_Cov, Is.binary=TRUE, flag1=0, cov_he
 			Fam.Obj$Phenotype[id_0] <-NA
 		}
 		if(length(id_1)> 0){
-			Fam.Obj$Phenotype[id_0] <-0
+			Fam.Obj$Phenotype[id_1] <-0
 		}
 		if(length(id_2)> 0){
-			Fam.Obj$Phenotype[id_0] <-1
+			Fam.Obj$Phenotype[id_2] <-1
 		}
 
 	}
