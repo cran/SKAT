@@ -11,7 +11,7 @@
 SKAT(Z, obj, kernel = "linear.weighted", 
   method="davies", weights.beta=c(1,25), weights=NULL, 
   impute.method="fixed", r.corr=0, is_check_genotype=TRUE,
-  is_dosage = FALSE, missing_cutoff=0.15 )
+  is_dosage = FALSE, missing_cutoff=0.15 , estimate_MAF=1)
 
 SKAT.SSD.OneSet(SSD.INFO, SetID, obj, \dots)
 
@@ -40,6 +40,9 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
       \item{is_check_genotype}{a logical value indicating whether to check the validity of the genotype matrix Z (default= TRUE). If you use non-SNP type data and want to run kernel machine test, please set it FALSE, otherwise you will get an error message. If you use SNP data or imputed data, please set it TRUE. If it is FALSE, and you use weighted kernels, the weights should be given through ``weights'' parameter.}
       \item{is_dosage}{a logical value indicating whether the matrix Z is a dosage matrix. If it is TRUE, SKAT will ignore ``is_check_genotype''. }
       \item{missing_cutoff}{a cutoff of the missing rates of SNPs (default=0.15). Any SNPs with missing rates higher than the cutoff will be excluded from the analysis.}
+      \item{estimate_MAF}{a numeric value indicating how to estimate MAFs for the weight calculation and 
+      the missing genotype imputation. If estimate_MAF=1 (default), SKAT uses all samples to estimate MAFs. 
+      If estimate_MAF=2, only samples with non-missing phenotypes and covariates are used to estimate MAFs. }
       \item{SSD.INFO}{an SSD_INFO object returned from Open_SSD. }
       \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO}
       \item{SetIndex}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO  }
@@ -114,7 +117,7 @@ NHLBI GO Exome Sequencing Project-ESP Lung Project Team, Christiani, D.C., Wurfe
 Optimal unified approach for rare variant association testing with application to small sample 
 case-control whole-exome sequencing studies. \emph{American Journal of Human Genetics}, 91, 224-237.
 
-Lee, S., Wu, M. C., and Lin, X. (2012)  Optimal tests for rare variant effects in sequencing association studies. \emph{Biostatistics}, in press.
+Lee, S., Wu, M. C., and Lin, X. (2012)  Optimal tests for rare variant effects in sequencing association studies. \emph{Biostatistics}, 13, 762-775.
 
 Wu, M. C.*, Lee, S.*, Cai, T., Li, Y., Boehnke, M., and Lin, X. (2011)  Rare Variant Association Testing for Sequencing Data Using the Sequence Kernel Association Test (SKAT). \emph{American Journal of Human Genetics}, 89, 82-93. \\
 * contributed equally. 
@@ -124,7 +127,7 @@ Wu, M. C., Kraft, P., Epstein, M. P.,Taylor, D., M., Chanock, S. J., Hunter, D.,
 
 Davies R.B. (1980) Algorithm AS 155: The Distribution of a Linear
   Combination of chi-2 Random Variables, \emph{ Journal of the Royal
-  Statistical Society. Series C }, 29(3), 323-333.
+  Statistical Society. Series C }, 29, 323-333.
 
 H. Liu, Y. Tang, H.H. Zhang (2009) A new chi-square approximation
   to the distribution of non-negative definite quadratic forms in
@@ -132,7 +135,7 @@ H. Liu, Y. Tang, H.H. Zhang (2009) A new chi-square approximation
 
 Duchesne, P. and Lafaye De Micheaux, P. (2010) Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, \emph{Computational Statistics and Data Analysis}, 54, 858-862. 
 
-Madsen, B. E. and Browning S. R. (2009) A Groupwise Association Test for Rare Mutations Using a Weighted Sum Statistic. \emph{PLOS Genetics}, 5: e1000384.
+
 }
 
 \examples{

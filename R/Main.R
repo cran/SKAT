@@ -1,5 +1,6 @@
 
-SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta=c(1,25), weights = NULL, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15){
+SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta=c(1,25)
+, weights = NULL, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1){
 
 
 	if(kernel != "linear" && kernel != "linear.weighted"){
@@ -15,11 +16,11 @@ SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta
 
 	if(class(obj) == "SKAT_NULL_Model_ADJ"){
 
-		re<-SKAT_With_NullModel_ADJ(Z, obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method,  r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff)
+		re<-SKAT_With_NullModel_ADJ(Z, obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method,  r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)
 
 	} else if(class(obj) == "SKAT_NULL_Model"){
 
-		re<-SKAT_With_NullModel(Z,obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff)
+		re<-SKAT_With_NullModel(Z,obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)
 
 	} else {
 		#re<-SKAT_MAIN(Z,obj, ...)
@@ -63,7 +64,7 @@ SKAT_MAIN_Check_OutType<-function(out_type){
 #
 #
 
-SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff){
+SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff, estimate_MAF=1){
 
 	#############################################
 	# Check parameters
@@ -73,6 +74,8 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
  	if(is_dosage ==TRUE){
 		impute.method="fixed"
 	}
+
+
 	#####################################################
 	# Check Z
 
@@ -81,7 +84,12 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		if(!is.matrix(Z.test)){
 			Z.test<-as.matrix(Z.test)
 		}
-		return(list(Z.test=Z.test,weights=weights, return=0) )
+		return(list(Z.test=Z.test,weights=weights, MAF=rep(0, ncol(Z)), return=0) )
+	}
+
+	if(estimate_MAF==2){
+		Z<-cbind(Z[id_include,])
+		id_include<-1:length(id_include)
 	}
 
 	##############################################
@@ -135,7 +143,9 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	MAF<-colMeans(Z, na.rm = TRUE)/2
 	MAF1<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
-
+	MAF_Org=MAF
+	
+	
 	##########################################
 	# Missing Imputation
 	IDX_MISS<-union(which(is.na(Z)),which(Z == 9))
@@ -240,7 +250,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	}
 
-	return(list(Z.test=Z.test,weights=weights, return=0) )
+	return(list(Z.test=Z.test,weights=weights, MAF=MAF_Org, return=0) )
 
 }
 
@@ -291,20 +301,27 @@ SKAT_Check_Method<-function(method,r.corr){
 
 
 
-SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="davies", weights.beta=c(1,25), weights = NULL, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, SetID = NULL){
+SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="davies", weights.beta=c(1,25), weights = NULL
+, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID = NULL){
 
 	
+
 	n<-dim(Z)[1]
 	m<-dim(Z)[2]
-
 	out.method<-SKAT_Check_Method(method,r.corr)
+
 	method=out.method$method
 	r.corr=out.method$r.corr
 
 
 	SKAT_Check_RCorr(kernel, r.corr)
+	
+	# for old version
+	if(is.null(obj.res$n.all)){
+		obj.res$n.all=n
+	}
 
-	out.z<-SKAT_MAIN_Check_Z(Z, n, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff)
+	out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff,estimate_MAF=estimate_MAF)
 	if(out.z$return ==1){
 		out.z$param$n.marker<-m
 		return(out.z)
@@ -350,8 +367,9 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 #	Adjustment methods only use liu.mod, so it doesn't need method the "method" parameter
 #	I use this field for outcome.type for subfunctions
 #	
+# 	estimate_MAF=1 using all samples, 2 only non-missing samples
 SKAT_With_NullModel_ADJ = function(Z, obj.res.a, kernel = "linear.weighted", method="adjust", weights.beta=c(1,25), weights = NULL,
-impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, SetID = NULL){
+impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID = NULL){
 
 	
 	n<-dim(Z)[1]
@@ -366,7 +384,12 @@ impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, mi
 	# Use method field for the type of outcome
 	method = obj.res.a$type
 
-	out.z<-SKAT_MAIN_Check_Z(Z, n, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff)
+	
+	# for old version
+	if(is.null(obj.res$n.all)){
+		obj.res$n.all=n
+	}
+	out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff, estimate_MAF=estimate_MAF)
 	if(out.z$return ==1){
 		out.z$param$n.marker<-m
 		return(out.z)

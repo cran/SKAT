@@ -161,13 +161,13 @@ Get_Liu_PVal.MOD<-function(Q, W, Q.resampling = NULL){
 	return(re)
 }
 
-Get_Liu_PVal.MOD.Lambda<-function(Q.all, lambda){
+Get_Liu_PVal.MOD.Lambda<-function(Q.all, lambda, log.p=FALSE){
 
 	param<-Get_Liu_Params_Mod_Lambda(lambda)
 
 	Q.Norm<-(Q.all - param$muQ)/param$sigmaQ
 	Q.Norm1<-Q.Norm * param$sigmaX + param$muX
-	p.value<- pchisq(Q.Norm1,  df = param$l,ncp=param$d, lower.tail=FALSE)
+	p.value<- pchisq(Q.Norm1,  df = param$l,ncp=param$d, lower.tail=FALSE, log.p=log.p)
 
 	return(p.value)
 
@@ -324,15 +324,17 @@ Get_PValue.Lambda<-function(lambda,Q){
 	}
 	
 	p.val.msg = NULL
+	p.val.log=NULL
 	#cat(p.val[1])
 	if(p.val[1] == 0){
 
 		param<-Get_Liu_Params_Mod_Lambda(lambda)
 		p.val.msg<-Get_Liu_PVal.MOD.Lambda.Zero(Q[1], param$muQ, param$muX, param$sigmaQ, param$sigmaX, param$l, param$d)
+		p.val.log<-Get_Liu_PVal.MOD.Lambda(Q[1], lambda, log.p=TRUE)[1]
 
 	}
 
-	return(list(p.value=p.val, p.val.liu=p.val.liu, is_converge=is_converge, pval.zero.msg=p.val.msg))
+	return(list(p.value=p.val, p.val.liu=p.val.liu, is_converge=is_converge, p.val.log=p.val.log, pval.zero.msg=p.val.msg))
 
 }
 

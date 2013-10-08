@@ -48,7 +48,7 @@ SKAT_Optimal_Param<-function(Z1,r.all){
 #	Function get SKAT statistics with given rho
 #		Q.all is a matrix with n.q x n.r
 
-SKAT_Optiaml_Each_Q<-function(param.m, Q.all, r.all, lambda.all, method=NULL){
+SKAT_Optimal_Each_Q<-function(param.m, Q.all, r.all, lambda.all, method=NULL){
 
 	n.r<-length(r.all)
 	c1<-rep(0,4)
@@ -125,7 +125,7 @@ SKAT_Optimal_Integrate_Func_Davies<-function(x,pmin.q,param.m,r.all){
 			sd1<-sqrt(param.m$VarQ - param.m$VarRemain)/sqrt(param.m$VarQ)
 			min1.st<-min1.temp *sd1 + param.m$MuQ
 			
-			dav.re<-SKAT:::SKAT_davies(min1.st,param.m$lambda,acc=10^(-6))
+			dav.re<-SKAT_davies(min1.st,param.m$lambda,acc=10^(-6))
 			temp<-dav.re$Qq
 			if(dav.re$ifault != 0){
 				stop("dav.re$ifault is not 0")
@@ -209,14 +209,13 @@ SKAT_Optimal_PValue_Liu<-function(pmin.q,param.m,r.all, pmin=NULL){
 }
 
 
-SKAT_Optimal_Get_Q<-function(Z1, res, r.all, n.Resampling, res.out, res.moments=NULL){
+SKAT_Optimal_Get_Q<-function(Z1, res, r.all, n.Resampling, res.out, res.moments=NULL, Q.sim=NULL){
 
 	n.r<-length(r.all)
 	p.m<-dim(Z1)[2]
 
 	Q.r<-rep(0,n.r)
 	Q.r.res<-NULL
-	Q.sim<-NULL	
 	
 	temp<-t(res) %*% Z1
 	for(i in 1:n.r){
@@ -239,7 +238,7 @@ SKAT_Optimal_Get_Q<-function(Z1, res, r.all, n.Resampling, res.out, res.moments=
 		Q.r.res = Q.r.res/2
   	}
 
-	if(!is.null(res.moments)){
+	if(!is.null(res.moments) && is.null(Q.sim)){
 
 		temp<-t(res.moments) %*% Z1
 		n.moments<-dim(res.moments)[2]
@@ -280,7 +279,7 @@ SKAT_Optimal_Get_Pvalue<-function(Q.all, Z1, r.all, method){
 
 	# Get Mixture param 
 	param.m<-SKAT_Optimal_Param(Z1,r.all)
-	Each_Info<-SKAT_Optiaml_Each_Q(param.m, Q.all, r.all, lambda.all, method=method)
+	Each_Info<-SKAT_Optimal_Each_Q(param.m, Q.all, r.all, lambda.all, method=method)
 	pmin.q<-Each_Info$pmin.q
 	pmin<-Each_Info$pmin
 	pval<-rep(0,n.q)

@@ -20,14 +20,14 @@ SKAT_Scale_Genotypes= function(obj.res, Z1, Z2, weights.beta=c(1,25), weights.be
 
 	if(is.null(weights)){
 		MAF<-colMeans(Z1)/2
-		weights<-SKAT:::Beta.Weights(MAF,weights.beta)
+		weights<-Beta.Weights(MAF,weights.beta)
 	}
 	
 	# Weights for rare variants, but no weights for common variants	
 	Z1 = t(t(Z1) * (weights))
 	
 	MAF2<-colMeans(Z2)/2
-	weights2<-SKAT:::Beta.Weights(MAF2,weights.beta2)
+	weights2<-Beta.Weights(MAF2,weights.beta2)
 	Z2 = t(t(Z2) * (weights2))
 	
 	
@@ -209,7 +209,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 
 
 SKAT_CommonRare<-function(Z, obj, weights.beta.rare=c(1,25), weights.beta.common=c(0.5,0.5), method="C",
-r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_dosage=FALSE, missing_cutoff=0.15, SetID1=NULL){
+r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_dosage=FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID1=NULL){
 
 	
 	# This function only can be used for SNPs
@@ -245,8 +245,12 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
     	stop("Error in CommonRare_Cutoff! It should be NULL or a numeric value between 0 to 0.5")
     }
     
-	out<-SKAT:::SKAT_MAIN_Check_Z(Z, n, id_include=obj.res$id_include, SetID=SetID1, weights=NULL, weights.beta=c(1,1), 
-	impute.method="fixed", is_check_genotype=is_check_genotype, is_dosage=is_dosage, missing_cutoff)
+    # for old version
+	if(is.null(obj.res$n.all)){
+		obj.res$n.all=n
+	}
+	out<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, id_include=obj.res$id_include, SetID=SetID1, weights=NULL, weights.beta=c(1,1), 
+	impute.method="fixed", is_check_genotype=is_check_genotype, is_dosage=is_dosage, missing_cutoff, estimate_MAF=estimate_MAF)
 	if(out$return ==1){
 		out$param$n.marker<-m
 		out$n.rare = 0
@@ -257,21 +261,23 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		return(out)
 	}
 	
+	Z.org<-Z
 	Z<-out$Z.test
 	m.test<-ncol(Z)
 	
 	# Since I already used ID include.
+	obj.res$n.all =nrow(Z) 
 	obj.res$id_include = 1:nrow(Z)	
+	
 	if(class(obj) == "SKAT_NULL_Model_ADJ"){
 		obj$re1$id_include = obj.res$id_include
+		obj$re1$n.all = obj.res$n.all
 	} else {
 		obj$id_include = obj.res$id_include
+		obj$n.all = obj.res$n.all
 	}
 
-
-
-    
-	MAF<-SKAT:::Get_MAF(Z)
+	MAF<-Get_MAF(Z)
 	id.rare<-intersect(which(MAF < CommonRare_Cutoff), which(MAF > 0))
 	id.common<-intersect(which(MAF >= CommonRare_Cutoff), which(MAF > 0))
 	
@@ -289,7 +295,7 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		# Run SKAT with common variants
 		Z.common<-cbind(Z[,id.common])
-		re<-SKAT:::SKAT_1(Z.common, obj, weights.beta=weights.beta.common, weights = NULL, r.corr=r.corr.common
+		re<-SKAT_1(Z.common, obj, weights.beta=weights.beta.common, weights = NULL, r.corr=r.corr.common
 		, is_check_genotype=is_check_genotype, is_dosage = TRUE, missing_cutoff=1, SetID = SetID1)
 		
 		is.run=TRUE
@@ -298,7 +304,7 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		# Run SKAT with rare variants
 		Z.rare<-cbind(Z[,id.rare])
-		re<-SKAT:::SKAT_1(Z.rare, obj, weights.beta=weights.beta.rare, weights = NULL, r.corr=r.corr.rare
+		re<-SKAT_1(Z.rare, obj, weights.beta=weights.beta.rare, weights = NULL, r.corr=r.corr.rare
 		, is_check_genotype=is_check_genotype, is_dosage = TRUE, missing_cutoff=1, SetID = SetID1)
 		
 		is.run=TRUE
@@ -315,23 +321,22 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		if(method=="C"){
 			
-			re<-SKAT:::SKAT_1(cbind(obj.scale$Z1, obj.scale$Z2), obj, kernel="linear", is_check_genotype=is_check_genotype, is_dosage=TRUE)
+			re<-SKAT_1(cbind(obj.scale$Z1, obj.scale$Z2), obj, kernel="linear", is_check_genotype=is_check_genotype, is_dosage=TRUE)
 			
 		} else if(method=="A"){
 		
 			re<-SKAT_CR_Linear(obj.res,obj.scale$Z1, obj.scale$Z2, r.all=c(0,0.25,0.5,0.75,1), IsReverse=TRUE)
-			re$param$n.marker<-m.org
-			re$param$n.marker.test<-m.test
 			
 		} else if(method=="AR"){
 		
 			re<-SKAT_CR_Linear(obj.res,obj.scale$Z1, obj.scale$Z2, r.all=c(0,0.25,0.5,0.75,1), IsReverse=FALSE)
-			re$param$n.marker<-m.org
-			re$param$n.marker.test<-m.test
 		
 		} else {
 			stop("Wrong method!")
 		}
+		
+		re$param$n.marker<-m.org
+		re$param$n.marker.test<-m.test
 	}
 	
 	re$n.rare = n.rare
@@ -391,8 +396,8 @@ SKAT_2Kernel_Ortho_Optimal_Param<-function(Z1, Z2, r.all){
 	
 	lambda<-list()
 	
-	lambda[[1]]<-SKAT:::Get_Lambda(t(Z1) %*% Z1)
-	lambda[[2]]<-SKAT:::Get_Lambda(t(Z2) %*% Z2)
+	lambda[[1]]<-Get_Lambda(t(Z1) %*% Z1)
+	lambda[[2]]<-Get_Lambda(t(Z2) %*% Z2)
 	
 	par.moments<-list()
 	c1<-rep(0,4)
@@ -402,7 +407,7 @@ SKAT_2Kernel_Ortho_Optimal_Param<-function(Z1, Z2, r.all){
 		c1[2]<-sum(lambda.temp^2)
 		c1[3]<-sum(lambda.temp^3)
 		c1[4]<-sum(lambda.temp^4)
-		param.temp<-SKAT:::Get_Liu_Params_Mod(c1)
+		param.temp<-Get_Liu_Params_Mod(c1)
 
 		muQ<-param.temp$muQ
 		varQ<-param.temp$sigmaQ^2
@@ -437,7 +442,7 @@ SKAT_2Kernel_Ortho_Optimal_Each_Q<-function(param.m, Q.all, r.all, c1.all){
 		r.corr<-r.all[i]
 		
 		c1<-c1.all[,i]
-		param.temp<-SKAT:::Get_Liu_Params_Mod(c1)
+		param.temp<-Get_Liu_Params_Mod(c1)
 
 		muQ<-param.temp$muQ
 		varQ<-param.temp$sigmaQ^2
@@ -447,7 +452,7 @@ SKAT_2Kernel_Ortho_Optimal_Each_Q<-function(param.m, Q.all, r.all, c1.all){
 		Q.Norm<-(Q - muQ)/sqrt(varQ) * sqrt(2*df) + df
 		pval[,i]<- pchisq(Q.Norm,  df = df, lower.tail=FALSE)
 		
-		#pval[,i]<-SKAT:::Get_PValue.Lambda(lambda.temp,Q)$p.value
+		#pval[,i]<-Get_PValue.Lambda(lambda.temp,Q)$p.value
 
 		param.mat<-rbind(param.mat,c(muQ,varQ,df))
 		

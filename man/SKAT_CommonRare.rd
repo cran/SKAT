@@ -11,7 +11,8 @@
 
 	SKAT_CommonRare(Z, obj, weights.beta.rare=c(1,25), weights.beta.common=c(0.5,0.5)
 	, method="C", r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL
-	, test.type="Joint", is_dosage=FALSE, missing_cutoff=0.15, SetID1=NULL)
+	, test.type="Joint", is_dosage=FALSE, missing_cutoff=0.15
+	, estimate_MAF=1, SetID1=NULL)
 
 
 	SKAT_CommonRare.SSD.OneSet(SSD.INFO, SetID, obj, \dots)
@@ -37,8 +38,9 @@
       \item{test.type}{a string to indicate test type (default="Joint"). "Joint" indicates the joint test of the 
       combined effects of common and rare variants. "Rare.Only" and "Common.Only" will conduct test only with rare and common variants, 
       respectively.  }
-      \item{is_dosage}{a logical value indicating whether the matrix Z is a dosage matrix. If it is TRUE, SKAT will ignore ``is_check_genotype''. }
-      \item{missing_cutoff}{a cutoff of the missing rates of SNPs (default=0.15). Any SNPs with missing rates higher than the cutoff will be excluded from the analysis.}
+      \item{is_dosage}{see SKAT}
+      \item{missing_cutoff}{see SKAT}
+      \item{estimate_MAF}{see SKAT}
       \item{SetID1}{internal use only}
       
       
@@ -83,7 +85,7 @@ The small sample adjustment for binary traits is not implemented for "A" and "AR
 
 Ionita-Laza, I.*, Lee, S.*, Makarov, V., Buxbaum, J. Lin, X. (2013). 
 Sequence kernel association tests for the combined effect of rare and common variants.  
-\emph{American Journal of Human Genetics}, in press. 
+\emph{American Journal of Human Genetics}, 92, 841-853. 
 * contributed equally. 
 
 }

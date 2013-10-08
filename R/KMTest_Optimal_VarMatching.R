@@ -25,10 +25,26 @@ SKAT_Optimal_Get_Kertosis_Mixture<-function(df1, df2, v1, a1, a2){
 }
 
 
+SKAT_Optimal_GetZItem2<-function(Z1){
+
+	n<-dim(Z1)[1]
+	p.m<-dim(Z1)[2]
+
+	z_mean<-rowMeans(Z1)
+	Z_mean<-matrix(rep(z_mean,p.m),ncol=p.m,byrow=FALSE)
+	cof1<-(t(z_mean) %*% Z1)[1,] / sum(z_mean^2)
+
+	Z.item1<-Z_mean %*% diag(cof1)	
+	Z.item2<-Z1 - Z.item1
+
+	return(Z.item2)
+
+}
+
 #
 #	Function get parameters of optimal test
 #
-SKAT_Optimal_Param_VarMatching<-function(Z1, r.all, p_all, res.moments, method="Other"){
+SKAT_Optimal_Param_VarMatching<-function(Z1, r.all, p_all, res.moments, method="Other", Q.sim=NULL){
 
 
 	n<-dim(Z1)[1]
@@ -45,8 +61,7 @@ SKAT_Optimal_Param_VarMatching<-function(Z1, r.all, p_all, res.moments, method="
 	# W3.2.t<-t(Z.item2) %*% Z.item2 follows mixture of chisq distribution
 	# apply adjustment
 
-	Q.sim = NULL
-	if(!is.null(res.moments)){
+	if(!is.null(res.moments) && is.null(Q.sim)){
 
 		Q.Temp.res1 = t(cbind(res.moments))%*%Z.item2
   		Q.sim = rowSums(rbind(Q.Temp.res1^2))/2
@@ -56,10 +71,13 @@ SKAT_Optimal_Param_VarMatching<-function(Z1, r.all, p_all, res.moments, method="
 	type = "Other"
 	if(method == "ECP"){
 		type = "OnlySim"
+	} else if(method=="QuantileAdj"){
+		type = "QuantileAdj"
 	}
 
-	re.param<-SKAT_Logistic_VarMatching_GetParam1(Z.item2, p_all, Q.sim, type)
 
+	re.param<-SKAT_Logistic_VarMatching_GetParam1(Z.item2, p_all, Q.sim, type)
+	
 	# W3.3 Term : variance of remaining ...
 	W3.3.item<-sum((t(Z.item1) %*% Z.item1) * (t(Z.item2) %*% Z.item2)) * 4
 	
@@ -80,11 +98,13 @@ SKAT_Optimal_Param_VarMatching<-function(Z1, r.all, p_all, res.moments, method="
 #	Function get SKAT statistics with given rho
 #		Q.all is a matrix with n.q x n.r
 
-SKAT_Optiaml_Each_Q_VarMatching<-function(param.m, Q.all, r.all, Z2.all, p_all, Q.sim.all, method="Other"){
+SKAT_Optimal_Each_Q_VarMatching<-function(param.m, Q.all, r.all, Z2.all, p_all, Q.sim.all, method="Other"){
 
 	type = "Other"
 	if(method == "ECP"){
 		type = "OnlySim"
+	} else if(method=="QuantileAdj"){
+		type = "QuantileAdj"
 	}
 
 	Is.SIM<-!is.null(Q.sim.all)
@@ -110,6 +130,8 @@ SKAT_Optiaml_Each_Q_VarMatching<-function(param.m, Q.all, r.all, Z2.all, p_all, 
 
 	}
 
+	#pval1<<-pval
+	#re.param1<<-re.param
 	pmin<-apply(pval,1,min)
 
 	# re-adjust the kurtosis of Q using the estimated kurtosis
@@ -152,8 +174,14 @@ SKAT_Optimal_Integrate_Func_VarMatching<-function(x, pmin.q, muQ, varQ, df, tau,
 	temp<-(pmin.q - temp1)/(1-r.all)
 	temp.min<-apply(temp,2,min)
 
-	temp.q<-(temp.min - muQ)/sqrt(varQ)*sqrt(2*df) + df
-	re<-pchisq(temp.q ,df=df) * dchisq(x,df=1)
+	if(varQ > 0){
+		temp.q<-(temp.min - muQ)/sqrt(varQ)*sqrt(2*df) + df
+		val=pchisq(temp.q ,df=df)
+	} else {
+		val=rep(0, length(temp.q))
+	}
+	
+	re<-val * dchisq(x,df=1)
 
 	#df.x<-1
 	#x.norm<-(x -1)/sqrt(2) * sqrt(2*df.x) + df.x
@@ -176,7 +204,7 @@ SKAT_Optimal_PValue_VarMatching<-function(pmin.q, muQ, varQ, df, tau, r.all){
 
 
 
-SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all, res.moments, method=NULL){
+SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all, res.moments, method=NULL, Q.sim=NULL){
 
 	n.r<-length(r.all)
 	n.q<-dim(Q.all)[1]
@@ -192,9 +220,9 @@ SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all
 	}
 
 	# Get Mixture param 
-	param.m<-SKAT_Optimal_Param_VarMatching(Z1,r.all,p_all, res.moments,method)
+	param.m<-SKAT_Optimal_Param_VarMatching(Z1,r.all,p_all, res.moments,method=method, Q.sim=Q.sim)
 
-	Each_Info<-SKAT_Optiaml_Each_Q_VarMatching(param.m, Q.all, r.all, Z2.all,p_all, Q.sim.all,method)
+	Each_Info<-SKAT_Optimal_Each_Q_VarMatching(param.m, Q.all, r.all, Z2.all,p_all, Q.sim.all,method)
 	pmin.q<-Each_Info$pmin.q
 	pmin.q.sim<-Each_Info$pmin.q.sim
 	
@@ -250,7 +278,8 @@ SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all
 }
 
 
-SKAT_Optimal_Logistic_VarMatching  = function(res, Z, X1, kernel, weights = NULL, pi_1 , method = NULL, res.out=NULL, n.Resampling =0, r.all, mu, res.moments = NULL){
+SKAT_Optimal_Logistic_VarMatching  = function(res, Z, X1, kernel, weights = NULL, pi_1 , method = NULL
+, res.out=NULL, n.Resampling =0, r.all, mu, res.moments = NULL, Q.sim=NULL, Q.sim.a=NULL){
 
 	# if r.all >=0.999 ,then r.all = 0.999
 	IDX<-which(r.all >= 0.999)
@@ -274,7 +303,7 @@ SKAT_Optimal_Logistic_VarMatching  = function(res, Z, X1, kernel, weights = NULL
 	###########################################
 	# Compute Q.r and Q.r.res
 	##########################################
-	out.Q<-SKAT_Optimal_Get_Q(Z, res, r.all, n.Resampling, res.out, res.moments)
+	out.Q<-SKAT_Optimal_Get_Q(Z, res, r.all, n.Resampling, res.out, res.moments, Q.sim.a)
 	Q.all<-rbind(out.Q$Q.r, out.Q$Q.r.res) 
 	Q.sim.all<-out.Q$Q.sim
 
@@ -283,7 +312,7 @@ SKAT_Optimal_Logistic_VarMatching  = function(res, Z, X1, kernel, weights = NULL
 	#################################################
 
 	p_all<-mu
-	out<-SKAT_Optimal_Get_Pvalue_VarMatching(Q.all, Z1 / sqrt(2), r.all, p_all, Q.sim.all, res.moments, method=method)
+	out<-SKAT_Optimal_Get_Pvalue_VarMatching(Q.all, Z1 / sqrt(2), r.all, p_all, Q.sim.all, res.moments, method=method, Q.sim=Q.sim)
 
 	param<-list(p.val.each=NULL,q.val.each=NULL)
 	param$p.val.each<-out$p.val.each[1,]

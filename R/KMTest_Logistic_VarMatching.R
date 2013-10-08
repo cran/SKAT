@@ -3,7 +3,8 @@
 #
 #	Modified by Seunggeun Lee - Ver 0.1
 #
-KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL, pi_1, method, res.out,n.Resampling, r.corr, mu, res.moments = NULL){
+KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL, pi_1, method, res.out,n.Resampling
+, r.corr, mu, res.moments = NULL, Q.sim=NULL){
 
 	n<-length(pi_1)
   	D  = diag(pi_1)   
@@ -34,8 +35,8 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
   	}
   	Z1 = (Z * sqrt(pi_1)) - (X1 * sqrt(pi_1))%*%solve(t(X1)%*%(X1 * pi_1))%*% (t(X1) %*% (Z * pi_1))
 
-	Q.sim = NULL
-	if(!is.null(res.moments)){
+	
+	if(is.null(Q.sim) && !is.null(res.moments)){
 
 		Q.Temp.res1 = t(cbind(res.moments))%*%Z
   		Q.sim = rowSums(rbind(Q.Temp.res1^2))/2
@@ -48,7 +49,10 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
 	type = "Other"
 	if(method =="ECP"){
 		type = "OnlySim"
+	} else if(method=="QuantileAdj"){
+		type = "QuantileAdj"
 	}
+	
 	re<-SKAT_PValue_Logistic_VarMatching(Q.all, Z1 /sqrt(2), p_all, Q.sim, type)
 
 	
@@ -87,25 +91,33 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 
 
 	param<-SKAT_Logistic_VarMatching_GetParam1(Z1, p_all, Q.sim, type)
-
-	# aSKAT pvalue
-	Q.Norm<-(Q - param$muQ)/sqrt(param$varQ)
-	Q.Norm1<-Q.Norm * sqrt(2*param$df) + param$df
-	p.value<- pchisq(Q.Norm1,  df = param$df, ncp=0, lower.tail=FALSE)
-
-	df1=param$df
-	if(is.null(Q.sim) && param$n.lambda==1){
-		re<-Get_Satterthwaite(param$muQ, param$varQ)
-		Q.Norm1<-Q / re$a 
-		p.value<- pchisq(Q.Norm1,  df = re$df, ncp=0, lower.tail=FALSE)
-		df1=re$df
-		#cat("df1:", re$df, "\n")
-		
-	}
 	pval.msg = NULL
-	if(p.value[1] == 0){
-		pval.msg<-Get_Liu_PVal.MOD.Lambda.Zero(Q.Norm1, muQ=0, muX=0, sigmaQ=1, sigmaX=1, l=df1, d=0)
+	#param1<<-param
+	# p-value=1 when varQ==0
+	if(param$varQ == 0){
+		p.value<-rep(1, length(Q))
 	
+	} else if(class(param) == "QuantileAdj"){
+		p.value<-SKAT_Logistic_PVal_QuantileAdj(Q, param)
+	} else {
+		Q.Norm<-(Q - param$muQ)/sqrt(param$varQ)
+		Q.Norm1<-Q.Norm * sqrt(2*param$df) + param$df
+		p.value<- pchisq(Q.Norm1,  df = param$df, ncp=0, lower.tail=FALSE)
+
+		df1=param$df
+		if(is.null(Q.sim) && param$n.lambda==1){
+			re<-Get_Satterthwaite(param$muQ, param$varQ)
+			Q.Norm1<-Q / re$a 
+			p.value<- pchisq(Q.Norm1,  df = re$df, ncp=0, lower.tail=FALSE)
+			df1=re$df
+			#cat("df1:", re$df, "\n")
+		
+		}
+		
+		if(p.value[1] == 0){
+			pval.msg<-Get_Liu_PVal.MOD.Lambda.Zero(Q.Norm1, muQ=0, muX=0, sigmaQ=1, sigmaX=1, l=df1, d=0)
+	
+		}
 	}
 	
 
@@ -113,9 +125,14 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 	p.value.noadj = NULL
 	if(!is.null(param$param.noadj)){
 		param.noadj<-param$param.noadj
-		Q.Norm<-(Q - param.noadj$muQ)/param.noadj$sigmaQ
-		Q.Norm1<-Q.Norm * param.noadj$sigmaX + param.noadj$muX
-		p.value.noadj<- pchisq(Q.Norm1,  df = param.noadj$l,ncp=0, lower.tail=FALSE)
+		
+		if(param.noadj$sigmaQ == 0){
+			p.value.noadj<-rep(1, length(Q))
+		} else {
+			Q.Norm<-(Q - param.noadj$muQ)/param.noadj$sigmaQ
+			Q.Norm1<-Q.Norm * param.noadj$sigmaX + param.noadj$muX
+			p.value.noadj<- pchisq(Q.Norm1,  df = param.noadj$l,ncp=0, lower.tail=FALSE)
+		}
 	}
 	#cat("df2:", param.noadj$l, "\n")
 	
@@ -162,6 +179,11 @@ SKAT_Get_DF_Sim<-function(Q.sim){
 
 SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 
+	
+	if(type == "QuantileAdj"){
+		param<-SKAT_Logistic_VarMatching_GetParam1_QuantileAdj(Z1, Q.sim)
+		return(param)
+	}
 
 	if(type != "OnlySim"){
 
@@ -171,9 +193,14 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 		} else {
 			out.svd = try1
 			lambda<-out.svd$lambda
-    			U<-out.svd$U
-			param<-SKAT_Logistic_VarMatching_GetParam(lambda, U, p_all, Q.sim)
 			
+			if(length(lambda) > 0){
+	
+    			U<-out.svd$U
+				param<-SKAT_Logistic_VarMatching_GetParam(lambda, U, p_all, Q.sim)
+			} else {
+				type="OnlySim"
+			}
 		}
 
 	}
@@ -183,16 +210,126 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 		
 	}
 	
-	#if(!is.null(Q.sim)){
-	#	param<-SKAT_Logistic_VarMatching_GetParam1_OnlySim(Z1, p_all, Q.sim)
-	#	cat("hmm")
-	#} 
-
-	#param1<<-param
-	
 	return(param)
 
 }
+
+####################################################
+# in Ver 0.92 for spline adj
+
+SKAT_Logistic_VarMatching_GetParam1_QuantileAdj<-function(Z1,  Q.sim){
+
+
+	#lambda<-Get_Lambda(t(Z1) %*% Z1)
+	#muQ = sum(lambda)
+	muQ<-mean(Q.sim)
+	varQ.sim<-var(Q.sim)
+	df.sim<-SKAT_Get_DF_Sim(Q.sim)
+	if(df.sim > 1000){
+		df.sim=1000
+	}
+	
+	param<-c(muQ, varQ.sim, df.sim)
+	
+	out.s<-SKAT_Logistic_VarMatching_QuantileAdj_Param(Q.sim, param)
+	re<-list(muQ = muQ, varQ = varQ.sim, df=df.sim, out.s=out.s)
+	
+	class(re)<-"QuantileAdj"
+	
+	return(re)
+
+}
+
+
+SKAT_Logistic_VarMatching_QuantileAdj_Param<-function(Q.sim, param){
+
+	#Q.sim<-re.Q1$Q.sim[,1];param<-re.Q1$param;Q<-re.Q1$Q.m[,1]
+	
+	muQ<-param[1]
+	varQ<-param[2]	
+	df<-param[3]
+	
+	if(varQ == 0){
+	
+		return(NULL)
+	}
+	
+	n1<-length(Q.sim)
+	Q.sim<-(Q.sim - muQ)/sqrt(varQ) * sqrt(2 * df) + df
+	
+	Q.sim.sort<-sort(Q.sim)
+	Q.sim.e<-qchisq((1:n1)/(n1 +1), df=df)
+	
+
+	n2<-round(n1/20)
+	prob<-0:n2/(n2+1) + 10/n1
+	Quant1 =  -quantile(-Q.sim.sort, prob)
+	Quant2 =  -quantile(-Q.sim.e, prob)
+	
+	#Q11<<-Quant1
+	#Q21<<-Quant2
+	#Q.sim.sort1<<-Q.sim.sort
+	#Q.sim.e<<-Q.sim.e
+	#param1<<-param
+	
+	fun1<-try(approxfun(Quant1, Quant2), silent=TRUE)
+	maxq<-max(Quant1)
+	minq<-min(Quant1)
+	#ratio<-mean(max(Quant1[1:5]/Quant2[1:5]), Quant[1]/Quant[2])
+	ratio<-mean(c(max(Quant1[1:5]/Quant2[1:5]), Quant1[1]/Quant2[1]))
+	
+	if(class(fun1) == "try-error"){
+		out.s = NULL
+	} else {
+		out.s<-list(fun1=fun1, maxq=maxq, minq=minq, ratio=ratio)
+	}
+	
+	return(out.s)
+
+}
+
+####################################################
+# in Ver 0.92 for spline adj
+
+SKAT_Logistic_PVal_QuantileAdj<-function(Q, param.s){
+
+	# PValues
+	Q.norm<-(Q - param.s$muQ)/sqrt(param.s$varQ) * sqrt(2*param.s$df) + param.s$df
+	out.s<-param.s$out.s
+	if(is.null(out.s) == FALSE){
+		
+		pval<-rep(NA, length(Q.norm))
+		
+		IDX1<-which(Q.norm <= out.s$minq)
+		IDX2<-which(Q.norm >= out.s$maxq)
+		IDX3<-setdiff(setdiff(1:length(Q.norm), IDX1), IDX2)
+	
+		if(length(IDX1) > 0){
+			pval[IDX1]<-pchisq(Q.norm[IDX1],df=param.s$df, lower.tail = FALSE) 
+		}
+		if(length(IDX2) > 0){
+			pval[IDX2]<-pchisq(Q.norm[IDX2]/out.s$ratio,df=param.s$df, lower.tail = FALSE) 
+		}
+		if(length(IDX3) > 0){
+			temp<-out.s$fun1(Q.norm[IDX3])
+			pval[IDX3]<-pchisq(temp,df=param.s$df, lower.tail = FALSE) 
+		}
+	
+		#Q.norm1<<-Q.norm
+		#out1.1<<-out.s
+		#param.s1<<-param.s
+		#pval1<<-pval
+	} else {
+		pval<-pchisq(Q.norm,df=param.s$df, lower.tail = FALSE) 
+	}
+
+	return(pval)
+
+
+}
+
+
+
 
 ################################
 # ver 0.82 changed
