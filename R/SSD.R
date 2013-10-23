@@ -35,6 +35,25 @@ Print_Error_SSD<-function(code){
 	return(1)
 }
 
+Read_SNP_WeightFile<-function(FileName){
+
+	#FileName<-File.Weight
+	Check_File_Exists(FileName)
+	dat<-read.table(FileName, header=FALSE, stringsAsFactors=FALSE)
+	hashset<-new.env()
+	
+	n.SNP<-length(dat[,1])
+	for(i in 1:n.SNP){
+		val1<-dat[i,1]
+		val2<-dat[i,2]
+		hashset[[val1]]<-val2
+	}
+	
+	obj<-list(hashset=hashset, nSNP=n.SNP)
+	class(obj)<-"SNPWeight"
+	return(obj)
+}
+
 
 Check_File_Exists<-function(FileName){
 	
@@ -392,8 +411,10 @@ Open_SSD<-function(File.SSD, File.Info){
 #
 #	Get Genotype Matrix
 
-Get_Genotypes_SSD<-function(SSD_INFO, Set_Index){
+Get_Genotypes_SSD<-function(SSD_INFO, Set_Index, is_ID = FALSE){
 
+	SNP_ID_SIZE=51 # it should be the same as SNP_ID_SIZE in error_messages.h 
+	
 	Is_MakeFile=0
 	if(get("SSD_FILE_OPEN.isOpen", envir=SSD.env) == 0){
 		stop("SSD file is not opened. Please open it first!")
@@ -413,17 +434,35 @@ Get_Genotypes_SSD<-function(SSD_INFO, Set_Index){
 
 	Z<-rep(9,size)
 
+	if(!is_ID){
+		temp<-.C("R_Get_Genotypes",as.integer(Set_Index),as.integer(Z),as.integer(size)
+		,as.integer(Is_MakeFile), as.integer(err_code), PACKAGE="SKAT")
 
-	temp<-.C("R_Get_Genotypes",as.integer(Set_Index),as.integer(Z),as.integer(size)
-	,as.integer(Is_MakeFile), as.integer(err_code))
+		error_code<-temp[[5]]
+		Print_Error_SSD(error_code)
+		
+		Z.out.t<-matrix(temp[[2]],byrow=TRUE, nrow=N.SNP)
+		
+	} else {
+		SNPID=raw(N.SNP* SNP_ID_SIZE)
+	
+		temp<-.C("R_Get_Genotypes_withID",as.integer(Set_Index),as.integer(Z), SNPID, as.integer(size)
+		,as.integer(Is_MakeFile), as.integer(err_code), PACKAGE="SKAT")
 
-	error_code<-temp[[5]]
-	Print_Error_SSD(error_code)
+		error_code<-temp[[6]]
+		Print_Error_SSD(error_code)
+		
+		SNPID.m<-matrix(temp[[3]], byrow=TRUE, nrow=N.SNP)
+		SNPID.c<-apply(SNPID.m, 1, rawToChar)
 
-
-	Z.out.t<-matrix(temp[[2]],byrow=TRUE, nrow=N.SNP)
+		Z.out.t<-matrix(temp[[2]],byrow=TRUE, nrow=N.SNP)
+		rownames(Z.out.t)<-SNPID.c
+		
+		#SNPID.c1<<-SNPID.c
+		#SNPID.1<<-SNPID	
+	}
+	
 	return(t(Z.out.t))
-
 }
 
 

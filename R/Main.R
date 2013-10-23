@@ -287,7 +287,7 @@ SKAT_Check_Method<-function(method,r.corr){
 	} else if( (method == "optimal.mod" || method == "optimal.adj" || method == "optimal.moment.adj" ) && length(r.corr)==1){
 		r.corr = c(0, 0.1^2, 0.2^2, 0.3^2, 0.5^2, 0.5, 1)
 	}
-	if(method =="optimal"){
+	if(method =="optimal" ){
 		method="davies"
 	} else if (method =="optimal.moment") {
 		method="liu.mod"
@@ -330,7 +330,15 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 	if(length(r.corr) > 1 && dim(out.z$Z.test)[2] <= 1){
 		r.corr=0
 		method="davies"
+	} else if(length(r.corr) > 1 && sum(abs(out.z$Z.test - out.z$Z.test[,1])) == 0){
+		r.corr=0
+		method="davies"	
+		
+		msg<-sprintf("Rank of the genotype matrix is one! SKAT is conducted instead of SKAT-O!" )
+		warning(msg,call.=FALSE)
+		
 	}
+
 
 	if(obj.res$out_type == "C"){
 		  #if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
@@ -403,7 +411,14 @@ impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, mi
 	if(length(r.corr) > 1 && dim(out.z$Z.test)[2] <= 1){
 		r.corr=0
 		method="davies"
+	} else if(length(r.corr) > 1 && sum(abs(out.z$Z.test - out.z$Z.test[,1])) == 0){
+		r.corr=0
+		method="davies"	
+		msg<-sprintf("Rank of the genotype matrix is one! SKAT is conducted instead of SKAT-O!" )
+		warning(msg,call.=FALSE)
 	}
+
+
 
 	if(length(r.corr) == 1){
 

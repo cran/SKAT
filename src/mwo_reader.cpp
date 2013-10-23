@@ -192,7 +192,7 @@ void MwoFileReader::upload_offsets_table()
 //Is_MakeFile - flag that shows if print info to file or not. Is_MakeFile = 1 print, Is_MakeFile = 0 don't
 //		printed file will be created in same directory as ".mwa" file
 //==========================================================
-void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is_MakeFile)
+void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int Is_MakeFile, char * SNPID)
 {
 	*myerror = NO_ERRORS;
 	if (set_num > 0 && set_num < this->m_total_num_of_sets + 1)
@@ -221,6 +221,9 @@ void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is
 	int snp_ind = 0;
 	snpset* ss = new snpset;
 	snp* msnp = new snp;
+	memset(msnp->m_name, '\0', sizeof(msnp->m_name));
+	
+	
 	char* ch = new char;
 	int char_counter = 0;
 	int snp_id_ch_ind = 0;
@@ -250,11 +253,12 @@ void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is
 			}
 			else
 			*/
+			
 			if(!flag_snpid_done)
 			{
 				if(buff[i] == '\n')  // if first char in line == '\n' - next_snp_set  will start at next char
 				{
-					prepare_out_array_print_snpset_to_file(ss,set_num, Z,size, Is_MakeFile, myerror);
+					prepare_out_array_print_snpset_to_file(ss,set_num, Z,size, Is_MakeFile, myerror, SNPID);
 					if(*myerror != 0)
 						return;
 					//=============================
@@ -281,7 +285,7 @@ void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is
 				else  // finished read snip_id - the string at the start of every line
 				{
 					temp_snp_id[snp_id_ch_ind] = '\0';
-					strcpy (msnp->m_name,temp_snp_id);
+					strncpy (msnp->m_name,temp_snp_id, SNP_ID_SIZE-1);
 					memset(temp_snp_id,'\0',sizeof(temp_snp_id));
 					snp_id_ch_ind = 0;
 					flag_snpid_done = 1;
@@ -298,6 +302,7 @@ void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is
 					flag_snpid_done = 0;
 					ss->m_snp.Add(msnp);
 					msnp = new snp;
+					memset(msnp->m_name, '\0', sizeof(msnp->m_name));
 					snp_ind++;
 					char_counter = 0;
 				}
@@ -331,7 +336,7 @@ void MwoFileReader::get_set(int set_num,  int* Z, int size, int* myerror, int Is
 //		if some error happen during the run.
 //=========================================================================
 void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_num, int* Z, int Zsize,
-														   int Is_MakeFile, int* myerror)
+														   int Is_MakeFile, int* myerror, char * SNPID)
 {
 	if (Zsize != (this->m_num_of_individuals * this->m_set_size[set_num - 1]))
 	{
@@ -374,8 +379,13 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 		if (Is_MakeFile)
 				myout << ss->m_snp.GetAt(i)->m_name << " ";
 
-
-
+		if(SNPID != NULL){
+			int start_id = SNP_ID_SIZE * i;
+			strncpy(SNPID + start_id, ss->m_snp.GetAt(i)->m_name, SNP_ID_SIZE-1);
+			//printf("NAME: %s\n", ss->m_snp.GetAt(i)->m_name);
+					
+		}
+		
 		for (int j = 0; j < ss->m_snp.GetAt(i)->m_char.GetSize(); ++j)
 		{
 			//DECODE HERE - PRINT DECODED

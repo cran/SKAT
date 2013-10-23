@@ -15,7 +15,7 @@ SKAT(Z, obj, kernel = "linear.weighted",
 
 SKAT.SSD.OneSet(SSD.INFO, SetID, obj, \dots)
 
-SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
+SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots ,obj.SNPWeight=NULL)
 
  }
 \arguments{
@@ -47,6 +47,7 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots )
       \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO}
       \item{SetIndex}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO  }
       \item{\dots}{ furthuer arguments to be passed to ``SKAT'' }
+      \item{obj.SNPWeight}{an output object of Read_SNP_WeightFile.}
 }
 \value{
 	\item{p.value}{the p-value of SKAT. }

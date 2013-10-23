@@ -19,7 +19,7 @@ void Get_TotalNumberofSNPs(int* Total_Num_SNP);
 void Get_TotalNumberofInd( int* Total_Num_IND);
 void Get_NumberofSnps(int SetID,int *Num_SNP,int* myerror);
 void Get_Genotypes( int Set_number, int* Z, int size, int Is_MakeFile,int* myerror);
-
+void Get_Genotypes_withID( int Set_number, int* Z, char * SNPID,int size, int Is_MakeFile, int* myerror);
 
 extern "C" {
 
@@ -159,6 +159,12 @@ void R_Get_NumberofSnps(int* SetID,int *Num_SNP, int * err)
 void R_Get_Genotypes( int *Set_number, int * Z , int * size, int *Is_MakeFile, int * err) // set_number base on INFO file. The result will be printed to file.
 {
 	Get_Genotypes( *Set_number, Z, *size,  * Is_MakeFile, err);
+}	
+
+
+void R_Get_Genotypes_withID( int *Set_number, int * Z , char * SNPID, int * size, int *Is_MakeFile, int * err) // set_number base on INFO file. The result will be printed to file.
+{
+	Get_Genotypes_withID( *Set_number, Z, SNPID,  *size,  * Is_MakeFile, err);
 }	
 
 

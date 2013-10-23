@@ -234,7 +234,9 @@ Get_Lambda<-function(K){
 
 	# eigenvalue bigger than sum(eigenvalues)/1000
 	IDX2<-which(lambda1 > mean(lambda1[IDX1])/100000)
-
+	#cat("Lambda:", lambda1, "\n")
+	#K1<<-K
+	
 	if(length(IDX2) == 0){
 		stop("No Eigenvalue is bigger than 0!!")
 	}

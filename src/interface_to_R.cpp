@@ -224,4 +224,10 @@ void Get_Genotypes( int Set_number, int* Z,int size, int Is_MakeFile, int* myerr
 	MWA_FILE_ID->get_set(Set_number, Z, size, myerror, Is_MakeFile); //some integer - enter the value base on CEU.bed.INFO.txt
 }	
 
+void Get_Genotypes_withID( int Set_number, int* Z, char * SNPID,int size, int Is_MakeFile, int* myerror) // set_number base on INFO file. The result will be printed to file.
+{
+	MWA_FILE_ID->get_set(Set_number, Z, size, myerror, Is_MakeFile, SNPID); //some integer - enter the value base on CEU.bed.INFO.txt
+}	
+
+
 //===============================================================

@@ -138,7 +138,7 @@ SKAT.SSD.OneSet = function(SSD.INFO, SetID, obj, ...){
 #
 # x is either y or SKAT_NULL_Model 
 #
-SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ...){
+SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
 	
 	id1<-which(SSD.INFO$SetInfo$SetIndex == SetIndex)
 	if(length(id1) == 0){
@@ -147,9 +147,28 @@ SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ...){
 	}	
 	SetID<-SSD.INFO$SetInfo$SetID[id1]
 
+	if(is.null(obj.SNPWeight)){
+		Z<-Get_Genotypes_SSD(SSD.INFO, SetIndex)
+		re<-SKAT(Z, obj, ...)
+	} else {
+		Z<-Get_Genotypes_SSD(SSD.INFO, SetIndex, is_ID = TRUE)	
+		SNP_ID<-colnames(Z)
+		p<-ncol(Z)
+		weights<-rep(0, p)
+		for(i in 1:p){
+			val1<-SNP_ID[i]			
+			val2<-obj.SNPWeight$hashset[[val1]]
+			
+			if(is.null(val2)){
+				msg<-sprintf("SNP %s is not found in obj.SNPWeight!", val1)
+				stop(msg)
+			}
 
-	Z<-Get_Genotypes_SSD(SSD.INFO, SetIndex)
-	re<-SKAT(Z, obj, ...)
+			weights[i]<-val2
+		}
+		re<-SKAT(Z, obj, weights=weights, ...)
+	}
+	
 	return(re)
 }
 
