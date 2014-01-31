@@ -120,18 +120,16 @@ Read_Plink_FAM_Cov<-function(Filename, File_Cov, Is.binary=TRUE, flag1=0, cov_he
 #
 # x is either y or SKAT_NULL_Model 
 #
-SKAT.SSD.OneSet = function(SSD.INFO, SetID, obj, ...){
+SKAT.SSD.OneSet = function(SSD.INFO, SetID, obj, ..., obj.SNPWeight=NULL){
 	
 	id1<-which(SSD.INFO$SetInfo$SetID == SetID)
 	if(length(id1) == 0){
 		MSG<-sprintf("Error: cannot find set id [%s] from SSD!", SetID)
 		stop(MSG)
 	}	
-	Set_Index<-SSD.INFO$SetInfo$SetIndex[id1]
+	SetIndex<-SSD.INFO$SetInfo$SetIndex[id1]
+	re = SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=obj.SNPWeight)
 
-	Z<-Get_Genotypes_SSD(SSD.INFO, Set_Index)
-	re<-SKAT(Z, obj, ...)
-	
 	return(re)
 }
 
@@ -141,17 +139,33 @@ SKAT.SSD.OneSet = function(SSD.INFO, SetID, obj, ...){
 SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
 	
 	id1<-which(SSD.INFO$SetInfo$SetIndex == SetIndex)
+	#id1 = SetIndex
 	if(length(id1) == 0){
 		MSG<-sprintf("Error: cannot find set index [%d] from SSD!", SetIndex)
 		stop(MSG)
 	}	
 	SetID<-SSD.INFO$SetInfo$SetID[id1]
-
+	
+	is_ID = FALSE
+	if(!is.null(obj.SNPWeight)){
+		is_ID = TRUE
+	}
+	try1<-try(Get_Genotypes_SSD(SSD.INFO, SetIndex, is_ID=is_ID),silent = TRUE)
+	if(class(try1) != "try-error"){
+		Z<-try1
+		Is.Error<-FALSE	
+	} else {
+		err.msg<-geterrmessage()
+		msg<-sprintf("Error to get genotypes of %s: %s",SetID, err.msg)
+		stop(msg)
+	}
+		
+	
 	if(is.null(obj.SNPWeight)){
-		Z<-Get_Genotypes_SSD(SSD.INFO, SetIndex)
+
 		re<-SKAT(Z, obj, ...)
 	} else {
-		Z<-Get_Genotypes_SSD(SSD.INFO, SetIndex, is_ID = TRUE)	
+	
 		SNP_ID<-colnames(Z)
 		p<-ncol(Z)
 		weights<-rep(0, p)
@@ -176,7 +190,7 @@ SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=
 #
 # Only SKAT_Null_Model obj can be used
 #
-SKAT.SSD.All = function(SSD.INFO, obj, ...){
+SKAT.SSD.All = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
 	
 	N.Set<-SSD.INFO$nSets
 	OUT.Pvalue<-rep(NA,N.Set)
@@ -207,31 +221,18 @@ SKAT.SSD.All = function(SSD.INFO, obj, ...){
 
 	for(i in 1:N.Set){
 		Is.Error<-TRUE
-		try1<-try(Get_Genotypes_SSD(SSD.INFO, i),silent = TRUE)
-		if(class(try1) != "try-error"){
-			Z<-try1
-			Is.Error<-FALSE
-			
-			
-		} else {
-			err.msg<-geterrmessage()
-			msg<-sprintf("Error to get genotypes of %s: %s",SSD.INFO$SetInfo$SetID[i], err.msg)
-			warning(msg,call.=FALSE)
-		}
-	
-		if(!Is.Error){
-			Is.Error<-TRUE
-			try2<-try(SKAT_1(Z,obj, ...),silent = TRUE)
-			
-			if(class(try2) != "try-error"){
-				re<-try2
-				Is.Error<-FALSE
-			} else {
+		try1 = try(SKAT.SSD.OneSet_SetIndex(SSD.INFO=SSD.INFO, SetIndex=i, obj=obj, ..., obj.SNPWeight=obj.SNPWeight))
 
-				err.msg<-geterrmessage()
-				msg<-sprintf("Error to run SKAT for %s: %s",SSD.INFO$SetInfo$SetID[i], err.msg)
-				warning(msg,call.=FALSE)
-			}
+		
+		if(class(try1) != "try-error"){
+			re<-try1
+			Is.Error<-FALSE
+		} else {
+
+			err.msg<-geterrmessage()
+			msg<-sprintf("Error to run SKAT for %s: %s",SSD.INFO$SetInfo$SetID[i], err.msg)
+			warning(msg,call.=FALSE)
+			
 		}
 		
 		if(!Is.Error){

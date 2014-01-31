@@ -191,13 +191,21 @@ SKAT_Optimal_Integrate_Func_VarMatching<-function(x, pmin.q, muQ, varQ, df, tau,
 }
 
 
-SKAT_Optimal_PValue_VarMatching<-function(pmin.q, muQ, varQ, df, tau, r.all){
+SKAT_Optimal_PValue_VarMatching<-function(pmin.q, muQ, varQ, df, tau, r.all, pmin=NULL){
 	
 	
 	re<-integrate(SKAT_Optimal_Integrate_Func_VarMatching, lower=0, upper=40, subdivisions=2000, pmin.q=pmin.q, muQ=muQ, varQ=varQ, df=df
 	, tau=tau, r.all=r.all, abs.tol = 10^-25)
 	
 	pvalue<-1-re[[1]]
+	
+	# added Jan 31, 2014
+	if(!is.null(pmin)){
+		if(pmin *length(r.all) < pvalue){
+			pvalue = pmin *length(r.all)
+		}
+	}
+	
 	return(pvalue)
 
 }
@@ -225,6 +233,7 @@ SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all
 	Each_Info<-SKAT_Optimal_Each_Q_VarMatching(param.m, Q.all, r.all, Z2.all,p_all, Q.sim.all,method)
 	pmin.q<-Each_Info$pmin.q
 	pmin.q.sim<-Each_Info$pmin.q.sim
+	pmin<-Each_Info$pmin
 	
 	pval<-rep(0,n.q)
 	pval.sim<-rep(0,n.q)
@@ -240,7 +249,7 @@ SKAT_Optimal_Get_Pvalue_VarMatching<-function(Q.all, Z1, r.all, p_all, Q.sim.all
 	p.val.each=Each_Info$pval
 	for(i in 1:n.q){
 		# there was bug in this part, and fixed it
-		pval[i]<-SKAT_Optimal_PValue_VarMatching(pmin.q[i,], muQ, varQ, df, tau, r.all)
+		pval[i]<-SKAT_Optimal_PValue_VarMatching(pmin.q[i,], muQ, varQ, df, tau, r.all, pmin=pmin[i])
 	}
 	
 	# Check the pval 

@@ -37,7 +37,7 @@ Print_Error_SSD<-function(code){
 
 Read_SNP_WeightFile<-function(FileName){
 
-	#FileName<-File.Weight
+	#FileName<-"./Example1_W1.txt"
 	Check_File_Exists(FileName)
 	dat<-read.table(FileName, header=FALSE, stringsAsFactors=FALSE)
 	hashset<-new.env()

@@ -10,7 +10,7 @@ export(SKAT, Get_Logistic_Weights_MAF, Get_Logistic_Weights,
        	Power_Continuous, Power_Logistic,
        	Power_Continuous_R, Power_Logistic_R,
        	Generate_SSD_SetID, Close_SSD, Open_SSD,Get_Genotypes_SSD,
-	Read_Plink_FAM, Read_Plink_FAM_Cov, SKAT_CommonRare,
+	Read_Plink_FAM, Read_Plink_FAM_Cov, SKAT_CommonRare,Read_SNP_WeightFile,
 	SKAT_CommonRare.SSD.OneSet, SKAT_CommonRare.SSD.OneSet_SetIndex, SKAT_CommonRare.SSD.All)
 
 # variables

@@ -278,6 +278,33 @@ out<-SKAT.SSD.All(SSD.INFO, obj)
 out
 @
 
+If you want to use custom weight, you need to make a weight file and read it using
+``Read\_SNP\_WeightFile'' function. This file should have two columns, 
+SNP ID and weight values. After reading it, the output object of ``Read\_SNP\_WeightFile''
+can be used as a parameter in SKAT.SSD functions
+
+
+
+<<SKAT_B2Weight>>=
+
+# Custom weight
+# File: Example1_Weight.txt
+obj.SNPWeight<-Read_SNP_WeightFile("./Example1_Weight.txt")
+
+out<-SKAT.SSD.All(SSD.INFO, obj, obj.SNPWeight=obj.SNPWeight)
+out
+@
+
+The output object of SKAT.SSD.All has a variable called ``results'', which has the output dataframe. 
+You can save it using write.table function.
+<<SKAT_B2Save>>=
+
+output.df = out$results
+write.table(output.df, file="./save.txt", col.names=TRUE, row.names=FALSE)
+
+@
+
+
 If you have more than one gene/SNP set to test an association, 
 you should adjust multiple testing. 
 It can be done either by conducting bonferroni correction or 

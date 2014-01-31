@@ -191,7 +191,28 @@ out
 
 
 ###################################################
-### code chunk number 15: SKAT_B3
+### code chunk number 15: SKAT_B2Weight
+###################################################
+
+# Custom weight
+# File: Example1_Weight.txt
+obj.SNPWeight<-Read_SNP_WeightFile("./Example1_Weight.txt")
+
+out<-SKAT.SSD.All(SSD.INFO, obj, obj.SNPWeight=obj.SNPWeight)
+out
+
+
+###################################################
+### code chunk number 16: SKAT_B2Save
+###################################################
+
+output.df = out$results
+write.table(output.df, file="./save.txt", col.names=TRUE, row.names=FALSE)
+
+
+
+###################################################
+### code chunk number 17: SKAT_B3
 ###################################################
 obj<-SKAT_Null_Model(y ~ 1, out_type="C", n.Resampling=1000, type.Resampling="bootstrap")
 out<-SKAT.SSD.All(SSD.INFO, obj)
@@ -204,7 +225,7 @@ Resampling_FWER(out,FWER=0.5)
 
 
 ###################################################
-### code chunk number 16: SKAT_B4
+### code chunk number 18: SKAT_B4
 ###################################################
 
 obj<-SKAT_Null_Model(y ~ 1, out_type="C")
@@ -224,7 +245,7 @@ SKAT(Z, obj, weights=weights)$p.value
 
 
 ###################################################
-### code chunk number 17: SKAT_B5
+### code chunk number 19: SKAT_B5
 ###################################################
 
 # test all genes in SSD file
@@ -236,13 +257,13 @@ out
 
 
 ###################################################
-### code chunk number 18: SKAT_B5
+### code chunk number 20: SKAT_B5
 ###################################################
 Close_SSD()
 
 
 ###################################################
-### code chunk number 19: data
+### code chunk number 21: data
 ###################################################
 data(SKAT.haplotypes)
 names(SKAT.haplotypes)
@@ -251,7 +272,7 @@ attach(SKAT.haplotypes)
 
 
 ###################################################
-### code chunk number 20: SKAT_P1
+### code chunk number 22: SKAT_P1
 ###################################################
 set.seed(500)
 out.c<-Power_Continuous(Haplotype,SNPInfo$CHROM_POS, SubRegion.Length=5000,    
@@ -268,7 +289,7 @@ Get_RequiredSampleSize(out.b, Power=0.8)
 
 
 ###################################################
-### code chunk number 21: SKAT_P2
+### code chunk number 23: SKAT_P2
 ###################################################
 set.seed(500)
 out.c<-Power_Continuous_R(Haplotype,SNPInfo$CHROM_POS, SubRegion.Length=5000,    

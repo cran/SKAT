@@ -366,8 +366,18 @@ Impute<-function(Z, impute.method){
 				Z[IDX,i]<-2 * maf1
 			}
 		}
+	} else if(impute.method =="bestguess") {
+		
+		for(i in 1:p){
+			IDX<-which(is.na(Z[,i]))
+			if(length(IDX) > 0){
+				maf1<-mean(Z[-IDX,i])/2
+				Z[IDX,i]<-round(2 * maf1)
+			}
+		}
+	
 	} else {
-		stop("Error: Imputation method shoud be either \"fixed\" or \"random\"! ")
+		stop("Error: Imputation method shoud be \"fixed\", \"random\" or \"bestguess\" ")
 	}
 
 	return(Z)

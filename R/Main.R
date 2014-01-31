@@ -201,8 +201,10 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	if(is.null(weights)){
 		weights<-Beta.Weights(MAF,weights.beta)
+	} else {
+		weights = weights[ID_INCLUDE_SNP]
 	}
-
+	
 	###########################################
 	# Check missing of y and X
 

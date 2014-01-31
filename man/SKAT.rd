@@ -13,7 +13,7 @@ SKAT(Z, obj, kernel = "linear.weighted",
   impute.method="fixed", r.corr=0, is_check_genotype=TRUE,
   is_dosage = FALSE, missing_cutoff=0.15 , estimate_MAF=1)
 
-SKAT.SSD.OneSet(SSD.INFO, SetID, obj, \dots)
+SKAT.SSD.OneSet(SSD.INFO, SetID, obj, \dots ,obj.SNPWeight=NULL)
 
 SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots ,obj.SNPWeight=NULL)
 
@@ -47,7 +47,9 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots ,obj.SNPWeight=NULL)
       \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO}
       \item{SetIndex}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO  }
       \item{\dots}{ furthuer arguments to be passed to ``SKAT'' }
-      \item{obj.SNPWeight}{an output object of Read_SNP_WeightFile.}
+            \item{obj.SNPWeight}{ an output object of Read_SNP_WeightFile (default=NULL). 
+      If NULL, the beta weight with the ``weights.beta'' parameter is used.  }
+      
 }
 \value{
 	\item{p.value}{the p-value of SKAT. }
