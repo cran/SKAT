@@ -10,11 +10,11 @@
 
  }
 \arguments{
-      \item{FileName}{an input file name of a custom weight}
+      \item{FileName}{an input file name of a custom weight.}
      
 }
 \value{
-	Output object has a hash table of SNP IDs and weights
+	Output object has a hash table of SNP IDs and weights.
 }
 \details{
  The file should be a white-space (space or tab) delimitered file with 2 columns:

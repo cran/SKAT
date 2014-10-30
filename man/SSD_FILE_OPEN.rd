@@ -1,8 +1,8 @@
 \name{SSD_FILE_OPEN}
 \alias{SSD_FILE_OPEN.isOpen}
 \alias{SSD_FILE_OPEN.FileName}
-\title{Interval variables for SSD files}
+\title{Internal variables for SSD}
 \description{
-Interval variables for SSD files
+Internal variables for SSD
 }
 

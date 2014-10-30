@@ -17,7 +17,7 @@
   	
 }
 \details{
-	It computes required sample sizes by simple interpolation. 
+	It computes required sample sizes using simple interpolation. 
                                                             
 }
 

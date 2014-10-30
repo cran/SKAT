@@ -1,15 +1,14 @@
 Package: SKAT
 Type: Package
 Title: SNP-set (Sequence) Kernel Association Test
-Version: 0.95
-Date: 2014-01-31
-Author: Seunggeun Lee, Larisa Miropolsky and Micheal Wu
+Version: 1.0
+Date: 2014-10-30
+Author: Seunggeun (Shawn) Lee, with contributions from Larisa Miropolsky and Michael Wu
 Maintainer: Seunggeun (Shawn) Lee <leeshawn@umich.edu>
-Description: Kernel based SNP set test 
+Description: SKAT is a kernel regression based association test between a set of single nucleotide polymorphism (SNP) and dichotomous or quantitative phenotypes. SKAT aggregates individual score test statistics of SNPs in a SNP set and efficiently computes SNP-set level p-values, while adjusting for covariates, such as principal components to account for population stratification. 
 License: GPL (>= 2)
 Depends: R (>= 2.13.0)
-Suggests: seqminer
-Packaged: 2014-02-18 02:23:25 UTC; sglee
+Packaged: 2014-10-31 15:02:22 UTC; sglee
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2014-02-18 07:21:49
+Date/Publication: 2014-10-31 17:23:41

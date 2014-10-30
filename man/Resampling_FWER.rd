@@ -4,9 +4,8 @@
  \title{Return significant SNP sets after controlling family wise error rate (FWER)}
  \description{
 
-      This function returns significant SNP sets after controlling for family wise error rate (FWER) 
-      using resampled residuals. To use it, you need to obtain resampling residuals using SKAT_Null_Model, 
-      and then conduct the SKAT repeatedly for all genes/SNP sets or use SKAT.SSD.All function.
+      Obtain significant SNP sets after controlling for family wise error rate (FWER) 
+      using resampled residuals. To use it, SKAT_Null_Model or SKAT_Null_Model_MomentAdjust should have n.Resampling > 0. 
  }
  \usage{
 
@@ -17,15 +16,17 @@
  }
 \arguments{
       \item{obj}{an object returned from SKAT.SSD.All function.}
-      \item{P.value}{a vector of the SKAT p-value. If you test 100 genes, this vector should have 100 p-values.}
-      \item{P.value.Resampling}{a matrix of p-values of the resampled residuals. Each row represents each gene/snp set, and each column represents resampling set. For example, if you have 100 genes, and conducted resampling 1000 times ( ex.n.Resampling=1000 in SKAT_Null_Model), then it should be a 100 x 1000 matrix.}  
+      \item{P.value}{a vector of SKAT p-values. If you test 100 genes, this vector should have 100 p-values.}
+      \item{P.value.Resampling}{a matrix of p-values of the resampled residuals. 
+      Each row represents each gene/snp set, and each column represents resampling set. 
+      For example, if you have 100 genes, and conducted resampling 1000 times ( ex.n.Resampling=1000 in SKAT_Null_Model), then it should be a 100 x 1000 matrix.}  
       \item{FWER}{a numeric value of FWER rate to control (default=0.05)}
 }
 \value{
 	\item{results}{If you use the returned object from SKAT.SSD.all function, 
 	it is a sub-table of significant snp sets of the result table in the obj. 
 	If you use P.value and P.value.Resampling, it is a vector of significant p-values. 
-	If there is no significant snp set, it has NULL value. }
+	If there is no significant snp set, it is NULL. }
 	\item{n}{a numeric value of the number of significant snp sets.}
   	\item{ID}{a vector of indexes of significant snp sets.}
 }

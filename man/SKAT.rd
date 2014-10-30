@@ -46,8 +46,8 @@ SKAT.SSD.OneSet_SetIndex(SSD.INFO, SetIndex, obj, \dots ,obj.SNPWeight=NULL)
       \item{SSD.INFO}{an SSD_INFO object returned from Open_SSD. }
       \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO}
       \item{SetIndex}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO  }
-      \item{\dots}{ furthuer arguments to be passed to ``SKAT'' }
-            \item{obj.SNPWeight}{ an output object of Read_SNP_WeightFile (default=NULL). 
+      \item{\dots}{further arguments to be passed to ``SKAT'' }
+      \item{obj.SNPWeight}{ an output object of Read_SNP_WeightFile (default=NULL). 
       If NULL, the beta weight with the ``weights.beta'' parameter is used.  }
       
 }

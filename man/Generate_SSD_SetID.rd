@@ -10,23 +10,23 @@
 	 File.SSD, File.Info)
  }
 \arguments{
-      \item{File.Bed}{ the name of the binary ped file (BED).}
-      \item{File.Bim}{ the name of the binary map file (BIM).}
-      \item{File.Fam}{ the name of the FAM file (FAM).}
-      \item{File.SetID}{ the name of the Snp set ID file which defines SNP sets. The first column of the file must be Set ID, and the second column must be SNP ID. There should be no header!! }
-      \item{File.SSD}{ the name of the SSD file generated. }
-      \item{File.Info}{ the name of the SSD info file generated. }
+      \item{File.Bed}{name of the binary ped file (BED).}
+      \item{File.Bim}{name of the binary map file (BIM).}
+      \item{File.Fam}{name of the FAM file (FAM).}
+      \item{File.SetID}{name of the Snp set ID file which defines SNP sets. The first column of the file must be Set ID, and the second column must be SNP ID. There should be no header!! }
+      \item{File.SSD}{name of the SSD file generated. }
+      \item{File.Info}{name of the SSD info file generated. }
       
 }
 
 \details{
- The SetID file is white-space (space or tab) delimitered file with 2 columns:
+ The SetID file is a white-space (space or tab) delimitered file with 2 columns:
   SetID and SNP_ID.
 
- Please keep in mind that there should be no header!!
- The SNP_IDs and SetIDs should be less than 25 characters, otherwise, it will return error message.
+ Please keep in mind that there should be no header!
+ The SNP_IDs and SetIDs should be less than 50 characters, otherwise, it will return error message.
       
- The SSD file is a binary formated file with genotype information. 
+ The SSD file is a binary formated file with genotypes. 
  The SSD info file is a text file. The first 6 rows have general information of data and SNP sets. The information of each set can be found from the 8th row. 
 
                                                         

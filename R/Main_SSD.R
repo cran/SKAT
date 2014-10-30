@@ -133,10 +133,79 @@ SKAT.SSD.OneSet = function(SSD.INFO, SetID, obj, ..., obj.SNPWeight=NULL){
 	return(re)
 }
 
+SKAT.SSD.GetSNP_Weight<-function(SSD.INFO, SetIndex, obj.SNPWeight=NULL){
+
+
+	id1<-which(SSD.INFO$SetInfo$SetIndex == SetIndex)
+	if(length(id1) == 0){
+		MSG<-sprintf("Error: cannot find set index [%d] from SSD!", SetIndex)
+		stop(MSG)
+	}	
+	SetID<-SSD.INFO$SetInfo$SetID[id1]
+	
+	is_ID = FALSE
+	if(!is.null(obj.SNPWeight)){
+		is_ID = TRUE
+	}
+
+	try1<-try(Get_Genotypes_SSD(SSD.INFO, SetIndex, is_ID=is_ID),silent = TRUE)
+	if(class(try1) != "try-error"){
+		Z<-try1
+		Is.Error<-FALSE	
+	} else {
+		err.msg<-geterrmessage()
+		msg<-sprintf("Error to get genotypes of %s: %s",SetID, err.msg)
+		stop(msg)
+	}
+
+	if(!is_ID){
+		re=list(Z=Z, Is.weights=FALSE)
+		return(re)
+	}
+
+
+	SNP_ID<-colnames(Z)
+	p<-ncol(Z)
+	weights<-rep(0, p)
+	for(i in 1:p){
+		val1<-SNP_ID[i]			
+		val2<-obj.SNPWeight$hashset[[val1]]
+			
+		if(is.null(val2)){
+			msg<-sprintf("SNP %s is not found in obj.SNPWeight!", val1)
+			stop(msg)
+		}
+
+		weights[i]<-val2
+	}
+	re=list(Z=Z, Is.weights=FALSE, weights=weights)
+	return(re)
+		
+
+}
+
+
+SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
+	
+	re1 = SKAT.SSD.GetSNP_Weight(SSD.INFO, SetIndex, obj.SNPWeight=obj.SNPWeight)
+
+	
+	if(!re1$Is.weights){
+		re<-SKAT(re1$Z, obj, ...)
+	} else {
+	
+		re<-SKAT(re1$Z, obj, weights=re1$weights, ...)
+	}
+	
+	return(re)
+}
+
+
+
 #
 # x is either y or SKAT_NULL_Model 
 #
-SKAT.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
+SKAT.SSD.OneSet_SetIndex_OLD = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
 	
 	id1<-which(SSD.INFO$SetInfo$SetIndex == SetIndex)
 	#id1 = SetIndex

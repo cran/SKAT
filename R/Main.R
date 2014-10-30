@@ -14,7 +14,11 @@ SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta
 	}
 
 
-	if(class(obj) == "SKAT_NULL_Model_ADJ"){
+	if(class(obj) == "SKAT_NULL_Model_EMMAX"){
+
+		re = SKAT_emmaX(Z, obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method,  r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)
+
+	} else if(class(obj) == "SKAT_NULL_Model_ADJ"){
 
 		re<-SKAT_With_NullModel_ADJ(Z, obj, kernel = kernel, method=method, weights.beta=weights.beta, weights = weights, impute.method = impute.method,  r.corr=r.corr, is_check_genotype=is_check_genotype, is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)
 
@@ -32,9 +36,6 @@ SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta
 
 
 SKAT_1 = function(Z,obj, ...){
-
-
-
 	if(class(obj) == "SKAT_NULL_Model_ADJ"){
 		re<-SKAT_With_NullModel_ADJ(Z,obj, ...)
 	} else if(class(obj) == "SKAT_NULL_Model"){
@@ -64,7 +65,8 @@ SKAT_MAIN_Check_OutType<-function(out_type){
 #
 #
 
-SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff, estimate_MAF=1){
+SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff
+, estimate_MAF=1){
 
 	#############################################
 	# Check parameters
@@ -242,7 +244,8 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 			msg<-sprintf("In %s, Only one SNP in the SNP set!"
 			,SetID )
 		}
-		warning(msg,call.=FALSE)
+		# Suppress this warning
+		#warning(msg,call.=FALSE)
 
 		Z.test<-as.matrix(Z[id_include,])
 
@@ -278,10 +281,23 @@ SKAT_Check_RCorr<-function(kernel, r.corr){
 SKAT_Check_Method<-function(method,r.corr){
 
 
+
 	if(method != "liu"  && method != "davies" && method != "liu.mod" && method != "optimal" && method != "optimal.moment" 
-	&& method != "optimal.mod" && method != "adjust" && method != "optimal.adj" && method != "optimal.moment.adj"  ){
+	&& method != "optimal.mod" && method != "adjust" && method != "optimal.adj" && method != "optimal.moment.adj"
+	 && method != "SKAT" && method != "SKATO" && method != "Burden" && method != "SKATO.m"   ){
 		stop("Invalid method!")
 	}
+	if(method=="SKAT"){
+		method="davies"	
+	} else if(method == "SKATO"){
+		method="optimal.adj"
+	} else if(method =="SKATO.m"){
+		method="optimal.moment.adj"
+	} else if(method == "Burden"){
+		method="davies"
+		r.corr=1
+	}
+	
 	
 	if((method == "optimal" || method == "optimal.moment" ) && length(r.corr) == 1){
 		r.corr = (0:10)/10

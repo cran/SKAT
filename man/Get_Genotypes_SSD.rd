@@ -9,11 +9,11 @@
  }
 \arguments{
       \item{SSD_INFO}{a SSD_INFO object returned from Open_SSD.   }
-      \item{Set_Index}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO. }
-      \item{is_ID}{a logical value indicating whether to read SNP ID (default=FALSE). If TRUE, it reads SNP IDs and use them as column names}
+      \item{Set_Index}{a numeric value of Set index. The set index of each set can be found from SetInfo object of SSD.INFO. }
+      \item{is_ID}{a logical value indicating whether to read SNP ID (default=FALSE). If TRUE, it reads SNP IDs and use them as column names.}
 }
 \value{
- 	The genotype matrix with n rows and m columns, where n is the number of samples, and m is the number of SNPs.
+ 	A genotype matrix with n rows and m columns, where n is the number of samples, and m is the number of SNPs.
 }
 \author{Seunggeun Lee, Larisa Miropolsky}
 

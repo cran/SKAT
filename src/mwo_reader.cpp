@@ -265,9 +265,9 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 					end_of_file = 1; // stop it after current set - read just one set in the middle of the file
 					break;
 					//=============================
-					ss = new snpset;
-					snp_id_ch_ind = 0;
-					continue;
+					//ss = new snpset;
+					//snp_id_ch_ind = 0;
+					//continue;
 				}//if first char in this line == '\n' - next_snp_set
 
  				/* changed by LSG */
@@ -310,7 +310,7 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 				{
 					*ch = buff[i];
 					msnp->m_char.Add(ch);
-					ch = new char;
+                    ch = new char;
 					char_counter++;
 				}
 			}
@@ -318,6 +318,13 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 		}
 	}
 
+    
+    // remove all 
+    for (int i = 0; i < ss->m_snp.GetSize(); ++i){
+        ss->m_snp.GetAt(i)->m_char.Free();        
+    }
+    ss->m_snp.Free();
+    delete ss;
 	return;
 
 

@@ -23,7 +23,9 @@
 	
  }
 \arguments{
-      \item{Z}{a numeric genotype matrix with each row as a different individual and each column as a separate gene/snp. Each genotype should be coded as 0, 1, 2, and 9 (or NA) for AA, Aa, aa, and missing, where A is a major allele and a is a minor allele. Missing genotypes will be imputed by the simple Hardy-Weinberg equilibrium (HWE) based imputation. }
+      \item{Z}{a numeric genotype matrix with each row as a different individual and each column as a separate gene/snp. 
+      Each genotype should be coded as 0, 1, 2, and 9 (or NA) for AA, Aa, aa, and missing, where A is a major allele and a is a minor allele. 
+      Missing genotypes will be imputed by the simple Hardy-Weinberg equilibrium (HWE) based imputation. }
       \item{obj}{an output object of the SKAT_Null_Model function. }
       \item{weights.beta.rare}{a numeric vector of parameters of beta weights for rare variants (default=c(1,25)).}
       \item{weights.beta.common}{a numeric vector of parameters of beta weights for common variants (default=c(0.5,0.5)).}
@@ -60,7 +62,8 @@
 		
   	\item{Q}{the test statistic of SKAT. It has NA when method="A" or "AR".}
 	\item{param}{estimated parameters of each method.}   
-	\item{param$Is_Converged}{an indicator of the convergence. 1 indicates the method is converged, and 0 indicates the method is not converged. When 0 (not converged), "liu" method is used to compute p-value. }  
+	\item{param$Is_Converged}{an indicator of the convergence. 1 indicates the method is converged, and 0 indicates the method is not converged. 
+	When 0 (not converged), "liu.mod" method is used to compute p-value. }  
 	\item{param$n.marker}{a number of SNPs in the genotype matrix}  
 	\item{param$n.marker.test}{a number of SNPs used for the test. It can be different from param$n.marker when 
 	some markers are monomorphic or have higher missing rates than the missing_cutoff. } 
