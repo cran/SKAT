@@ -56,6 +56,11 @@ This function implements three methods (method.bin) to compute p-values: 1) Effi
 alleles (m), and the degree of case-control imbalance. 
 
 Adaptive ER (ER.A) is not implemented yet. 
+
+If seednum is not NULL, set.seed(seednum) function is used to specify seeds to get the same p-values 
+of ER based methods for different runs. Therefore, please set seednum=NULL, if you do not want to set seeds. 
+
+
 }
 
 

@@ -84,6 +84,10 @@ This function implements six methods (method.bin) to compute p-values: 1) Effici
 alleles (m), and the degree of case-control imbalance. When method.bin="ER" or "ER.A", SKATBinary compute mid-p-values and minimum achievable 
 mid p-values. 
 
+If seednum is not NULL, set.seed(seednum) function is used to specify seeds to get the same p-values 
+of ER based methods for different runs. Therefore, please set seednum=NULL, if you do not want to set seeds. 
+
+
 }
 
 

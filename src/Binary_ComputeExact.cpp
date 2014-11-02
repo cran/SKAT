@@ -389,8 +389,8 @@ int     ComputeExact::Run(int test_type){
    
     int i, j, idx, l;
     int * array = (int *) SL_calloc(m_k, sizeof(int));
-    SL_setseed(time(NULL));
-
+    //SL_setseed(time(NULL));
+	SL_setseed(1);
   
 	for(i=0;i < m_k+1;i++){
         

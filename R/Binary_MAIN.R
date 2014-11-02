@@ -1,3 +1,41 @@
+SKATBinary_SeedNum<-function(seednum){
+	
+	Is.Seed=FALSE;
+	
+	# if .Random.seed does not exist
+	#if(!exists(".Random.seed")){
+	#	set.seed(NULL)
+	#}
+	#if(!exists(".Random.seed")){
+	#	stop(".Random.seed does not exist!")	
+	#}
+		
+	#if(!is.null(seednum)){
+	#	Is.Seed=TRUE
+	#	seed.store=get(".Random.seed", envir=.GlobalEnv)
+	#	set.seed(seednum)
+	#} 
+	#return(list(seed.store=seed.store, Is.Seed=Is.Seed))
+
+	if(!is.null(seednum)){
+		set.seed(seednum)
+	}	
+	return(1)
+}
+
+
+
+SKATBinary_RestoreSeed<-function(out.seed){
+
+	# Currently does not work.
+	#if(out.seed$Is.Seed){
+	#	assign(".Random.seed", out.seed$seed.store, envir=.GlobalEnv)
+	#}
+	
+	return(1)
+	
+}
+
 #
 #	Method.Bin = "Hybrid", "ER", "Adaptive", "QuantileAdj, "MomentAdj", "NoAdj"
 #
@@ -15,12 +53,7 @@ is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, 
 seednum=100, epsilon=10^-6){
 
 
-	Is.Seed=FALSE
-	if(!is.null(seednum)){
-		Is.Seed=TRUE
-		seed.store=.Random.seed
-		set.seed(seednum)
-	}
+	out.seed=SKATBinary_SeedNum(seednum)
 	obj.res = SKATExactBin_CheckObj(obj)
 	
 	
@@ -44,10 +77,7 @@ seednum=100, epsilon=10^-6){
 		out.Z$MAP=1
 		out.Z$method.bin="NA"
 		
-		if(Is.Seed){
-			# Restore seed
-			.Random.seed = seed.store
-		}
+		SKATBinary_RestoreSeed(out.seed)
 		
 		return(out.Z)
 	}
@@ -147,20 +177,15 @@ seednum=100, epsilon=10^-6){
 		is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)
 
 	} else {
-		if(Is.Seed){
-			# Restore seed
-			.Random.seed = seed.store
-		}
+	
+		SKATBinary_RestoreSeed(out.seed)
 		
 		msg<-sprintf("Error! %s is not correct method.bin type !", method.bin)
 		stop(msg)
 		
 	}
 	
-	if(Is.Seed){
-		# Restore seed
-		.Random.seed = seed.store
-	}
+	SKATBinary_RestoreSeed(out.seed)
 		
 	re$MAC = MAC
 	re$m = m
@@ -176,12 +201,7 @@ SKATBinary_Single<-function(Z, obj, method.bin="Hybrid", impute.method = "bestgu
 is_check_genotype=TRUE, is_dosage = FALSE, estimate_MAF=1, N.Resampling=2*10^6, seednum=100, epsilon=10^-6){
 
 
-	Is.Seed=FALSE
-	if(!is.null(seednum)){
-		Is.Seed=TRUE
-		seed.store=.Random.seed
-		set.seed(seednum)
-	}
+	out.seed=SKATBinary_SeedNum(seednum)
 
 	obj.res = SKATExactBin_CheckObj(obj)
 	out.Z=SKATBinary.Single.CheckZ(Z=Z,id_include=obj.res$id_include, impute.method=impute.method, is_check_genotype=is_check_genotype
@@ -195,10 +215,7 @@ is_check_genotype=TRUE, is_dosage = FALSE, estimate_MAF=1, N.Resampling=2*10^6, 
 	
 	if(out.Z$return==1){
 		
-		if(Is.Seed){
-			# Restore seed
-			.Random.seed = seed.store
-		}
+		SKATBinary_RestoreSeed(out.seed)
 		return(out.Z)
 	}
 
@@ -235,20 +252,14 @@ is_check_genotype=TRUE, is_dosage = FALSE, estimate_MAF=1, N.Resampling=2*10^6, 
 
 	} else {
 	
-		if(Is.Seed){
-			# Restore seed
-			.Random.seed = seed.store
-		}
+		SKATBinary_RestoreSeed(out.seed)
 	
 		msg<-sprintf("Error! %s is not correct method.bin type !", method.bin)
 		stop(msg)
 		
 	}
 	
-	if(Is.Seed){
-		# Restore seed
-		.Random.seed = seed.store
-	}
+	SKATBinary_RestoreSeed(out.seed)
 	
 	re$method.bin = method.bin
 	return(re)
