@@ -60,6 +60,7 @@ seednum=100, epsilon=10^-6){
 	out.method<-SKAT_Check_Method(method,r.corr)
 	method= out.method$method
 	r.corr= out.method$r.corr
+	
 	Is.Hybrid=FALSE
 	ExactMax=20000
 	
@@ -89,6 +90,30 @@ seednum=100, epsilon=10^-6){
 	# MAC > m when hard call genotyping was used. 
 	MAC1 = max(MAC, m)
 	
+	# all individual have minor allele
+	# run SKAT
+	if(m == length(obj.res$id_include)){
+		re = SKAT(Z=Z, obj=obj, kernel = kernel, method=method, weights.beta=weights.beta, weights=weights, 
+       	impute.method=impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype,
+       	is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)	
+       	
+       	re$method.bin=method.bin
+		if(class(obj) == "SKAT_NULL_Model_ADJ"){
+			re$method.bin="MA"
+		} else if(class(obj) == "SKAT_NULL_Model"){
+			re$method.bin="UA"
+		}
+		
+		re$MAP = -1
+		re$MAC = MAC
+		re$m = m
+		
+		SKATBinary_RestoreSeed(out.seed)
+		
+		return(re)
+	}
+	
+	
 	if(method.bin == "Hybrid"){
 		
 		if(MAC1 <=20){
@@ -117,14 +142,22 @@ seednum=100, epsilon=10^-6){
 		re$MAP = -1
 
 	
-	} else if(method.bin == "MA" || method.bin == "QA"){
+	} else if(method.bin == "MA" || method.bin == "QA" || method.bin == "ER.R"){
 		
 		re = SKATExactBin(Z=Z, obj=obj.res, kernel = kernel, method.bin=method.bin, weights.beta=weights.beta, weights=weights,  
 		impute.method=impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype,
 		is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF,
 		N.Resampling=N.Resampling, epsilon=epsilon)
 		
-
+		# if re$p.value*1000 < re$p.value.noadj, and method.bin="MA"
+		# it is possible that this is due to the error 
+		# Then run QA
+		
+		#temp<-re$p.value*1000 - re$p.value.noadj
+		
+		#if(re$method.bin=="MA" && temp < 0){
+			
+		#} 
 	
 	} else if(method.bin == "ER" ){
 	
@@ -153,7 +186,7 @@ seednum=100, epsilon=10^-6){
 		re = SKATExactBin.Adaptive(Z=Z, obj=obj.res, kernel = kernel, weights.beta=weights.beta, weights=weights, 
 		impute.method=impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype,
 		is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF,
-		N.Iter=50000, N.Resampling=N.Resampling, epsilon=epsilon)
+		N.Iter=10000, N.Resampling=N.Resampling, epsilon=epsilon)
 		
 		if(!re$is.accurate && Is.Hybrid){
 			p.value.exact = re$p.value
@@ -327,14 +360,14 @@ SKATBinary.SSD.All = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
 	
 	if(obj.res$n.Resampling > 0){
 		Is.Resampling = TRUE
-		n.Resampling = obj$n.Resampling
+		n.Resampling = obj.res$n.Resampling
 		OUT.Pvalue.Resampling<-matrix(rep(0,n.Resampling*N.Set),ncol=n.Resampling)
 	}
 	
 
 	for(i in 1:N.Set){
 		Is.Error<-TRUE
-		try1<-try(SKATBinary.SSD.OneSet_SetIndex(SSD.INFO, i, obj.res, ..., obj.SNPWeight=obj.SNPWeight) ,silent = TRUE)
+		try1<-try(SKATBinary.SSD.OneSet_SetIndex(SSD.INFO, i, obj, ..., obj.SNPWeight=obj.SNPWeight) ,silent = TRUE)
 		if(class(try1) == "try-error"){
 			
 				err.msg<-geterrmessage()

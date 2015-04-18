@@ -60,9 +60,9 @@ public:
 
 	MwoFileReader(char* filename, int* myerror, char* info = NULL);
 	~MwoFileReader();
-	void prepare_out_array_print_snpset_to_file(snpset* ss, int n, int* Z,int size, int Is_MakeFile, int* myerror, char * SNPID=NULL);
+	void prepare_out_array_print_snpset_to_file(snpset* ss, int n, int* Z,size_t size, int Is_MakeFile, int* myerror, char * SNPID=NULL);
 	void upload_offsets_table();
-	void get_set(int set_num, int* Z,int size, int* myerror,int Is_MakeFile = 1 , char * SNPID=NULL );
+	void get_set(size_t set_num, int* Z, size_t size, int* myerror,int Is_MakeFile = 1 , char * SNPID=NULL );
 
 	//======================================================
 	//This function returns Total number of SNP Sets in current ".mwa"
@@ -92,9 +92,8 @@ public:
 	//======================================================
 	//Return a number of SNPs in the given SNP Set. 
 	//SetID : SetID
-	//Num_SNP : number of SNPs in the given SNP Set. 
 	//======================================================
-	void get_NumberofSnps(int SetID,int *Num_SNP,int* myerror);
+	size_t get_NumberofSnps(int SetID,int* myerror);
 	
 	
 
@@ -105,17 +104,17 @@ private:
 	std::ifstream m_infoin;
 	CDArray<snpset> m_snpsets;
 	
-	int m_win_size;
-	int m_num_of_bytes_per_line;
-	int m_ovlp_size ;
-	int m_num_of_different_snps; // num of snps without repetition - like in BIM file
-	int m_total_num_of_snps;	 // num of snps with repetition like in BUM file + overlaping
-	int m_total_num_of_sets;
-	int m_num_of_individuals;
-	long* m_offsetarr;
-	int* m_set_size;
+	size_t m_win_size;
+	size_t m_num_of_bytes_per_line;
+	size_t m_ovlp_size ;
+	size_t m_num_of_different_snps; // num of snps without repetition - like in BIM file
+	size_t m_total_num_of_snps;	 // num of snps with repetition like in BUM file + overlaping
+	size_t m_total_num_of_sets;
+	size_t m_num_of_individuals;
+	size_t* m_offsetarr;
+	size_t* m_set_size;
 
-	void decode_byte(int* bits_val,char* buff, int* ind_count);
+	void decode_byte(int* bits_val,char* buff, size_t* ind_count);
 	void Tokenize(const std::string& str,
                       std::vector<std::string>& tokens,
                       const std::string& delimiters = " ");

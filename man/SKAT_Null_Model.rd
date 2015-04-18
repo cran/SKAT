@@ -1,5 +1,6 @@
  \name{SKAT_Null_Model}
  \alias{SKAT_Null_Model}
+ \alias{SKAT_Null_Model_ChrX} 
  \title{Get parameters and residuals from the NULL model}
  \description{
      Compute model parameters and residuals for SKAT. You also can obtain resampled residuals that can be used to compute resampling p-value or to control family-wise error rate.
@@ -9,6 +10,10 @@
 SKAT_Null_Model(formula, data=NULL, out_type="C", n.Resampling=0
 , type.Resampling="bootstrap", Adjustment=TRUE)
 
+SKAT_Null_Model_ChrX(formula, SexVar, data=NULL, out_type="C", n.Resampling=0
+, type.Resampling="bootstrap", Adjustment=TRUE)
+	
+
  }
 \arguments{
       \item{formula}{an object of class ``formula'': a symbolic description of the NULL model to be fitted.}
@@ -17,6 +22,8 @@ SKAT_Null_Model(formula, data=NULL, out_type="C", n.Resampling=0
       \item{n.Resampling}{a numeric value of the number of resampling (default=0). If you don't want resampling, please set n.Resampling=0. }
       \item{type.Resampling}{ resampling methods (default="bootstrap"). see details.}
       \item{Adjustment}{If TRUE, a small sample adjustment will be applied when the sample size < 2000 and the trait is binary (default=TRUE). See details}      
+
+	  \item{SexVar}{a sex variable name in ``formula''.}
 }
 \value{
 	This function returns an object that has model parameters and residuals of the NULL model of no association between genetic variables and outcome phenotypes. 

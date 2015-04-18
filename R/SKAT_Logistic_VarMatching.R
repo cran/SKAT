@@ -89,11 +89,14 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
 
 SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 
-
 	param<-SKAT_Logistic_VarMatching_GetParam1(Z1, p_all, Q.sim, type)
 	pval.msg = NULL
 	#param1<<-param
 	# p-value=1 when varQ==0
+	#param1<<-param
+	#Q.sim1<<-Q.sim
+	#Q1<<-Q
+	
 	if(param$varQ == 0){
 		p.value<-rep(1, length(Q))
 	
@@ -103,6 +106,7 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 		Q.Norm<-(Q - param$muQ)/sqrt(param$varQ)
 		Q.Norm1<-Q.Norm * sqrt(2*param$df) + param$df
 		p.value<- pchisq(Q.Norm1,  df = param$df, ncp=0, lower.tail=FALSE)
+		
 
 		df1=param$df
 		if(is.null(Q.sim) && param$n.lambda==1){
@@ -179,12 +183,7 @@ SKAT_Get_DF_Sim<-function(Q.sim){
 
 SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 
-	
-	if(type == "QuantileAdj"){
-		param<-SKAT_Logistic_VarMatching_GetParam1_QuantileAdj(Z1, Q.sim)
-		return(param)
-	}
-
+	type.org = type;
 	if(type != "OnlySim"){
 
 		try1<-try(Get_Lambda_U_From_Z(Z1),silent = TRUE)
@@ -209,6 +208,11 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 		param<-SKAT_Logistic_VarMatching_GetParam1_OnlySim(Z1, p_all, Q.sim)
 		
 	}
+
+	if(type.org == "QuantileAdj"){
+		param<-SKAT_Logistic_VarMatching_GetParam1_QuantileAdj(Z1, Q.sim, param)
+		return(param)
+	}
 	
 	return(param)
 
@@ -217,22 +221,16 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 ####################################################
 # in Ver 0.92 for spline adj
 
-SKAT_Logistic_VarMatching_GetParam1_QuantileAdj<-function(Z1,  Q.sim){
+SKAT_Logistic_VarMatching_GetParam1_QuantileAdj<-function(Z1,  Q.sim, param){
 
 
 	#lambda<-Get_Lambda(t(Z1) %*% Z1)
 	#muQ = sum(lambda)
-	muQ<-mean(Q.sim)
-	varQ.sim<-var(Q.sim)
-	df.sim<-SKAT_Get_DF_Sim(Q.sim)
-	if(df.sim > 1000){
-		df.sim=1000
-	}
-	
-	param<-c(muQ, varQ.sim, df.sim)
+
+	param<-c(param$muQ, param$varQ, param$df)
 	
 	out.s<-SKAT_Logistic_VarMatching_QuantileAdj_Param(Q.sim, param)
-	re<-list(muQ = muQ, varQ = varQ.sim, df=df.sim, out.s=out.s)
+	re<-list(muQ = param$muQ, varQ = param$varQ, df=param$df, out.s=out.s)
 	
 	class(re)<-"QuantileAdj"
 	

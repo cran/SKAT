@@ -32,8 +32,8 @@ public:
 							 char* fam_file, char* out_file, 
 							 int win_size, int ovrlp_size, int encode_output, int* myerror, char* info = NULL);
 	~BedFileReader();
-	int m_set_counter; 
-	int m_num_of_snps_insetid;
+	size_t m_set_counter; 
+	size_t m_num_of_snps_insetid;
 
 private:
 
@@ -56,17 +56,17 @@ private:
 
 	char* m_info_rewritten;
 	std::ofstream m_info_rewr;
-	long m_begin4rw; 
+	size_t m_begin4rw; 
 
 	int m_encode_output;
 
-	int m_approx_line_lenght;//number of snps
+	size_t m_approx_line_lenght;//number of snps
 	SNP_info* m_snp_sets;
-	int m_line_counter; // 0 .... NumOfIndividuals
-	int m_setnumber;
-	int m_size_of_esi;
-	int m_win_size;
-	int m_ovrlp_size;
+	size_t m_line_counter; // 0 .... NumOfIndividuals
+	size_t m_setnumber;
+	size_t m_size_of_esi;
+	size_t m_win_size;
+	size_t m_ovrlp_size;
 
 	char str[1000]; 
 	char str2[1000];
@@ -76,7 +76,7 @@ private:
 	void read_data_and_update_temp_file(int* myerror);
 	void read_data_and_create_mwo_used_hashtable(Hasht* ht, int* myerror);
 	void upload_snpid_from_bim(int* myerror);
-	void decode_byte(int* bits_val,int* individuals_counter, int* temp_snp_info0, int* temp_snp_info1,int snp_set_ind);
+	void decode_byte(int* bits_val,size_t* individuals_counter, int* temp_snp_info0, int* temp_snp_info1,size_t snp_set_ind);
 	void encode(int* temp_snp_info,char* encoded_snp_info);
 };
 

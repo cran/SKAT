@@ -342,6 +342,43 @@ Get_PValue.Lambda<-function(lambda,Q){
 
 
 
+SKAT_Get_MAF<-function(Z,id_include=NULL, Is.chrX=FALSE, SexVar=NULL){
+	
+	nSNP = ncol(Z)
+	
+	if(Is.chrX==FALSE){
+		if(is.null(id_include)){
+			MAF<-colMeans(Z, na.rm = TRUE)/2
+		} else {
+			MAF<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
+		}
+	} else {
+		if(is.null(SexVar)){
+			stop("Error SexVar!")
+		}
+		
+		id.male<-which(SexVar==1)
+		id.female<-which(SexVar==2)
+		
+		if(!is.null(id_include)){
+			id.male<-intersect(id.male, id_include)
+			id.female<-intersect(id.female, id_include)
+		}
+		
+		n.male<-length(id.male)
+		n.female<-length(id.female)
+		
+		id.all<-union(id.male, id.female)
+		MAF<-colSums(cbind(Z[id.all,]))/(2*n.female+n.male)
+				
+	}	
+	
+	
+	return(MAF)
+}
+
+
+
 # Simple Imputation
 # Z : an n x p genotype matrix with n samples and p SNPs
 # Missing : a missing genotype value. Default is 9

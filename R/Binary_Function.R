@@ -110,7 +110,7 @@ SKATExactBin.GetQ<-function(Z, res, idx, res.out=NULL){
 }
 
 
-SKATExactBin.ComputeProb_Group = function(idx, pi1, n, ncase){
+SKATExactBin.ComputeProb_Group = function(idx, pi1, n, ncase, type.group=1){
 
 
 	#cat("test_type:", test_type, "\n")
@@ -118,13 +118,27 @@ SKATExactBin.ComputeProb_Group = function(idx, pi1, n, ncase){
 	
 	# default : adaptively set groups
 	ngroup1=10
-	if(k > 500){
-		ngroup1=2
-	} else if (k > 100){
-		ngroup1=5
-	} else if (k > 50){
-		ngroup1=6
+	if(type.group==1){
+		if(k > 400){
+			ngroup1=2
+		} else if (k > 100){
+			ngroup1=5
+		} else if (k > 50){
+			ngroup1=6
+			
+		}
+	} else {
+		if(k > 400){
+			ngroup1=2
+		} else if(k > 300){
+			ngroup1=6
+		} else if (k > 100){
+			ngroup1=8
+		} else if (k > 50){
+			ngroup1=10
+		}
 	}
+
 	
 	if(length(idx)==0){
 		return(list(pval=1, k=0, is.return=TRUE))
@@ -166,6 +180,11 @@ SKATExactBin.ComputeProb_Group = function(idx, pi1, n, ncase){
 	# compute each prob
 	# RGetProb(int* k, int* ngroup, int* ncase, int * group, double * weight, double * prob)
 	
+	#group1<<-group
+	#weight1<<-weight
+	#prob_k1<<-prob_k
+	#idx<<-idx; pi1<<-pi1; n<<-n; ncase<<-ncase
+	
 	RE<-.C("RGetProb"
 	, as.integer(k), as.integer(length(group)), as.integer(ncase), as.integer(group)
 	, as.double(weight), as.double(prob_k));
@@ -197,7 +216,7 @@ Get_Total_K = function(k){
 #
 #
 #
-SKATExactBin.ComputProb_New<-function(idx, pi1, n, ncase, N.Resampling, ExactMax=1000, test_type=1){
+SKATExactBin.ComputProb_New<-function(idx, pi1, n, ncase, N.Resampling, ExactMax=1000, test_type=1, type.group=1){
 
 	#idx<<-idx; pi1<<-pi1; n<<-n; ncase<<-ncase; N.Resampling<<-N.Resampling; ExactMax<<-ExactMax; test_type<<-test_type
 	#stop(1)
@@ -206,7 +225,12 @@ SKATExactBin.ComputProb_New<-function(idx, pi1, n, ncase, N.Resampling, ExactMax
 	k<-length(idx)	
 	p1<-pi1[idx]
 		
-	obj.prob_k =SKATExactBin.ComputeProb_Group(idx, pi1, n, ncase)
+	obj.prob_k =SKATExactBin.ComputeProb_Group(idx, pi1, n, ncase, type.group=type.group)
+	
+	#temp1<-system.time({obj.prob_k =SKATExactBin.ComputeProb_Group(idx, pi1, n, ncase, type.group=type.group)})
+	#cat(temp1)
+	
+	
 	if(obj.prob_k$is.return){
 		return(obj.prob_k)
 	}
@@ -461,6 +485,9 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
 
 	Z1 = cbind(out.z$Z.test)
 	#Z2<<-Z1
+	#Z3<<-Z
+	#out.z<<-out.z
+	#id_include<<-obj.res$id_include
 	MAC= sum(Z1)
  	rsum<-rowSums(Z1)
 	idx<-which(rsum > 0)

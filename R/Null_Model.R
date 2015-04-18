@@ -1,10 +1,25 @@
+Get_SKAT_Residuals.Get_X1 = function(X1){
+	
+	qr1<-qr(X1)
+	q1<-ncol(X1)
+	if(qr1$rank < q1){
+		
+		X1.svd<-svd(X1)
+		X1 = X1.svd$u	
+	} 
+
+	return(X1)
+
+}
+
 
 Get_SKAT_Residuals.linear = function(formula, data, n.Resampling, type.Resampling, id_include ){
 
 	
  	mod = lm(formula, data=data)
 	X1<-model.matrix(formula,data=data)
-
+	X1<-Get_SKAT_Residuals.Get_X1(X1)
+	
   	s2 = summary(mod)$sigma**2
   	res = mod$resid
 	n1<-length(res)
@@ -39,6 +54,7 @@ Get_SKAT_Residuals.logistic = function(formula, data, n.Resampling, type.Resampl
 
  	mod = lm(formula, data)
 	X1<-model.matrix(formula,data=data)
+	X1<-Get_SKAT_Residuals.Get_X1(X1)
 	
 	glmfit= glm(formula, data=data, family = "binomial")
  	betas = glmfit$coef

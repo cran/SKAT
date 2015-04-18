@@ -7,7 +7,7 @@
  \usage{
  
  
-	Get_EffectiveNumberTest(MAP, alpha=0.05, Is.MidP=TRUE)
+	Get_EffectiveNumberTest(MAP, alpha=0.05, Is.MidP=TRUE) 
 
 
  }

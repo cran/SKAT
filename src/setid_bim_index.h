@@ -50,7 +50,7 @@ private:
 	char* m_bimfile;
 
 	char** m_bimf_snpsid;
-	int* m_bimf_sorted;
+	size_t* m_bimf_sorted;
 
 
 	std::ofstream m_log;
@@ -69,7 +69,7 @@ private:
                       std::vector<std::string>& tokens,
                       const std::string& delimiters = " ");
 
-	void	Get_Num_of_SNPs_in_SetID(int * myerror);
+	int	Get_Num_of_SNPs_in_SetID(int * myerror);
 
 
 public:	
@@ -80,11 +80,11 @@ public:
 	SNP_info* get_snps_sets() {return this->m_snp_sets; }
 
 	char** m_setidf_setid;
-	int* m_hash_table;
-	int m_num_of_snps;//number of snps
-	int m_num_of_snps_insetid;
+	size_t* m_hash_table;
+	size_t m_num_of_snps;//number of snps
+	size_t m_num_of_snps_insetid;
 
-	int m_num_of_snps_insetid_org ; // added by SLEE 
+	size_t m_num_of_snps_insetid_org ; // added by SLEE 
 
 };
 

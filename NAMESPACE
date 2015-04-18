@@ -14,7 +14,8 @@ export(SKAT, Get_Logistic_Weights_MAF, Get_Logistic_Weights,
 	SKAT_CommonRare.SSD.OneSet, SKAT_CommonRare.SSD.OneSet_SetIndex, SKAT_CommonRare.SSD.All, 
 	SKAT_NULL_emmaX,
 	SKATBinary, SKATBinary_Single,Get_EffectiveNumberTest,QQPlot_Adj,
-	SKATBinary.SSD.OneSet, SKATBinary.SSD.OneSet_SetIndex,SKATBinary.SSD.All )
+	SKATBinary.SSD.OneSet, SKATBinary.SSD.OneSet_SetIndex,SKATBinary.SSD.All,
+	SKAT_Null_Model_ChrX, SKAT_ChrX)
 
 # variables
 #export(SSD_FILE_OPEN.isOpen,SSD_FILE_OPEN.FileName)

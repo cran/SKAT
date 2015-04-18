@@ -256,7 +256,7 @@ BedFileReader::BedFileReader(char* filename, char* bim_file,
 
 
 	m_snp_sets = new SNP_info[m_approx_line_lenght];
-	for (int j = 0; j < m_approx_line_lenght;++j)
+	for (size_t j = 0; j < m_approx_line_lenght;++j)
 	{
 		this->m_snp_sets[j].letters[0] = NULL;
 		this->m_snp_sets[j].letters[1] = NULL;
@@ -324,8 +324,8 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 		return;
 	}
 	this->m_file_mwo.seekp(std::ios::beg); 
-	int ii;
-	int count_win_size = 1;
+	size_t ii;
+	//int count_win_size = 1;
 	int bits_val[MY_CHAR_BIT];
 	int* temp_snp_info0 = new int[this->m_line_counter];
 	int* temp_snp_info1 = new int[this->m_line_counter];
@@ -335,7 +335,7 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 		temp_snp_info1[ii] = 0; 
 	}
 
-	int individuals_counter = 0;
+	size_t individuals_counter = 0;
 	char* encoded_snp_info = new char[(this->m_line_counter+3)/4] ;
 	this->m_size_of_esi = (this->m_line_counter+3)/4;  // !!!Number of bytes per one snp = one line length!!!
 	char* buff = new char [this->m_size_of_esi]; 
@@ -343,8 +343,8 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	this->m_file.read(tmpbuf,sizeof(tmpbuf)); // three first bytes - permanent in bed file
 
 	//=========OFFSET===================
-	int set_counter = 1; //   Will be changed based on "m_setidf_setid" if it's change - new set!
-	long begin, current; 
+	size_t set_counter = 1; //   Will be changed based on "m_setidf_setid" if it's change - new set!
+	size_t begin, current; 
 	begin = this->m_file_mwo.tellp();
 	current = this->m_file_mwo.tellp();
 	//this->m_info << "#=================================================#" << std::endl;
@@ -359,9 +359,9 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	//put the readed bytes into "encoded_snp_info"
 	//
 
-	int setSize = 0;
+	size_t setSize = 0;
 	this->m_num_of_snps_insetid = ht->m_num_of_snps_insetid;
-	for (int j = 0; j < ht->m_num_of_snps_insetid; ++ j)
+	for (size_t j = 0; j < ht->m_num_of_snps_insetid; ++ j)
 	{
 		
 		if (j == 0)
@@ -390,7 +390,7 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 		this->m_file_mwo << this->m_snp_sets[ht->m_hash_table[j]].snp_id << " ";
 
 
-		for(int i=0; i<this->m_size_of_esi; i++)   //process the buff info
+		for(size_t i=0; i<this->m_size_of_esi; i++)   //process the buff info
 		{	//===============================================================					
 			//=== This part converts Byte "buff[i]" to bits values "bits_val"
 			//=== for example byte buff[0] = "w" ->  bits_val = 11101110
@@ -487,7 +487,7 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	this->m_info_rewr <<"SET#\tOFFSET\tSET_ID\tSET_SIZE" << std::endl;
 
 	std::string line;
-	int kk = 0;
+	size_t kk = 0;
 	while (kk < m_set_counter ) 
 	{
 		getline(this->m_infoi, line);
@@ -517,8 +517,8 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 		return;
 	}
 	this->m_file_mwo.seekp(std::ios::beg); 
-	int ii;
-	int count_win_size = 1;
+	size_t ii;
+	size_t count_win_size = 1;
 	char buff[1000]; 
 	int bits_val[MY_CHAR_BIT];
 
@@ -543,27 +543,27 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 		temp_snp_info1[ii] = 0; 
 	}
 
-	int end_of_file = 0;
+	size_t end_of_file = 0;
 	this->m_file.read(buff,sizeof(char)*3); // three first bytes - permanent in bed file
 
-	int snp_set_ind = 0;
+	size_t snp_set_ind = 0;
 
 
-	int individuals_counter = 0;
+	size_t individuals_counter = 0;
 	char* encoded_snp_info = new char[(this->m_line_counter+3)/4] ;
 	this->m_size_of_esi = (this->m_line_counter+3)/4;
 	//========OVERLAP====================
-	int snp_set_ind_for_ovlp = 0;
-	int bytes_counter_per_ovlp = 0;
-	int size_of_ovl_vol;
+	size_t snp_set_ind_for_ovlp = 0;
+	size_t bytes_counter_per_ovlp = 0;
+	size_t size_of_ovl_vol;
 	if (this->m_encode_output == 1) size_of_ovl_vol = this->m_size_of_esi * this->m_ovrlp_size;
 	else size_of_ovl_vol = this->m_line_counter * this->m_ovrlp_size;
 	char* ovl_volume = new char [size_of_ovl_vol];
 	memset(ovl_volume,'\0',sizeof(ovl_volume));
-	int ind4ovl_volume = 0;
+	size_t ind4ovl_volume = 0;
 	//=========OFFSET===================
-	int set_counter = 1; 
-	long begin, current; 
+	size_t set_counter = 1; 
+	size_t begin, current; 
 	begin = this->m_file_mwo.tellp();
 	current = this->m_file_mwo.tellp();
 	this->m_info <<"SET#\tOFFSET" << std::endl;
@@ -576,7 +576,7 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 		memset(buff, '\0', sizeof(buff));
 		this->m_file.read(buff,sizeof(buff));
 
-		for(int i=0; i<1000; i++)   //process the buff info
+		for(size_t i=0; i<1000; i++)   //process the buff info
 		{						
 			//===============================================================					
 			//=== This part converts Byte "buff[i]" to bits values "bits_val"
@@ -684,7 +684,7 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 					this->m_info <<  set_counter << "\t" << (current - begin) << std::endl;
 					set_counter ++;
 					//Writing ovl_volume buffer to file  - OVERLAP BUFFER
-					int ind ;
+					size_t ind ;
 					for (ii = 0; ii < this->m_ovrlp_size; ++ii)
 					{
 						this->m_file_mwo << this->m_snp_sets[snp_set_ind_for_ovlp + ii].snp_id << " ";
@@ -764,7 +764,7 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 	this->m_infoi.seekg (this->m_begin4rw, std::ios::beg);
 	this->m_info_rewr <<"SET#\tOFFSET" << std::endl;
 	std::string line;
-	int kk = 0;
+	size_t kk = 0;
 	while (kk < m_set_counter ) 
 	{
 		getline(this->m_infoi, line);
@@ -784,10 +784,10 @@ void BedFileReader::read_data_and_update_temp_file(int* myerror)
 void BedFileReader::encode(int* temp_snp_info,char* encoded_snp_info )
 {
 
-	int i = 0;
-	int j = 0;
+	size_t i = 0;
+	unsigned int j = 0;
 	int number = 0;
-	int ind4enc = -1;
+	size_t ind4enc = 0;
 	int a[8]; 
 
 	//=======================================================================================
@@ -823,7 +823,7 @@ void BedFileReader::encode(int* temp_snp_info,char* encoded_snp_info )
 		}
 
 		ind4enc ++;
-		if (ind4enc == this->m_size_of_esi)
+		if (ind4enc == this->m_size_of_esi+1)
 			break; 
 		else
 		{	
@@ -834,7 +834,7 @@ void BedFileReader::encode(int* temp_snp_info,char* encoded_snp_info )
 			for (int  ii = 0; ii < 8; ++ii)
 				number += a[ii] * (int)pow(2.0,(7-ii));
 			//saving this encoded number to array that will be written into *.mwa file.
-			encoded_snp_info[ind4enc] = (char)number;
+			encoded_snp_info[ind4enc-1] = (char)number;
 			//=============================================
 		}
 	}
@@ -878,8 +878,8 @@ void BedFileReader::encode(int* temp_snp_info,char* encoded_snp_info )
 
 						
 //==========================================================
-void BedFileReader::decode_byte(int* bits_val,int* individuals_counter, 
-								int* temp_snp_info0, int* temp_snp_info1, int snp_set_ind)
+void BedFileReader::decode_byte(int* bits_val,size_t * individuals_counter, 
+								int* temp_snp_info0, int* temp_snp_info1, size_t snp_set_ind)
 {
 
 
@@ -1005,7 +1005,7 @@ void BedFileReader::init(char* bim_file, char* fam_file,int* myerror)
 void BedFileReader::upload_snpid_from_bim(int* myerror)
 {	
 	std::string line;
-	int ii = 0;
+	size_t ii = 0;
 	this->m_bim.open(this->m_filename_bim);
 	this->m_bim.seekg (0, std::ios::beg);
 	if (!this->m_bim)
@@ -1017,11 +1017,11 @@ void BedFileReader::upload_snpid_from_bim(int* myerror)
 	while (!this->m_bim.eof( ) ) 
 	{
 		getline(this->m_bim, line);
-		for (int i = 0; i < (int)line.size(); ++i)
+		for (size_t i = 0; i < line.size(); ++i)
 		{
 			if (line.at(i) == 9 || line.at(i) == ' ' || line.at(i) == ',' || line.at(i) == '\t')
-			{	int j = i + 1;
-			int k = 0;
+			{	size_t j = i + 1;
+                size_t k = 0;
 			while(1)
 			{
 				this->m_snp_sets[ii].snp_id[k] = line.at(j);

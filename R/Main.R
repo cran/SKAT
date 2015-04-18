@@ -60,13 +60,92 @@ SKAT_MAIN_Check_OutType<-function(out_type){
 
 }
 
+
+SKAT_MAIN_Check_Z_Flip<-function(Z, id_include, Is.chrX=FALSE, SexVar=NULL){
+
+	MAF<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
+	IDX.Err<-which(MAF > 0.5)	
+	if(length(IDX.Err) > 0){
+		#msg<-sprintf("Genotypes of some variants are not the number of minor allele! It is fixed!")
+		msg<-sprintf("Genotypes of some variants are not the number of minor alleles! These genotypes are flipped!")
+		warning(msg,call.=FALSE)
+		
+		
+		if(!Is.chrX){
+			Z[,IDX.Err]<-2-Z[,IDX.Err]
+		} else {
+			id.male<-which(SexVar==1)
+			id.female<-which(SexVar==2)
+		
+			if(length(id.male) > 0){
+				Z[id.male,IDX.Err]<-1-Z[id.male,IDX.Err]
+			} 
+			if(length(id.female) > 0){
+				Z[id.female,IDX.Err]<-2-Z[id.female,IDX.Err]
+			}
+		}
+	}
+
+	return(Z)
+}
+
+SKAT_MAIN_Check_Z_Impute<-function(Z, id_include,impute.method, SetID, Is.chrX=FALSE, SexVar=NULL){
+
+	##################################################################
+	# doing imputation
+
+
+	MAF<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
+	MAF1<-SKAT_Get_MAF(Z, id_include=id_include, Is.chrX=Is.chrX, SexVar=SexVar)
+	MAF_Org=MAF
+
+	
+	##########################################
+	# Missing Imputation
+	IDX_MISS<-union(which(is.na(Z)),which(Z == 9))
+	if(length(IDX_MISS) > 0){
+		if(is.null(SetID)){
+			msg<-sprintf("The missing genotype rate is %f. Imputation is applied.", (length(IDX_MISS))/length(Z) )
+		} else {
+			msg<-sprintf("In %s, the missing genotype rate is %f. Imputation is applied.", SetID, (length(IDX_MISS))/length(Z) )
+		}
+
+		warning(msg,call.=FALSE)
+		if(!Is.chrX){
+			Z<-Impute(Z,impute.method)
+		} else {
+			Z<-Impute_XChr(Z, impute.method, SexVar)
+		}
+	} 
+
+	#########################################
+	# Check and recal
+	
+	Z<-SKAT_MAIN_Check_Z_Flip(Z, id_include, Is.chrX=Is.chrX, SexVar=SexVar)
+
+	MAF<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
+	MAF1<-SKAT_Get_MAF(Z, id_include=id_include, Is.chrX=Is.chrX, SexVar=SexVar)
+	IDX.Err<-which(MAF > 0.5)	
+	if(length(IDX.Err) > 0){
+		
+		msg<-sprintf("ERROR! genotype flipping")
+		stop(msg)
+		
+	}
+
+	return(Z)
+
+}
+
+
 #
 #	Check the Z, and do imputation
 #
 #
 
-SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff
-, estimate_MAF=1){
+
+SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype
+, is_dosage, missing_cutoff, estimate_MAF=1, Is.chrX=FALSE, SexVar=NULL){
 
 	#############################################
 	# Check parameters
@@ -143,46 +222,12 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 	##################################################################
 	# doing imputation
 
-	MAF<-colMeans(Z, na.rm = TRUE)/2
-	MAF1<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
-	MAF_Org=MAF
+	MAF_Org<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
+	Z<-SKAT_MAIN_Check_Z_Impute(Z, id_include,impute.method, SetID, Is.chrX, SexVar)
 	
-	
-	##########################################
-	# Missing Imputation
-	IDX_MISS<-union(which(is.na(Z)),which(Z == 9))
-	if(length(IDX_MISS) > 0){
-		if(is.null(SetID)){
-			msg<-sprintf("The missing genotype rate is %f. Imputation is applied.", (length(IDX_MISS))/length(Z) )
-		} else {
-			msg<-sprintf("In %s, the missing genotype rate is %f. Imputation is applied.", SetID, (length(IDX_MISS))/length(Z) )
-		}
 
-		warning(msg,call.=FALSE)
-		Z<-Impute(Z,impute.method)
-	} 
-
-	#########################################
-	# Check and recal
-	MAF<-colMeans(Z, na.rm = TRUE)/2
-	IDX.Err<-which(MAF > 0.5)	
-	if(length(IDX.Err) > 0){
-		#msg<-sprintf("Genotypes of some variants are not the number of minor allele! It is fixed!")
-		msg<-sprintf("Genotypes of some variants are not the number of minor alleles! These genotypes are flipped!")
-		warning(msg,call.=FALSE)
-		
-		Z[,IDX.Err]<-2-Z[,IDX.Err]
-	}
-
-	MAF<-colMeans(Z, na.rm = TRUE)/2
-	MAF1<-colMeans(as.matrix(Z[id_include,]),na.rm=TRUE)/2
-	IDX.Err<-which(MAF > 0.5)	
-	if(length(IDX.Err) > 0){
-		
-		msg<-sprintf("ERROR! genotype flipping")
-		stop(msg)
-		
-	}
+	MAF<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
+	MAF1<-SKAT_Get_MAF(Z, id_include=id_include, Is.chrX=Is.chrX, SexVar=SexVar)
 	
 	###########################################
 	# Check non-polymorphic
@@ -255,7 +300,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	}
 
-	return(list(Z.test=Z.test,weights=weights, MAF=MAF_Org, return=0) )
+	return(list(Z.test=Z.test,weights=weights, MAF=MAF_Org, id_include.test=id_include, return=0) )
 
 }
 
@@ -320,7 +365,8 @@ SKAT_Check_Method<-function(method,r.corr){
 
 
 SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="davies", weights.beta=c(1,25), weights = NULL
-, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID = NULL){
+, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1
+, SetID = NULL, out.z=NULL){
 
 	
 
@@ -339,7 +385,10 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 		obj.res$n.all=n
 	}
 
-	out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff,estimate_MAF=estimate_MAF)
+	if(is.null(out.z)){
+		out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff,estimate_MAF=estimate_MAF)
+	}
+	
 	if(out.z$return ==1){
 		out.z$param$n.marker<-m
 		return(out.z)
@@ -395,7 +444,8 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 #	
 # 	estimate_MAF=1 using all samples, 2 only non-missing samples
 SKAT_With_NullModel_ADJ = function(Z, obj.res.a, kernel = "linear.weighted", method="adjust", weights.beta=c(1,25), weights = NULL,
-impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID = NULL){
+impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1
+, SetID = NULL, out.z=NULL){
 
 	
 	n<-dim(Z)[1]
@@ -415,7 +465,9 @@ impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, mi
 	if(is.null(obj.res$n.all)){
 		obj.res$n.all=n
 	}
-	out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff, estimate_MAF=estimate_MAF)
+	if(is.null(out.z)){
+		out.z<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, obj.res$id_include, SetID, weights, weights.beta, impute.method, is_check_genotype, is_dosage, missing_cutoff, estimate_MAF=estimate_MAF)
+	}
 	if(out.z$return ==1){
 		out.z$param$n.marker<-m
 		return(out.z)

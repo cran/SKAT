@@ -37,7 +37,7 @@
 #ifndef _NPSORT_HPP        
 #define _NPSORT_HPP 
 
-
+/*
 #include <iostream>  
 using namespace std;
 
@@ -76,5 +76,49 @@ public:
 
 
 };
+*/
+
+
+#include <algorithm>
+#include <cstring>
+#include <utility>
+
+namespace sort_data
+{
+    class char_ptr_less{
+        public:
+            bool operator() (char* a, char* b){
+                return strcmp(a, b) < 0;
+            }
+    };
+    class char_ptr_greater{
+        public:
+            bool operator() (char* a, char* b){
+                return strcmp(a, b) > 0;
+            }
+    };
+                  
+    template<class T, class Comp = std::less<T> > class idx_ptr_sorter{
+        public:
+            idx_ptr_sorter(const T* v, Comp c=Comp() ) : _v(v) {}
+            bool operator() (size_t i, size_t j){
+                return c(_v[i], _v[j]);
+            }
+        private:
+            const T* _v;
+            Comp c;
+    };
+                     
+    // Sort with comparator
+    template<class T, class Comp > static void sort(const T* dat, size_t* idx, size_t size, Comp c=Comp() ){
+        std::sort(idx, idx + size, idx_ptr_sorter<T, Comp>(dat, c));
+    }
+                     
+    // Sort using std::less
+    template<class T> static void sort(const T* dat, size_t* idx, size_t size){
+        std::sort(idx, idx + size, idx_ptr_sorter<T>(dat));
+    }
+                    
+}
 
 #endif //_NPSORT_HPP

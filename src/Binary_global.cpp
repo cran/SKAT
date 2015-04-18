@@ -45,7 +45,7 @@ void SL_free(void * ptr){
 
 void SL_Sample(int k, int n, int *y, int *x){
     
-    int i, j, temp;
+    int i, j;
     
     for (i = 0; i < n; i++){
         x[i] = i;

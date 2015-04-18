@@ -51,7 +51,7 @@ Get_Resampling_Pvalue_1<-function(p.value,p.value.resampling){
 
 Resampling_FWER<-function(obj,FWER=0.05){
 
-	if(class(obj) != "SKAT_SSD_ALL"){
+	if(class(obj) != "SKAT_SSD_ALL" && class(obj) !="SKATBinary_SSD_ALL"){
 		stop("obj is not a SKAT.SSD.All output object")
 	}
 	p.min<-apply(obj$P.value.Resampling,2,min,na.rm=TRUE)

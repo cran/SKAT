@@ -110,8 +110,8 @@ MwoFileReader::MwoFileReader(char* filename, int* myerror, char* info)
 	}
 
 	//=======================
-	this->m_offsetarr = new long [this->m_total_num_of_sets];
-	this->m_set_size = new int [this->m_total_num_of_sets];
+	this->m_offsetarr = new size_t [this->m_total_num_of_sets];
+	this->m_set_size = new size_t [this->m_total_num_of_sets];
 	upload_offsets_table();
 
 	this->m_infoin.close();
@@ -159,7 +159,7 @@ void MwoFileReader::upload_offsets_table()
 
 	//fill m_offsetarr
 	getline(this->m_infoin, line); //skip the separator "===========" line
-	for (int i = 0; i < this->m_total_num_of_sets; ++i)
+	for (size_t i = 0; i < this->m_total_num_of_sets; ++i)
 	{
 /*
 [1] -> [0]
@@ -175,7 +175,7 @@ void MwoFileReader::upload_offsets_table()
 		if( this->m_win_size != -999)
 			this->m_set_size[i] = this->m_win_size;
 		else
-			this->m_set_size[i] = atoi(tokens.at(3).c_str());
+			this->m_set_size[i] = atol(tokens.at(3).c_str());
 			//this->m_set_size[i] = atoi(tokens.at(8).c_str());
 	}
 }
@@ -192,7 +192,7 @@ void MwoFileReader::upload_offsets_table()
 //Is_MakeFile - flag that shows if print info to file or not. Is_MakeFile = 1 print, Is_MakeFile = 0 don't
 //		printed file will be created in same directory as ".mwa" file
 //==========================================================
-void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int Is_MakeFile, char * SNPID)
+void MwoFileReader::get_set(size_t set_num,  int* Z,  size_t size, int* myerror, int Is_MakeFile, char * SNPID)
 {
 	*myerror = NO_ERRORS;
 	if (set_num > 0 && set_num < this->m_total_num_of_sets + 1)
@@ -213,20 +213,20 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 	//base on this->m_offsetarr
 	char temp_snp_id[SNP_ID_SIZE];
 	memset(temp_snp_id,'\0',sizeof(temp_snp_id));
-	int end_of_file = 0;
+	bool end_of_file = false;
 	char* buff = new char[1000];
 
-	int flag_snpid_done = 0;
-	int flag_read_line_done = 1;
-	int snp_ind = 0;
+	bool flag_snpid_done = false;
+	bool flag_read_line_done = true;
+	size_t snp_ind = 0;
 	snpset* ss = new snpset;
 	snp* msnp = new snp;
 	memset(msnp->m_name, '\0', sizeof(msnp->m_name));
 	
 	
 	char* ch = new char;
-	int char_counter = 0;
-	int snp_id_ch_ind = 0;
+	size_t char_counter = 0;
+	size_t snp_id_ch_ind = 0;
 	//==================================
 
 	// Changed by Seunggeun
@@ -262,7 +262,7 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 					if(*myerror != 0)
 						return;
 					//=============================
-					end_of_file = 1; // stop it after current set - read just one set in the middle of the file
+					end_of_file = true; // stop it after current set - read just one set in the middle of the file
 					break;
 					//=============================
 					//ss = new snpset;
@@ -273,7 +273,7 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
  				/* changed by LSG */
 				if(snp_ind == m_total_num_of_snps)
 				{
-	 				end_of_file = 1;
+	 				end_of_file = true;
 					break;
 				}
 
@@ -298,8 +298,8 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 			{
 				if(char_counter == m_num_of_bytes_per_line-1 && buff[i] == '\n')  //last char in curr line '\n'
 				{
-					flag_read_line_done = 1;
-					flag_snpid_done = 0;
+					flag_read_line_done = true;
+					flag_snpid_done = false;
 					ss->m_snp.Add(msnp);
 					msnp = new snp;
 					memset(msnp->m_name, '\0', sizeof(msnp->m_name));
@@ -320,7 +320,7 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 
     
     // remove all 
-    for (int i = 0; i < ss->m_snp.GetSize(); ++i){
+    for (size_t i = 0; i < ss->m_snp.GetSize(); ++i){
         ss->m_snp.GetAt(i)->m_char.Free();        
     }
     ss->m_snp.Free();
@@ -342,7 +342,7 @@ void MwoFileReader::get_set(int set_num,  int* Z,  int size, int* myerror, int I
 //myerror - allocated memory to put there the final information
 //		if some error happen during the run.
 //=========================================================================
-void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_num, int* Z, int Zsize,
+void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_num, int* Z, size_t Zsize,
 														   int Is_MakeFile, int* myerror, char * SNPID)
 {
 	if (Zsize != (this->m_num_of_individuals * this->m_set_size[set_num - 1]))
@@ -351,7 +351,7 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 		return;
 
 	}
-	int Zind = 0;
+	size_t Zind = 0;
 	char set_filename[1000];
 	std::ofstream myout;
 
@@ -373,13 +373,13 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 	}
 
 	int bits_val[MY_CHAR_BIT];
-	int ind_count = 0;
-	int ind_count_prev=0;
+	size_t ind_count = 0;
+	size_t ind_count_prev=0;
 	char buff[9];
 
     /* modified by LSG */
 
-	for (int i = 0; i < ss->m_snp.GetSize(); ++i)
+	for (size_t i = 0; i < ss->m_snp.GetSize(); ++i)
 	{
 
 
@@ -393,7 +393,7 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 					
 		}
 		
-		for (int j = 0; j < ss->m_snp.GetAt(i)->m_char.GetSize(); ++j)
+		for (size_t j = 0; j < ss->m_snp.GetAt(i)->m_char.GetSize(); ++j)
 		{
 			//DECODE HERE - PRINT DECODED
 			//===============================================================
@@ -412,7 +412,7 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 			if (Is_MakeFile)
 				myout << buff;
 
-			for(int m = 0; m < ind_count - ind_count_prev; ++ m)
+			for(size_t m = 0; m < ind_count - ind_count_prev; ++ m)
 			{
 				try
 				{
@@ -453,7 +453,7 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 //      buff allocated in advance for 4 individuals includes spaces and "\n" or "\0" at the end buff[9]
 // ind_count - do until ind_count < this->m_num_of_individuals
 //==========================================================
-void MwoFileReader::decode_byte(int* bits_val,char* buff, int* ind_count)
+void MwoFileReader::decode_byte(int* bits_val,char* buff, size_t* ind_count)
 {
 	int g = 0;
 //do until ind_count < this->m_num_of_individuals
@@ -494,16 +494,17 @@ void MwoFileReader::decode_byte(int* bits_val,char* buff, int* ind_count)
 //myerror - allocated memory to put there the final information
 //		if some error happen during the run.
 //==========================================================
-void MwoFileReader::get_NumberofSnps(int SetID,int *Num_SNP,int* myerror)
+size_t MwoFileReader::get_NumberofSnps(int SetID,int* myerror)
 {
-		*myerror = NO_ERRORS;
-		if (SetID > 0 && SetID < this->m_total_num_of_sets + 1)
-			*Num_SNP = this->m_set_size[SetID - 1];
-		else
-		{
-			*Num_SNP = -9999;
-			*myerror = REQUESTED_SET_ID_DOESNOT_EXISTS;
-		}
+    size_t Num_SNP;
+    *myerror = NO_ERRORS;
+    if (SetID > 0 && SetID < this->m_total_num_of_sets + 1){
+			Num_SNP = this->m_set_size[SetID - 1];
+    } else {
+        Num_SNP = -9999;
+        *myerror = REQUESTED_SET_ID_DOESNOT_EXISTS;
+    }
+    return Num_SNP;
 
 
 }

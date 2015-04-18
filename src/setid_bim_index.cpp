@@ -19,6 +19,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <algorithm>
+
 #include "setid_bim_index.h"
 
 
@@ -75,7 +77,7 @@ Hasht::Hasht(char * setID, char * bim, char* mwa, int * myerror)
 	this->m_setidfile = setID;
 
 	this->m_bimfile = bim;
-	this->m_num_of_snps_insetid_org = -1;
+	this->m_num_of_snps_insetid_org = 0;
 
 	char log_filename[1000];
 	memset(log_filename,'\0',sizeof(log_filename));
@@ -92,7 +94,7 @@ Hasht::Hasht(char * setID, char * bim, char* mwa, int * myerror)
 	if (*myerror != 0)
 		return;
 
-	for (int i = 0; i < m_num_of_snps; ++ i)
+	for (size_t i = 0; i < m_num_of_snps; ++ i)
 		delete [] this->m_bimf_snpsid[i];
 	delete [] this->m_bimf_snpsid;
 	delete [] this->m_bimf_sorted;
@@ -129,13 +131,13 @@ void Hasht::upload_snpid_from_setid_build_hash(int * myerror)
 	std::vector<std::string> tokens;
 	std::vector<std::string> tokens2, tokens3;
 
-	Get_Num_of_SNPs_in_SetID(myerror);
-	if(this->m_num_of_snps_insetid_org < 0){
+	int re = Get_Num_of_SNPs_in_SetID(myerror);
+	if(re== 0){
 		*myerror = CANT_OPEN_SETID_FILE4READ;
 		return;
 	}
 
-	this->m_hash_table = new int[this->m_num_of_snps_insetid_org +1];
+	this->m_hash_table = new size_t[this->m_num_of_snps_insetid_org +1];
 	this->m_setidf_setid = new char*[this->m_num_of_snps_insetid_org +1];
 
 	this->m_setid.open(this->m_setidfile);
@@ -190,7 +192,7 @@ void Hasht::upload_snpid_from_setid_build_hash(int * myerror)
 // Added by SLEE
 //	This function get number of SNPs in the SNP set.
 //=========================================================================
-void Hasht::Get_Num_of_SNPs_in_SetID(int * myerror){
+int Hasht::Get_Num_of_SNPs_in_SetID(int * myerror){
 
 	std::ifstream temp_file;
 	std::string line;
@@ -198,7 +200,7 @@ void Hasht::Get_Num_of_SNPs_in_SetID(int * myerror){
 	if (!temp_file)
 	{
 		*myerror =  CANT_OPEN_SETID_FILE4READ;
-		return;
+		return 0;
 	}
 
 	this->m_num_of_snps_insetid_org = 0;//0;
@@ -208,8 +210,8 @@ void Hasht::Get_Num_of_SNPs_in_SetID(int * myerror){
 	}
 
 	temp_file.close();
+    return 1;
 }
-
 //=======================================================================
 // This function looking for "source" - snpID from "setID" file
 // inside of array of "snpID"s from "*.bim" file
@@ -248,6 +250,7 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 	std::string line;
 	std::vector<std::string> tokens;
 
+
 	this->m_bim.open(this->m_bimfile);
 	if (!this->m_bim)
 	{
@@ -255,18 +258,21 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 		return;
 	}
 
-	this->m_num_of_snps = -1;//0;
+	this->m_num_of_snps = 0;//0;
 	while (!this->m_bim.eof( ) )
     {
 		getline(this->m_bim, line);
-		this->m_num_of_snps++;
+        if(line.length() > 5){
+            this->m_num_of_snps++; /* changed in 02/28/2015 */
+        }
 	}
 
 	this->m_bim.close();
 	//----------------------------------------------
 
+ 
 	m_snp_sets = new SNP_info[this->m_num_of_snps];
-	for (int j = 0; j < m_num_of_snps;++j)
+	for (size_t j = 0; j < m_num_of_snps;++j)
 	{
 		this->m_snp_sets[j].letters[0] = NULL;
 		this->m_snp_sets[j].letters[1] = NULL;
@@ -288,9 +294,9 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 
 
 	m_bimf_snpsid = new char*[this->m_num_of_snps];
-	m_bimf_sorted = new int[this->m_num_of_snps];
+	m_bimf_sorted = new size_t[this->m_num_of_snps];
 
-	for (int i = 0; i < m_num_of_snps;++i)
+	for (size_t i = 0; i < m_num_of_snps;++i)
     {
 		tokens.clear();
 		getline(this->m_bim, line);
@@ -320,13 +326,15 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 
 		m_bimf_snpsid[i] = new char[SNP_ID_SIZE];
 		strcpy (m_bimf_snpsid[i] , tokens.at(1).c_str());
-
+        m_bimf_sorted[i] = i;
 
 
 	}
 	this->m_bim.close();
-
-	sort_data::sort((const void *)m_bimf_snpsid, m_bimf_sorted, m_num_of_snps, (DATA2SORT)D_CHARSTAR, (int)0, (int)0);
+    
+    sort_data::sort<char*, sort_data::char_ptr_less>(m_bimf_snpsid, m_bimf_sorted, m_num_of_snps);
+    
+	/*sort_data::sort((const void *)m_bimf_snpsid, m_bimf_sorted, m_num_of_snps, (DATA2SORT)D_CHARSTAR, (int)0, (int)0);*/
 
 }
 //=======================================================================
