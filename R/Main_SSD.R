@@ -178,7 +178,9 @@ SKAT.SSD.GetSNP_Weight<-function(SSD.INFO, SetIndex, obj.SNPWeight=NULL){
 
 		weights[i]<-val2
 	}
-	re=list(Z=Z, Is.weights=FALSE, weights=weights)
+	
+	# Change FALSE to TRUE
+	re=list(Z=Z, Is.weights=TRUE, weights=weights)
 	return(re)
 		
 

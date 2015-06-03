@@ -98,6 +98,7 @@ N.Resampling=10^7, ExactMax=10000, test_type=1, Is.testdata=FALSE, File=NULL, Is
 	if(obj$return ==1){
 		return(obj)
 	}
+
 	
 	# Run ER.R if n* > 100
 	if(method.bin=="ER" && length(obj$idx) >= 100){

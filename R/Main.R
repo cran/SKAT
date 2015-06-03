@@ -401,7 +401,7 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 		r.corr=0
 		method="davies"	
 		
-		msg<-sprintf("Rank of the genotype matrix is one! SKAT is conducted instead of SKAT-O!" )
+		msg<-sprintf("Rank of the genotype matrix is one! SKAT is used instead of SKAT-O!" )
 		warning(msg,call.=FALSE)
 		
 	}

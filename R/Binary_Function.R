@@ -518,11 +518,17 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
   	}
 
 	#################################
-	# 	if there is only one variant
+	# 	if there is only one variant or rank of Z1=1
   	  	
-	if(length(r.corr) > 1 && ncol(out.z$Z.test) <= 1){
+	if(length(r.corr) > 1 && ncol(Z1) <= 1){
 		r.corr=0
+	} else if(length(r.corr) > 1 && sum(abs(Z1 - Z1[,1])) == 0){
+		r.corr=0
+		
+		msg<-sprintf("Rank of the genotype matrix is one! SKAT is used instead of SKAT-O!" )
+		warning(msg,call.=FALSE)
 	}
+	
 	
  	if(length(r.corr) == 1){
   		
