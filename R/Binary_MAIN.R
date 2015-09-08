@@ -48,7 +48,7 @@ SKATBinary_RestoreSeed<-function(out.seed){
 
 
 SKATBinary<-function(Z, obj, kernel = "linear.weighted", method="SKAT", method.bin="Hybrid", 
-weights.beta=c(1,25), weights = NULL, r.corr=0, impute.method = "fixed", 
+weights.beta=c(1,25), weights = NULL, r.corr=0, impute.method = "bestguess", 
 is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, N.Resampling=2 *10^6, 
 seednum=100, epsilon=10^-6){
 

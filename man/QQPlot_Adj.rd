@@ -2,7 +2,7 @@
  \alias{QQPlot_Adj}
  \title{Adjusted QQ plot}
  \description{
-     Draws the MPP-adjusted QQ plot 
+     Draws a MAP-adjusted QQ plot 
  }
  \usage{
  
@@ -29,3 +29,13 @@
 
 
 \author{Seunggeun Lee}
+
+
+
+\references{
+
+Lee, S., Fuchsberger, C., Kim, S., Scott, L. (2015) 
+An efficient resampling method for calibrating single and gene-based rare variant association analysis in case-control studies.
+\emph{Biostatistics}, in press.
+
+}

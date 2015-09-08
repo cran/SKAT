@@ -3,6 +3,6 @@
 \alias{SSD_FILE_OPEN.FileName}
 \title{Internal variables for SSD}
 \description{
-Internal variables for SSD
+Internal variable for SSD.
 }
 

@@ -73,6 +73,8 @@ SKAT_NULL_emmaX <- function(formula, data=NULL, K=NULL, Kin.File=NULL, ngrids=10
 	n<-dim(obj1)[1]
 	id_include<-SKAT_Null_Model_Get_Includes(obj1,obj2)
 	X<-model.matrix(formula,data=data)
+	X<-Get_SKAT_Residuals.Get_X1(X)
+	
 	y<-model.response(obj1)
 	q <- ncol(X)
 	# n and n1 are opposite (compare to SKAT)

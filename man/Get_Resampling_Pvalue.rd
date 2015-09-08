@@ -14,9 +14,9 @@
 
  }
 \arguments{
-      \item{obj}{a SKAT outcome object.}
+      \item{obj}{SKAT outcome object.}
       \item{p.value}{a numeric value of the SKAT p-value.}
-      \item{p.value.resampling}{a vector of p-values of the resampled residuals.}  
+      \item{p.value.resampling}{a vector of p-values from the resampled residuals.}  
 }
 \value{
 	\item{p.value}{the resampling p-value. It is computed as (n1 +1)/(n+1), where n is the number of resampling (n.Resampling in SKAT_Null_Model or SKAT_Null_Model_MomentAdjust), 

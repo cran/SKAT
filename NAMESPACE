@@ -17,6 +17,15 @@ export(SKAT, Get_Logistic_Weights_MAF, Get_Logistic_Weights,
 	SKATBinary.SSD.OneSet, SKATBinary.SSD.OneSet_SetIndex,SKATBinary.SSD.All,
 	SKAT_Null_Model_ChrX, SKAT_ChrX)
 
+     importFrom("graphics", "abline", "legend", "plot", "points")
+     importFrom("stats", "approxfun", "dbeta", "dchisq", "get_all_vars",
+     "glm", "integrate", "lm", "median", "model.frame",
+     "model.matrix", "model.response", "na.omit", "na.pass",
+     "pchisq", "predict", "qchisq", "qqplot", "quantile",
+     "rbinom", "rmultinom", "rnorm", "runif", "sd",
+     "smooth.spline", "uniroot", "var")
+     importFrom("utils", "data", "read.delim", "read.table", "write.table")
+     
 # variables
 #export(SSD_FILE_OPEN.isOpen,SSD_FILE_OPEN.FileName)
 

@@ -7,7 +7,6 @@ trace.SKAT = function(x){
 
 Get_Critical_Value<-function(c1,alpha){
 
-
 	param.null<-Get_Liu_Params_Mod(c1)
 	#param.null<-Get_Liu_Params(c1)
 	q.crit = (qchisq(1-alpha
@@ -202,7 +201,7 @@ Get_Power_Logistic<-function(Z,eta,Beta0,ratio,alpha.ALL,N.Sample.ALL,Weight.Par
 	A<-Get_A(Z,eta,Dist,ratio)
 	B<-Get_B(Z,eta, Dist,ratio)
 	
-	W<-Get_W_New(MAF,Weight.Param)		
+	W<-Get_W_New(MAF,Weight.Param)	
 	A1<-t( t(A) * W)
 	B1<-t( t(B) * W)
 
@@ -231,6 +230,10 @@ Get_Power_Logistic<-function(Z,eta,Beta0,ratio,alpha.ALL,N.Sample.ALL,Weight.Par
 
 		Mu1<-t( t(B) * W_Pi)
 		Mu2<-B1 %*% A2
+		
+		#K2<<-K2
+		#Pi1<<-Pi1
+		#A2<<-A2
 	
 		c1[1] = trace.SKAT(K) * N.Sample
 		c1[2] = trace.SKAT(K2) * N.Sample^2
@@ -385,8 +388,7 @@ Get_RandomRegion<-function(SNP.Dist,SubRegion.Length){
 
 Power_Logistic<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1, Prevalence=0.01, Case.Prop=0.5, Causal.Percent=5, Causal.MAF.Cutoff=0.03, alpha =c(0.01,10^(-3),10^(-6)),N.Sample.ALL = 500 * (1:10), Weight.Param=c(1,25),N.Sim=100, OR.Type = "Log", MaxOR=5, Negative.Percent=0){
 	
-
-
+	
 	if(is.null(Haplotypes)){
 	
 		MSG_SKAT_Example()
@@ -403,6 +405,13 @@ Power_Logistic<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1
 
 	Marker.MAF.ALL<-colMeans(Haplotypes) 
 
+	# Remove monomorphic 
+	id.non<-which(Marker.MAF.ALL==0)
+	if(length(id.non) > 0){
+		Haplotypes<-Haplotypes[,-id.non]
+		SNP.Location<-SNP.Location[-id.non]
+		Marker.MAF.ALL<-Marker.MAF.ALL[-id.non]
+	}
 
 	# approximated Beta0
 	Beta0<-log(Prevalence/(1-Prevalence))
@@ -420,10 +429,10 @@ Power_Logistic<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=-1
 			H1<-sample(1:n1,replace=FALSE)
 			H2<-sample(1:n1,replace=FALSE)
 		} else {
-			H1<-sample(1:10000,replace=TRUE)
-			H2<-sample(1:10000,replace=TRUE)
-			H1[1:n1]<-sample(1:n1,replace=FALSE)
-			H2[1:n1]<-sample(1:n1,replace=FALSE)
+			H1<-sample(1:n1,5000, replace=TRUE)
+			H2<-sample(1:n1,5000, replace=TRUE)
+			#H1[1:n1]<-sample(1:n1,replace=FALSE)
+			#H2[1:n1]<-sample(1:n1,replace=FALSE)
 		}
 	
 			
@@ -480,7 +489,14 @@ Power_Continuous<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 	}
 
 	Marker.MAF.ALL<-colMeans(Haplotypes) 
-
+	# Remove monomorphic 
+	id.non<-which(Marker.MAF.ALL==0)
+	if(length(id.non) > 0){
+		Haplotypes<-Haplotypes[,-id.non]
+		SNP.Location<-SNP.Location[-id.non]
+		Marker.MAF.ALL<-Marker.MAF.ALL[-id.non]
+	}
+	
 	#####################################
 	# 	Compute Power
 	######################################	
@@ -496,10 +512,10 @@ Power_Continuous<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 			H1<-sample(1:n1,replace=FALSE)
 			H2<-sample(1:n1,replace=FALSE)
 		} else {
-			H1<-sample(1:10000,replace=TRUE)
-			H2<-sample(1:10000,replace=TRUE)
-			H1[1:n1]<-sample(1:n1,replace=FALSE)
-			H2[1:n1]<-sample(1:n1,replace=FALSE)
+			H1<-sample(1:n1,5000, replace=TRUE)
+			H2<-sample(1:n1,5000, replace=TRUE)
+			#H1[1:n1]<-sample(1:n1,replace=FALSE)
+			#H2[1:n1]<-sample(1:n1,replace=FALSE)
 		}
 				
 		X1<-Haplotypes[H1,IDX.Marker] + Haplotypes[H2,IDX.Marker]
@@ -584,6 +600,13 @@ Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 	}
 
 	Marker.MAF.ALL<-colMeans(Haplotypes) 
+	# Remove monomorphic 
+	id.non<-which(Marker.MAF.ALL==0)
+	if(length(id.non) > 0){
+		Haplotypes<-Haplotypes[,-id.non]
+		SNP.Location<-SNP.Location[-id.non]
+		Marker.MAF.ALL<-Marker.MAF.ALL[-id.non]
+	}
 
 
 	# approximated Beta0
@@ -602,10 +625,10 @@ Power_Logistic_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Length=
 			H1<-sample(1:n1,replace=FALSE)
 			H2<-sample(1:n1,replace=FALSE)
 		} else {
-			H1<-sample(1:10000,replace=TRUE)
-			H2<-sample(1:10000,replace=TRUE)
-			H1[1:n1]<-sample(1:n1,replace=FALSE)
-			H2[1:n1]<-sample(1:n1,replace=FALSE)
+			H1<-sample(1:n1,5000, replace=TRUE)
+			H2<-sample(1:n1,5000, replace=TRUE)
+			#H1[1:n1]<-sample(1:n1,replace=FALSE)
+			#H2[1:n1]<-sample(1:n1,replace=FALSE)
 		}
 	
 			
@@ -680,6 +703,13 @@ Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Lengt
 
 
 	Marker.MAF.ALL<-colMeans(Haplotypes) 
+	# Remove monomorphic 
+	id.non<-which(Marker.MAF.ALL==0)
+	if(length(id.non) > 0){
+		Haplotypes<-Haplotypes[,-id.non]
+		SNP.Location<-SNP.Location[-id.non]
+		Marker.MAF.ALL<-Marker.MAF.ALL[-id.non]
+	}
 
 	#####################################
 	# 	Compute Power
@@ -696,10 +726,10 @@ Power_Continuous_R<-function(Haplotypes=NULL, SNP.Location=NULL, SubRegion.Lengt
 			H1<-sample(1:n1,replace=FALSE)
 			H2<-sample(1:n1,replace=FALSE)
 		} else {
-			H1<-sample(1:10000,replace=TRUE)
-			H2<-sample(1:10000,replace=TRUE)
-			H1[1:n1]<-sample(1:n1,replace=FALSE)
-			H2[1:n1]<-sample(1:n1,replace=FALSE)
+			H1<-sample(1:n1,5000, replace=TRUE)
+			H2<-sample(1:n1,5000, replace=TRUE)
+			#H1[1:n1]<-sample(1:n1,replace=FALSE)
+			#H2[1:n1]<-sample(1:n1,replace=FALSE)
 		}
 				
 		X1<-Haplotypes[H1,IDX.Marker] + Haplotypes[H2,IDX.Marker]

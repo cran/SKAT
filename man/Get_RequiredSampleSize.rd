@@ -10,15 +10,13 @@
 \arguments{
       \item{obj}{an object returned from Power_Continuous or Power_Logistic.}
       \item{Power}{a value of the power to be achieved (default= 0.8).}
-      
 }
 \value{
-	A list object of the required sample sizes.
-  	
+	A list object for the required sample sizes.
 }
 \details{
-	It computes required sample sizes using simple interpolation. 
-                                                            
+	This function computes required sample sizes using simple interpolation. 
+             
 }
 
 

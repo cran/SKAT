@@ -1,16 +1,15 @@
-
- \name{Read_SNP_WeightFile}
- \alias{Read_SNP_WeightFile}
- \title{Read a file with custom weights}
- \description{
+\name{Read_SNP_WeightFile}
+\alias{Read_SNP_WeightFile}
+\title{Read a file with custom weights}
+\description{
      Read a file with custom weights
- }
- \usage{
+}
+\usage{
 	Read_SNP_WeightFile(FileName)
 
- }
+}
 \arguments{
-      \item{FileName}{an input file name of a custom weight.}
+      \item{FileName}{input file name of a custom weight.}
      
 }
 \value{

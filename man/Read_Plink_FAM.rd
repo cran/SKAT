@@ -1,9 +1,9 @@
  \name{Read_Plink_FAM}
  \alias{Read_Plink_FAM}
  \alias{Read_Plink_FAM_Cov}
- \title{Read a Plink FAM and covariates files}
+ \title{Read Plink FAM and covariates files}
  \description{
-     Read a Plink FAM file
+     Read Plink FAM and covariates files.
  }
  \usage{
 	Read_Plink_FAM(Filename, Is.binary=TRUE, flag1=0)
@@ -11,9 +11,10 @@
 
  }
 \arguments{
-      \item{Filename}{an input file name of plink FAM file}
+      \item{Filename}{input file name of plink FAM file}
       \item{Is.binary}{if TRUE, the phenotype is binary. If phenotype is continuous, it should be FALSE}
-      \item{flag1}{0 represents the default coding of unaffected/affected (1/2) (default=0), and 1 represents 0/1 coding. flag1=1 is the same as --1 flag. Please see the plink manual. }      
+      \item{flag1}{0 represents the default coding of unaffected/affected (1/2) (default=0), and 1 represents 0/1 coding. 
+      flag1=1 is the same as --1 flag in plink. Please see the plink manual. }      
 	  \item{File_Cov}{an input file name of plink covariates file. The first two columns of this file should be FID and IID.}      
 	  \item{cov_header}{a logical value indicating whether the covariate file contains a header row (default=TRUE)}      
 	

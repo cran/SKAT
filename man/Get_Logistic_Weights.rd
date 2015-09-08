@@ -4,8 +4,9 @@
  \title{Get the logistic weight}
  \description{
 
-     Get the logistic weights from either a genotype matrix (Z) or a vector of minor allele frequncies (MAF). 
-     You can apply this weights to SKAT by giving it as the ``weights'' parameter. The logistic weight gives equal weights to rare variants and nearly zero weight to common variants. 
+     Get logistic weights from either a genotype matrix (Z) or a vector of minor allele frequncies (MAF). 
+     Users can apply this weights to SKAT by giving it as the ``weights'' parameter. 
+     The logistic weight gives equal weights to rare variants and nearly zero weight to common variants. 
 
  }
  \usage{
@@ -17,7 +18,8 @@
 		
  }
 \arguments{
-        \item{Z}{a numeric genotype matrix with each row as a different individual and each column as a separate gene/snp. Each genotype should be coded as 0, 1, 2, and 9 for AA, Aa, aa, and missing, where A is a major allele and a is a minor allele. }
+       \item{Z}{a numeric genotype matrix with each row as a different individual and each column as a separate gene/snp. 
+       Each genotype should be coded as 0, 1, 2, and 9 for AA, Aa, aa, and missing, where A is a major allele and a is a minor allele. }
        \item{MAF}{a numeric vector of minor allele frequncies. }
        \item{par1}{a numeric value of the first parameter of the logistic weight (default= 0.07).}
        \item{par2}{a numeric value of the second parameter of the logistic weight(default= 150).}
@@ -26,7 +28,7 @@
 	A vector of the logistic weight. 
 }
 \details{
-	The formula of the logistic weight is 
+	The formula for the weight is 
 	\deqn{ weights = \frac{e^{(par1 - MAF) par2}}{1 + e^{(par1 - MAF) par2}}. }                                              
 }
 

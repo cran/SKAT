@@ -474,6 +474,7 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
 	
 	if(out.z$return ==1){
 		out.z$param$n.marker<-m
+		out.z$param$n.marker.test =0
 		return(out.z)
 	}
 	
@@ -529,7 +530,7 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
 		warning(msg,call.=FALSE)
 	}
 	
-	
+	n.marker.test = ncol(Z1)
  	if(length(r.corr) == 1){
   		
   		if(r.corr == 1){
@@ -543,7 +544,7 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
   		}
   	}
 
-	re=list(Z1=Z1, obj.res=obj.res, pi1=pi1, ncase=ncase, r.corr=r.corr, idx=idx, y=y, MAC=MAC, m=m, return=0)
+	re=list(Z1=Z1, obj.res=obj.res, pi1=pi1, ncase=ncase, r.corr=r.corr, idx=idx, y=y, MAC=MAC, m=m, n.marker.test=n.marker.test, return=0)
 	return(re)
 
 }

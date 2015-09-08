@@ -3,8 +3,7 @@
  \alias{SKATBinary.SSD.All}
  \title{SNP-set Kernel Association Test}
  \description{
-	Iteratively conduct association tests with phenotypes and SNP sets in 
-	SSD file. 
+	Iteratively carry out association tests with phenotypes and SNP sets in SSD file. 
  }
  \usage{
 
@@ -15,15 +14,16 @@
  }
 \arguments{
 
-      \item{SSD.INFO}{an SSD_INFO object returned from Open_SSD.   }
-      \item{obj}{an output object of the SKAT_Null_Model function. }
+      \item{SSD.INFO}{SSD_INFO object returned from Open_SSD.   }
+      \item{obj}{output object from SKAT_Null_Model. }
       \item{\dots}{further arguments to be passed to ``SKAT'' or ``SKATBinary''. }
-      \item{obj.SNPWeight}{ an output object of Read_SNP_WeightFile (default=NULL). 
-      If NULL, the beta weight with the ``weights.beta'' parameter is used.  }
+      \item{obj.SNPWeight}{output object from Read_SNP_WeightFile (default=NULL). 
+      If NULL, the beta weight with the ``weights.beta'' parameter will be used.  }
 }
 \value{
-	\item{results}{the dataframe that contains SetID, p-values (P.value), the number of markers in the SNP sets (N.Marker.All), 
-	and the number of markers to test for an association after excluding non-polymorphic or high missing rates markers (N.Marker.Test).  }
+	\item{results}{dataframe that contains SetID, p-values (P.value), the number of markers in the SNP sets (N.Marker.All), 
+	and the number of markers to test for an association after excluding non-polymorphic or high missing rates markers (N.Marker.Test). 
+	The output dataframe from SKATBinary.SSD.All have more columns for the method to compute p-values and the minimum achievable p-values (MAP).   }
 	\item{P.value.Resampling}{the matrix that contains p-values of resampled phenotypes. }
 }
 \details{

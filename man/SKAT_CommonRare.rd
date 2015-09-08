@@ -3,9 +3,9 @@
  \alias{SKAT_CommonRare.SSD.OneSet}
  \alias{SKAT_CommonRare.SSD.OneSet_SetIndex}
  \alias{SKAT_CommonRare.SSD.All}
- \title{SKAT for the combined effect of rare and common variants}
+ \title{SKAT for the combined effect of common and rare variants}
  \description{
-     Sequence Kernel association test for the combined effect of rare and common variants.      
+     Sequence Kernel association test for the combined effect of common and rare variants.      
  }
  \usage{
 
@@ -33,8 +33,8 @@
       \item{method}{a method to combine common and rare variant effects (default="C"). "C" represents the combined sum test,
       and "A" represents the adaptive sum test. "AR" represents a different type of adaptive test in which 
       common variants are projected over rare variants. }
-      \item{r.corr.rare}{the \eqn{\rho} parameter for rare variants (default= 0). \eqn{\rho} =0 and 1 indicate SKAT and collapsing test, respectively}
-      \item{r.corr.common}{the \eqn{\rho} parameter for common variants (default= 0). \eqn{\rho} =0 and 1 indicate SKAT and collapsing test, respectively}
+      \item{r.corr.rare}{the \eqn{\rho} parameter for rare variants (default= 0). \eqn{\rho} =0 and 1 indicate SKAT and Burden test, respectively}
+      \item{r.corr.common}{the \eqn{\rho} parameter for common variants (default= 0). \eqn{\rho} =0 and 1 indicate SKAT and Burden test, respectively}
       \item{CommonRare_Cutoff}{MAF cutoff for common vs rare variants (default=NULL). It should be a numeric value between 
       0 and 0.5, or NULL. When it is NULL, \eqn{1/ \sqrt{2 SampleSize }} will be used. }
       \item{test.type}{a string to indicate test type (default="Joint"). "Joint" indicates the joint test of the 
@@ -54,8 +54,8 @@
       
 }
 \value{
-	\item{p.value}{the p-value. }
-	\item{p.value.resampling}{the p-value from resampled outcome. You can get it when you use obj from SKAT_Null_Model function with resampling. See the SKAT_Null_Model. }
+	\item{p.value}{p-value. }
+	\item{p.value.resampling}{p-values from resampled phenotypes. You can get it when you use obj from SKAT_Null_Model function with resampling. See the SKAT_Null_Model. }
 	\item{n.rare}{the number of rare variants used for the test}
 	\item{n.common}{the number of common variants used for the test}	
 	\item{Cutoff}{the MAF cut-off to divide common and rare variants}	

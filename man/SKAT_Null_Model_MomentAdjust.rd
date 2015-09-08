@@ -3,7 +3,7 @@
  \title{Get parameters and residuals from the NULL model for small sample adjustment}
  \description{
      Compute model parameters and residuals for SKAT with adjusting small sample moments when the trait is binary. 
-     You also can obtain resampled residuals that can be used to compute resampling p-value or to control family-wise error rate.
+     You can also obtain resampled residuals that can be used to compute resampling p-value or to control family-wise error rate.
  }
  \usage{
 
@@ -12,8 +12,8 @@ type.Resampling="bootstrap", is_kurtosis_adj=TRUE, n.Resampling.kurtosis=10000)
 
  }
 \arguments{
-      \item{formula}{an object of class ``formula'': a symbolic description of the NULL model to be fitted.}
-      \item{data}{an optional data frame containing the variables in the model (default=NULL).  If it is NULL, the variables are taken from 'environment(formula)'}
+      \item{formula}{object of class ``formula'': a symbolic description of the NULL model to be fitted.}
+      \item{data}{optional data frame containing the variables in the model (default=NULL).  If it is NULL, the variables are taken from 'environment(formula)'}
       \item{n.Resampling}{a numeric value of the number of resampling (default=0). If you don't want resampling, please set n.Resampling=0. }
       \item{type.Resampling}{ resampling methods (default="bootstrap"). see details.}
       \item{is_kurtosis_adj}{ If TRUE, the kurtosis adjustment will be applied. The small sample kurtosis will be estimated using the resampled phenotypes.}   
@@ -27,14 +27,17 @@ type.Resampling="bootstrap", is_kurtosis_adj=TRUE, n.Resampling.kurtosis=10000)
 \details{
 
 When the trait is binary, the SKAT can produce conservative results when the sample size is small. 
-To address this, we recently have developed a small sample adjustment method, which adjust asymptotic null distribution by estimating small sample variance and kurtosis. 
+To address this, we developed a small sample adjustment method, which adjust asymptotic null distribution by estimating small sample variance and kurtosis. 
 The small smaple variance is estimated analytically, and the small sample kurtosis is estimated using the resampling approach.
 
-There are 3 different methods to get resampled residuals.
+There are 2 different methods to get resampled residuals.
 "bootstrap" conducts the parametric bootstrap to resample residuals under the NULL model with considering covariates. 
 "bootstrap.fast" (only for binary traits) is a fast implementation of "bootstrap".
 If there is no covariate, "bootstrap" is equivalent to the permutation method.
 
+Since the kurtosis is estimated using random samples, SKAT with the kurtosis-based small sample adjustment 
+can yield slightly different p-values for each run. If you want to reproduce p-values, please set a seed number 
+using set.seed function in R.  
                                                                   
 }
 

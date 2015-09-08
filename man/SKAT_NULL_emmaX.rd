@@ -1,8 +1,8 @@
  \name{SKAT_NULL_emmaX}
  \alias{SKAT_NULL_emmaX}
- \title{Get parameters and residuals from the null model with kinship matrix}
+ \title{Get parameters and residuals from the null model with incorporating the kinship structure}
  \description{
-     Compute model parameters and residuals for SKAT with incorporating kinship structure. 
+     Compute model parameters and residuals for SKAT with incorporating the kinship structure. 
  }
  \usage{
 
@@ -15,15 +15,15 @@ Kin.File=NULL, ngrids=100, llim=-10, ulim=10, esp=1e-10)
       \item{data}{an optional data frame containing the variables in the model (default=NULL).  If it is NULL, the variables are taken from 'environment(formula)'}
       \item{K}{a kinship matrix. If K=NULL, the function reads Kin.File to get a kinship matrix.}
       \item{Kin.File}{an emmax-kin output file name. If K=NULL, the function reads this file. }
-  	  \item{ngrids}{Number of grids to search optimal variance component}
+  	  \item{ngrids}{Number of grids to search for the optimal variance component}
       \item{llim}{Lower bound of log ratio of two variance components}
       \item{ulim}{Upper bound of log ratio of two variance components}
       \item{esp}{Tolerance of numerical precision error}
 
 }
 \value{
-	This function returns an object that has model parameters and residuals of the NULL model of no association between genetic variables and outcome phenotypes. 
-	After obtaining it, use SKAT_emmaX function to carry out the association test.
+	This function returns an object that has model parameters and residuals of the NULL model of no associations. 
+	After obtaining it, use SKAT function to carry out the association test.
 
 }
 \details{

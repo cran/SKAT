@@ -71,7 +71,7 @@ SKATExactBin.Adaptive<-function(Z, obj, kernel = "linear.weighted", weights.beta
 	#	}
   	#}
   			
-	param = list(n.marker=ncol(Z), n.marker.test=ncol(obj$Z1))
+	param = list(n.marker=ncol(Z), n.marker.test=obj$n.marker.test)
 
 	re$param=param
 	re$m = length(obj$idx)
@@ -136,11 +136,11 @@ N.Resampling=10^7, ExactMax=10000, test_type=1, Is.testdata=FALSE, File=NULL, Is
 	}
 	
 	if(is.null(re$param)){
-		param = list(n.marker=ncol(Z), n.marker.test=ncol(obj$Z1))
+		param = list(n.marker=ncol(Z), n.marker.test=obj$n.marker.test)
 		re$param=param
 	} else {
 		re$param$n.marker=ncol(Z)
-		re$param$n.marker.test=ncol(obj$Z1)
+		re$param$n.marker.test=obj$n.marker.test
 	}
 	re$m = length(obj$idx)
 	re$MAC= obj$MAC
@@ -291,7 +291,7 @@ SKATExactBin.ER_R<-function(Z, res, pi1, ncase, idx, r.corr, res.out=NULL, X1, p
 		Z.item2<-SKAT_Optimal_GetZItem2(Z)
 
 		re.Q<-SKATExactBin.SKATO_GetQParam(Z, res, idx, r.corr, pi1, pr$prob_k, pr$k, res.out=res.out, N.sim=N.sim, Is.sim=TRUE)
-		re.Q<<-re.Q
+		#re.Q<<-re.Q
 		param<-re.Q$param
 		Q.m<-(t(re.Q$Q.m)  - param[,1]) /sqrt(param[,2]) * sqrt(2 * param[,3]) + param[,3]
 		Q.sim1<-(t(re.Q$Q.sim)  - param[,1]) /sqrt(param[,2]) * sqrt(2 * param[,3]) + param[,3]
@@ -353,7 +353,7 @@ SKATExactBin.Work<-function(Z, res, pi1, ncase, idx, r.corr, res.out=NULL, Is.te
 	pval1<-rep(0,n.Q)
 	minP<-100
 	
-	
+	#odds1<<-odds
 	if(length(r.corr) == 1){
 			
 		if(Is.testdata){

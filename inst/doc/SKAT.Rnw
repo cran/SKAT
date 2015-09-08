@@ -17,9 +17,9 @@
 SKAT package has functions to 1) test an association between a SNP set
 and continuous/binary phenotypes and 2) to compute power/sample size for future sequence association studies. 
 
-\section{Testing an association between a SNP set and outcome phenotypes.}
+\section{Association test}
 
-\subsection{Example Dataset}
+\subsection{Example}
 An example dataset (SKAT.example) has a genotype matrix (Z) of  2000 individuals and 67 SNPs, 
 vectors of continuous (y.c) and binary (y.b) phenotypes, and a covariates matrix (X).
 
@@ -50,7 +50,7 @@ When the trait is binary and the sample size is small,
 SKAT can produce conservative results. We developed a moment matching adjustment method 
 that adjusts the asymptotic null distribution by estimating empirical variance and kurtosis.
 By default, SKAT ( >= ver 0.7) will conduct a small sample adjustment 
-when the sample size $ < 2000$. In the following code, we only use 200 samples to run SKAT.
+when the sample size $ < 2000$. In the following code, we use only 200 samples to run SKAT.
 
 <<SKAT11>>=
 
@@ -70,7 +70,7 @@ SKAT(Z[IDX,], obj.s, kernel = "linear.weighted")$p.value
 @
 
 
-We recently developed efficient resampling methods to compute p-values for binary traits, 
+We recently developed an efficient resampling method to compute p-values for binary traits, 
 and the methods are implemented in SKATBinary function. When you use this function, Adjustment=TRUE in SKAT\_Null\_Model is not necessary.
 Implemented methods are 1) Efficient resampling (ER); 2) ER with adaptive resampling (ER.A);
 3) Quantile adjusted moment matching (QA); 4) Moment matching adjustment (MA);
@@ -144,7 +144,7 @@ SKAT(Z, obj, r.corr=1)$p.value
 
 If method=``optimal.adj'', SKAT-O method is performed, 
 which computes p-values with eight different values of $\rho=(0, 0.1^2, 0.2^2, 0.3^2, 0.4^2, 0.5^2, 0.5, 1)$
-and uses the minimum p-value as a test statistic. 
+and then uses the minimum p-value as a test statistic. 
 If you want to use the original implementation of SKAT-O, use method=``optimal''. 
 We recommend to use ``optimal.adj'', since it has a better type I error control.
 
@@ -174,30 +174,35 @@ SKAT_CommonRare(Z, obj, r.corr.rare=1, r.corr.common=1, method="A" )$p.value
 
 The detailed description of each method can be found in the following reference. \\
 
-Ionita-Laza, I.*, Lee, S.*, Makarov, V., Buxbaum, J. Lin, X. (2013). 
+Ionita-Laza, I., Lee, S., Makarov, V., Buxbaum, J. Lin, X. (2013). 
 Sequence kernel association tests for the combined effect of rare and common variants.  
-\emph{American Journal of Human Genetics}, in press.  \\
-* contributed equally. 
+\emph{American Journal of Human Genetics}, 92(6):841-53.  \\
 
 \subsection{Imputing missing genotypes.}
 
 If there are missing genotypes, SKAT automatically imputes them
 based on Hardy-Weinberg equilibrium. 
-You can choose either ``random'' or ``fixed'' imputation (default=``fixed''). 
-The ``random'' imputation generates binomial(2,$p_i$) random numbers to impute missing values, 
-where $p_i$ is the MAF of SNP $i$ calculated from non-missing genotypes,
-and  the ``fixed'' imputation uses the mean genotype value, $ 2 p_i$, to impute missing values. 
+You can choose from ``bestguess'', ``fixed'' or ``random''. 
+The ``bestguess'' imputes missing genotypes as most likely values (0,1,2), 
+the ``fixed'' imputes missing genotypes by assigning the mean genotype value (2p, p is the MAF)
+and the "random" imputes missing genotypes by generating binomial(2,p) random variables. The default imputation 
+method for the SKAT function is ``fixed'' and for the SKATBinary function is ``bestguess''.
 
 <<SKAT5>>=
 # Assign missing 
 Z1<-Z
 Z1[1,1:3]<-NA
 
-# random imputation
-SKAT(Z1,obj,impute.method = "random")$p.value
+# bestguess imputation
+SKAT(Z1,obj,impute.method = "bestguess")$p.value
 
 # fixed imputation
 SKAT(Z1,obj,impute.method = "fixed")$p.value
+
+# random imputation
+SKAT(Z1,obj,impute.method = "random")$p.value
+
+
 @
 
 \subsection{Resampling}
@@ -254,7 +259,6 @@ Generate_SSD_SetID(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info
 @
 
 Now you can open SSD and Info file and run SKAT. 
-After finishing it, you must call close function to clse SSD file.
 
 <<SKAT_B2>>=
 FAM<-Read_Plink_FAM(File.Fam, Is.binary=FALSE)
@@ -309,7 +313,7 @@ out<-SKAT.SSD.All(SSD.INFO, obj, obj.SNPWeight=obj.SNPWeight)
 out
 @
 
-The output object of SKAT.SSD.All has an output dataframe object``results''. 
+The output object of SKAT.SSD.All has an output dataframe object ``results''. 
 You can save it using write.table function.
 <<SKAT_B2Save>>=
 
@@ -324,7 +328,6 @@ you should adjust for multiple testing to control for family-wise error rate.
 It can be done bonferroni correction. If gene/SNP sets are correlated, however,
 this approach can be conservative. 
 Alternatively, you can directly control family wise error rate (FWER) using the resampling method. 
-Example code is given in following.
 
 <<SKAT_B3>>==
 obj<-SKAT_Null_Model(y ~ 1, out_type="C", n.Resampling=1000, type.Resampling="bootstrap")
@@ -441,10 +444,10 @@ QQPlot_Adj(out.skat$results$P.value, out.skat$results$MAP)
 \subsection{Dataset}
 SKAT package provides a haplotype dataset (SKAT.haplotypes) 
 which contains a haplotype matrix of 10,000 haplotypes over 200kb region (Haplotype), 
-and a dataframe with informations of each SNP. 
-These haplotypes were simulated using a calibrated coalescent model with mimicking 
+and a dataframe with information on each SNP. 
+These haplotypes were simulated using a calibrated coalescent model (cosi) with mimicking 
 linkage disequilibrium structure of European ancestry. 
-If you don't have any haplotype information, please use this dataset to compute power/sample size.
+If you don't have any haplotype information, use this dataset to compute power/sample size.
 
 <<data>>=
 data(SKAT.haplotypes)
@@ -455,8 +458,7 @@ attach(SKAT.haplotypes)
 
 \subsection{Power/Sample Size calculation}
 
-SKAT package provides functions to compute the power/sample size 
-for future sequence association studies.  The following example uses the haplotypes in SKAT.haplotypes with 
+The following example uses the haplotypes in SKAT.haplotypes with 
 the following parameters. 
 
 \begin{enumerate}
@@ -492,7 +494,7 @@ In this case, a causal variant with MAF=0.01 has $\beta = 1$.
 For binary traits, $c= log(7)/4 = 0.486$ with MAX\_OR=7. 
 And thus, a causal variant with MAF=0.01 has log OR = 0.972.
 
-If you consider non-zero  r.corr ($\rho$) values to compute the power, 
+If you consider non-zero  r.corr ($\rho$) values to compute power, 
 Power\_Continuous\_R or Power\_Logistic\_R functions can be used instead.
 Since they use slightly different method to compute power, 
 power estimates from Power\_Continuous\_R and Power\_Logistic\_R can be slightly different from 

@@ -32,17 +32,23 @@ SKAT_Null_Model_ChrX(formula, SexVar, data=NULL, out_type="C", n.Resampling=0
 }
 \details{
 
-There are 3 different methods to get resampled residuals.
+There are 2 different methods to get resampled residuals.
 "bootstrap" conducts the parametric bootstrap to resample residuals under the NULL model with considering covariates. 
 "bootstrap.fast" (only for binary traits) is a fast implementation of "bootstrap".
 If there is no covariate, "bootstrap" is equivalent to the permutation method.
 
 When the trait is binary, the SKAT can produce conservative results when the sample size is small. 
-To address this, we developed a small sample adjustment method, which adjust asymptotic null distribution by estimating small sample moments. 
+To address this, we developed a small sample adjustment method, which adjusts asymptotic null distribution by estimating small sample moments. 
 See also SKAT_Null_Model_MomentAdjust.
 
-We recently developed more advanced methods to get p-values of binary traits, and the methods are implemented in
+Since small sample adjustment uses random sampling to estimate the kurtosis of the test statistics, SKAT with the (kurtosis-based) small sample adjustment 
+can yield slightly different p-values for each run. If you want to reproduce p-values, please set a seed number 
+using set.seed function in R.  
+
+We recently developed more advanced methods to get p-values for binary traits, and the methods are implemented in
 SKATBinary. We recommend to use SKATBinary function instead of SKAT when your trait is binary. 
+ 
+ 
                                                                       
 }
 

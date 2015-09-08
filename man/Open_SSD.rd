@@ -2,8 +2,7 @@
  \alias{Open_SSD}
  \title{Open SNP set data file (SSD) }
  \description{
- Open_SSD opens a SNP Set data file (SSD).
- After finishing using the SSD file, you must close it by callinsg Close_SSD function. 
+ Open a SNP Set data file (SSD). After finishing using the SSD file, you must close the file by callinsg Close_SSD function. 
  }
  \usage{
 	Open_SSD(File.SSD, File.Info)
@@ -13,7 +12,7 @@
       \item{File.Info}{ name of the SSD info file. }
 }
 \value{
- 	 a list object of SSD.INFO that has set information. 
+ 	 a list object of SSD.INFO.
 }
 
 

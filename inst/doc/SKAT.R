@@ -120,11 +120,16 @@ SKAT_CommonRare(Z, obj, r.corr.rare=1, r.corr.common=1, method="A" )$p.value
 Z1<-Z
 Z1[1,1:3]<-NA
 
-# random imputation
-SKAT(Z1,obj,impute.method = "random")$p.value
+# bestguess imputation
+SKAT(Z1,obj,impute.method = "bestguess")$p.value
 
 # fixed imputation
 SKAT(Z1,obj,impute.method = "fixed")$p.value
+
+# random imputation
+SKAT(Z1,obj,impute.method = "random")$p.value
+
+
 
 
 ###################################################
