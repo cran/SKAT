@@ -12,7 +12,8 @@
 	, method.bin="Hybrid", weights.beta=c(1,25), weights = NULL
 	, r.corr=0, impute.method = "bestguess", is_check_genotype=TRUE
 	, is_dosage = FALSE, missing_cutoff=0.15
-	, estimate_MAF=1, N.Resampling=2 *10^6, seednum=100, epsilon=10^-6)
+	, estimate_MAF=1, N.Resampling=2 *10^6, seednum=100, epsilon=10^-6
+	, SetID=NULL)
 	
 	SKATBinary.SSD.OneSet(SSD.INFO, SetID, obj, \dots ,obj.SNPWeight=NULL)
 
@@ -52,7 +53,7 @@
       \item{epsilon}{a precision level  (default=10^-6).}
       
       \item{SSD.INFO}{an SSD_INFO object returned from Open_SSD. }
-      \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO}
+      \item{SetID}{a character value of Set ID. You can find a set ID of each set from SetInfo object of SSD.INFO. In SKATBinary function, this parameter is for the internal use only.}
       \item{SetIndex}{a numeric value of Set index. You can find a set index of each set from SetInfo object of SSD.INFO  }
       \item{\dots}{further arguments to be passed to ``SKATBinary'' }
       \item{obj.SNPWeight}{an output object of Read_SNP_WeightFile (default=NULL). 

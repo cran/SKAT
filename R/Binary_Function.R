@@ -29,6 +29,7 @@ SKATExactBin.SKATO_GetQParam<-function(Z, res, idx, r.all, p1, prob_k, k, res.ou
 	prob<-p1[idx]/sum(p1[idx])
 	
 	prob_k1<-prob_k / sum(prob_k)
+	
 	N.resample<-rmultinom(1, N.sim, prob_k1)
 	N.resample.total<-sum(N.resample)
 	
@@ -190,7 +191,7 @@ SKATExactBin.ComputeProb_Group = function(idx, pi1, n, ncase, type.group=1){
 	, as.double(weight), as.double(prob_k));
 	
 	prob_k = RE[[6]]
-
+	#cat("PROB_K", prob_k)
 	return(list(prob_k = prob_k, is.return=FALSE))
 
 }
@@ -510,13 +511,6 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
 		return(re)
 	
 	}
-	
-	#################################
-	# 	weighting and etc
-	
-  	if (kernel == "linear.weighted") {
-    	Z1 = t(t(Z1) * (out.z$weights))
-  	}
 
 	#################################
 	# 	if there is only one variant or rank of Z1=1
@@ -529,6 +523,13 @@ SKATExactBin_Check<-function(Z, obj, kernel = "linear.weighted", weights.beta=c(
 		msg<-sprintf("Rank of the genotype matrix is one! SKAT is used instead of SKAT-O!" )
 		warning(msg,call.=FALSE)
 	}
+	
+	#################################
+	# 	weighting and etc
+	
+  	if (kernel == "linear.weighted") {
+    	Z1 = t(t(Z1) * (out.z$weights))
+  	}
 	
 	n.marker.test = ncol(Z1)
  	if(length(r.corr) == 1){

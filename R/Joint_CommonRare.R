@@ -131,6 +131,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 	OUT.Marker.Test<-rep(NA,N.Set)
 	OUT.Error<-rep(-1,N.Set)
 	OUT.Pvalue.Resampling<-NULL
+	OUT.Q<-rep(NA,N.Set)
 
 	OUT.nRare<-rep(NA,N.Set)
 	OUT.nCommon<-rep(NA,N.Set)
@@ -191,6 +192,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 			OUT.Marker.Test[i]<-re$param$n.marker.test
 			OUT.nRare[i]<-re$n.rare
 			OUT.nCommon[i]<-re$n.common
+			OUT.Q[i]<-re$Q
 			if(Is.Resampling){
 				OUT.Pvalue.Resampling[i,]<-re$p.value.resampling
 			}
@@ -198,7 +200,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 	}
 
 	
-	out.tbl<-data.frame(SetID=SSD.INFO$SetInfo$SetID, P.value=OUT.Pvalue
+	out.tbl<-data.frame(SetID=SSD.INFO$SetInfo$SetID, P.value=OUT.Pvalue, Q=OUT.Q
 	, N.Marker.All=OUT.Marker, N.Marker.Test=OUT.Marker.Test, N.Marker.Rare=OUT.nRare, N.Marker.Common=OUT.nCommon)
 	re<-list(results=out.tbl,P.value.Resampling=OUT.Pvalue.Resampling)
 	class(re)<-"SKAT_SSD_ALL"

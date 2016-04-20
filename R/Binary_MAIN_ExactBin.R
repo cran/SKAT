@@ -44,7 +44,7 @@ SKATExactBin.Adaptive<-function(Z, obj, kernel = "linear.weighted", weights.beta
 	if(obj$return ==1){
 		return(obj)
 	}
-	
+		
 	res.out=obj$obj.res$res.out
   	#p.value.resampling=NULL
   	#n.resample.test=0
@@ -94,6 +94,7 @@ N.Resampling=10^7, ExactMax=10000, test_type=1, Is.testdata=FALSE, File=NULL, Is
 	obj = SKATExactBin_Check(Z=Z, obj=obj, kernel = kernel, weights.beta=weights.beta
 	, weights = weights, impute.method = impute.method, r.corr=r.corr, is_dosage = is_dosage, estimate_MAF=estimate_MAF,
 	missing_cutoff=missing_cutoff, SetID = SetID, Is.Single=Is.Single)
+
 	
 	if(obj$return ==1){
 		return(obj)

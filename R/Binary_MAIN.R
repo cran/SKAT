@@ -50,7 +50,7 @@ SKATBinary_RestoreSeed<-function(out.seed){
 SKATBinary<-function(Z, obj, kernel = "linear.weighted", method="SKAT", method.bin="Hybrid", 
 weights.beta=c(1,25), weights = NULL, r.corr=0, impute.method = "bestguess", 
 is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, estimate_MAF=1, N.Resampling=2 *10^6, 
-seednum=100, epsilon=10^-6){
+seednum=100, epsilon=10^-6, SetID=NULL){
 
 
 	out.seed=SKATBinary_SeedNum(seednum)
@@ -70,7 +70,7 @@ seednum=100, epsilon=10^-6){
 	
 	
 	out.Z = SKATExactBin_Check(Z=Z, obj=obj.res, kernel = kernel, weights.beta=weights.beta, weights = weights, impute.method = impute.method, r.corr=r.corr, is_dosage = is_dosage, estimate_MAF=estimate_MAF,
-		missing_cutoff=missing_cutoff, SetID = NULL, Is.Single=FALSE, Is.MakeZ1=FALSE)
+		missing_cutoff=missing_cutoff, SetID = SetID, Is.Single=FALSE, Is.MakeZ1=FALSE)
 	
 	if(out.Z$return==1){
 		out.Z$MAC=0
@@ -82,7 +82,7 @@ seednum=100, epsilon=10^-6){
 		
 		return(out.Z)
 	}
-	
+
 	MAC = out.Z$MAC
 	m = out.Z$m
 		
@@ -130,10 +130,29 @@ seednum=100, epsilon=10^-6){
 		}  else {
 			method.bin="UA"
 		}
+		
+		if(m >= length(y) *0.9){
+			
+			method.bin="MA-UA"
+		}
+		
 		Is.Hybrid =TRUE
 	}	
 	
-	if(method.bin == "UA"){
+	if(method.bin == "MA-UA"){
+
+		re = SKAT(Z=Z, obj=obj, kernel = kernel, method=method, weights.beta=weights.beta, weights=weights, 
+       	impute.method=impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype,
+       	is_dosage = is_dosage, missing_cutoff=missing_cutoff, estimate_MAF=estimate_MAF)	
+		
+		if (class(obj) == "SKAT_NULL_Model_ADJ") {
+        	method.bin = "MA"
+    	} else {
+    		method.bin = "UA"
+    	}
+		re$MAP = -1	
+		
+	} else if(method.bin == "UA"){
 		
 		re = SKAT(Z=Z, obj=obj.res, kernel = kernel, method=method, weights.beta=weights.beta, weights=weights, 
        	impute.method=impute.method, r.corr=r.corr, is_check_genotype=is_check_genotype,
@@ -323,7 +342,7 @@ SKATBinary.SSD.OneSet = function(SSD.INFO, SetID, obj, ..., obj.SNPWeight=NULL){
 SKATBinary.SSD.OneSet_SetIndex = function(SSD.INFO, SetIndex, obj, ..., obj.SNPWeight=NULL){
 
 	re1 = SKAT.SSD.GetSNP_Weight(SSD.INFO, SetIndex, obj.SNPWeight=obj.SNPWeight)
-
+	SetID = SSD.INFO$SetInfo$SetID[SetIndex]
 	if(!re1$Is.weights){
 		re<-SKATBinary(re1$Z, obj, ...)
 	} else {

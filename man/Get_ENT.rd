@@ -16,7 +16,7 @@
       \item{alpha}{a significant level.}
       \item{Is.MidP}{a logical value indicating whether p-values are mid-p-values.}
 }
-\value{
+\value{ 
 	 Effective number of test for Bonferroni correction at the level alpha. MAP can be obtained from 
 	 SKATBinary functions.
 }
