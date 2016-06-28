@@ -114,14 +114,14 @@ Check_ID_Length<-function(FileName){
 	}
 
 	# increase the limit ot 50
-	n1<-length(which(nchar(SSD.Info[,1]) > 50))
-	n2<-length(which(nchar(SSD.Info[,2]) > 50))
+	n1<-length(which(nchar(SSD.Info[,1]) > 1024))
+	n2<-length(which(nchar(SSD.Info[,2]) > 1024))
 
 	if(n1 > 0){
-		stop("Some SetIDs have more than 50 characters!") 
+		stop("Some SetIDs have more than 1024 characters!") 
 	}
 	if(n2 > 0){
-		stop("Some SNP_IDs have more than 50 characters!") 
+		stop("Some SNP_IDs have more than 1024 characters!") 
 	}	
 
 	nSets<-length(unique(SSD.Info[,1]))
@@ -151,7 +151,7 @@ Read_File_Info<-function(File.Info){
 
 	INFO<-list()
 	INFO$WindowSize<-info1[1,1]
-	INFO$OverlapSize<-info1[2,1]
+	INFO$MAFConvert<-info1[2,1]
 	INFO$nSNPs<-info1[3,1]	
 	INFO$nSample<-info1[4,1]
 	INFO$nDecodeSize<-info1[5,1]
@@ -176,7 +176,7 @@ Read_File_Info_Head<-function(File.Info, Is.Print=TRUE){
 
 	INFO<-list()
 	INFO$WindowSize<-info1[1,1]
-	INFO$OverlapSize<-info1[2,1]
+	INFO$MAFConvert<-info1[2,1]
 	INFO$nSNPs<-info1[3,1]	
 	INFO$nSample<-info1[4,1]
 	INFO$nDecodeSize<-info1[5,1]
@@ -235,7 +235,7 @@ Create_Temporaly_SetID<-function(FileName){
 #
 #	Generate SSD Files
 
-Generate_SSD_SetID_Work<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info){
+Generate_SSD_SetID_Work<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info, Is.FlipGenotype){
 
 
 	File.Bed<-normalizePath(File.Bed ,mustWork =FALSE)
@@ -254,15 +254,19 @@ Generate_SSD_SetID_Work<-function(File.Bed, File.Bim, File.Fam, File.SetID, File
 	nSet1 = Check_ID_Length(File.SetID)$nSet
 	
 	err_code<-0
+	MAFConvert=0
+	if(Is.FlipGenotype){
+		MAFConvert=1
+	}
 
 
 	temp<-.C("R_Generate_MWA_SetID_File"
 	, as.character(File.Bed), as.character(File.Bim), as.character(File.Fam)
 	, as.character(File.SetID), as.character(File.SSD), as.character(File.Info)
-	, as.integer(err_code))
+	, as.integer(MAFConvert), as.integer(err_code))
 	
 	
-	error_code<-temp[[7]]
+	error_code<-temp[[8]]
 	Print_Error_SSD(error_code)
 
         # Check SetID_LOG file 
@@ -280,10 +284,11 @@ Generate_SSD_SetID_Work<-function(File.Bed, File.Bim, File.Fam, File.SetID, File
 }
 
 
-Generate_SSD_SetID<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info){
+Generate_SSD_SetID<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info, Is.FlipGenotype=TRUE){
 
+	
 
-	re = Generate_SSD_SetID_Work(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info)
+	re = Generate_SSD_SetID_Work(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info, Is.FlipGenotype)
 
 	if(re == -1){
 		MSG1<-sprintf("Warning: SSD file has more SNP sets then SetID file.It happens when SNPs in sets are not contiguous!\n")
@@ -292,7 +297,7 @@ Generate_SSD_SetID<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD,
 		cat(MSG2)
 
 		File.SetID.temp<-Create_Temporaly_SetID(File.SetID)
-		re = Generate_SSD_SetID_Work(File.Bed, File.Bim, File.Fam, File.SetID.temp, File.SSD, File.Info)
+		re = Generate_SSD_SetID_Work(File.Bed, File.Bim, File.Fam, File.SetID.temp, File.SSD, File.Info, Is.FlipGenotype)
 		if(re == -1){
 			stop("Keep having more SetIDs in the SSD file!")
 		}
@@ -303,45 +308,10 @@ Generate_SSD_SetID<-function(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD,
 
 }
 
-Generate_SSD_MovingWindow<-function(File.Bed, File.Bim, File.Fam, File.SSD, File.Info, WindowSize,Overlap){
-
-	File.Bed<-normalizePath(File.Bed ,mustWork =FALSE)
-	File.Bim<-normalizePath(File.Bim ,mustWork =FALSE)
-	File.Fam<-normalizePath(File.Fam ,mustWork =FALSE)
-	File.SSD<-normalizePath(File.SSD ,mustWork =FALSE)
-	File.Info<-normalizePath(File.Info ,mustWork =FALSE)
-
-
-	Check_File_Exists(File.Bed)
-	Check_File_Exists(File.Bim)
-	Check_File_Exists(File.Fam)
-
-
-	err_code<-0
-
-	temp<-.C("R_Generate_MWA_MovingWindow"
-	, as.character(File.Bed), as.character(File.Bim), as.character(File.Fam)
-	, as.character(File.SSD), as.integer(WindowSize), as.integer(Overlap), as.character(File.Info)
-	, as.integer(err_code))
-
-	Kill_SSD_MovingWindow()
-
-	error_code<-temp[[8]]
-	Print_Error_SSD(error_code)
-
-
-	Read_File_Info_Head(File.Info)
-	print("SSD and Info files are created!")
-
-}
-
 Kill_SSD_SetID<-function(){
 	temp<-.C("R_Kill_MWA_SetID_File")
 }
 
-Kill_SSD_MovingWindow<-function(){
-	temp<-.C("R_Kill_MWA_MovingWindow")
-}
 
 ##################################################################
 #
@@ -413,7 +383,7 @@ Open_SSD<-function(File.SSD, File.Info){
 
 Get_Genotypes_SSD<-function(SSD_INFO, Set_Index, is_ID = FALSE){
 
-	SNP_ID_SIZE=51 # it should be the same as SNP_ID_SIZE in error_messages.h 
+	SNP_ID_SIZE=1024 # it should be the same as SNP_ID_SIZE_MAX in error_messages.h 
 	
 	Is_MakeFile=0
 	if(get("SSD_FILE_OPEN.isOpen", envir=SSD.env) == 0){

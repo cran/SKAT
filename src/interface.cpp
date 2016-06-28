@@ -1,4 +1,4 @@
-/*************************************************************
+ /*************************************************************
  *
  * Final Interface to R
  *
@@ -6,10 +6,7 @@
 
 #include <R.h>
 
-void Generate_MWA_MovingWindow(char* Bed, char* Bim, char* Fam, char* Mwa, int WindowSize, int Overlap , char* Info,int* myerror) ;
-void Kill_MWA_MovingWindow();
-
-void Generate_MWA_SetID_File(char* Bed, char* Bim, char* Fam, char* SetID, char* Mwa, char* Info,int* myerror) ;
+void Generate_MWA_SetID_File(char* Bed, char* Bim, char* Fam, char* SetID, char* Mwa, char* Info, int MAFConvert,int* myerror) ;
 void Kill_MWA_SetID_File();
 
 void Open_MWA(char* MWA_File, char* Info,int* myerror);
@@ -23,31 +20,6 @@ void Get_Genotypes_withID( int Set_number, int* Z, char * SNPID,int size, int Is
 
 extern "C" {
 
-//	Interface definition.
-//	* indicates return value
-//===============================================================
-//	1. Generate MWA Files
-//===============================================================
-//Generate_MWA_MovingWindow(Bim, Bed,WindowSize,Overlap, MWA_File)
-	//Generate MWA file using moving windows. 
-	//Bim : Bim file name
-	//Bed : Bed file name
-	//WindowSize : Window Size (bp)
-	//Overlap : Overlap (bp)
-	//MWA_File : MWA file name which will be generated
-
-void R_Generate_MWA_MovingWindow(
-char** Bed, char** Bim, char** Fam, char** Mwa, int * WindowSize, int * Overlap , char** Info, int * err) 
-{
-
-	Generate_MWA_MovingWindow(Bed[0], Bim[0], Fam[0], Mwa[0],WindowSize[0],  Overlap[0] , Info[0],err) ;
-}
-
-void R_Kill_MWA_MovingWindow(){
-
-	Kill_MWA_MovingWindow() ;
-}
-
 //===============================================================
 //Generate_MWA_SetID_File(Bim, Bed, SetID_File)
 	//Generate MWA file from SetID file. 
@@ -56,12 +28,12 @@ void R_Kill_MWA_MovingWindow(){
 	//SetID_File : Set ID file. The first column is setid, and the second column is snp id
 
 void R_Generate_MWA_SetID_File(
-char** Bed, char** Bim, char** Fam, char** SetID, char** Mwa, char** Info, int * err) 
+char** Bed, char** Bim, char** Fam, char** SetID, char** Mwa, char** Info, int*  MAFConvert, int * err) 
 {
 
 	//Rprintf("Bed[%s]\n",Bed[0]);
 	//Rprintf("Bim[%s]\n",Bim[0]);
-	Generate_MWA_SetID_File(Bed[0], Bim[0], Fam[0], SetID[0], Mwa[0],  Info[0],err) ;
+	Generate_MWA_SetID_File(Bed[0], Bim[0], Fam[0], SetID[0], Mwa[0], Info[0], *MAFConvert, err) ;
 }
 
 void R_Kill_MWA_SetID_File()

@@ -12,7 +12,8 @@
 #ifndef _ERROR_MESSAGES_H        
 #define _ERROR_MESSAGES_H
 
-#define SNP_ID_SIZE 51
+// Added: no more size limitation
+#define SNP_ID_SIZE_MAX 1024
 
 
 #define NO_ERRORS					0			//all write

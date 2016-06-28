@@ -23,7 +23,6 @@
 
 #include "setid_bim_index.h"
 
-
 //=======================================================================
 // This function split "str" by "delimiters" and put the result to "tokens"
 // Inputs:
@@ -74,16 +73,22 @@ Hasht::Hasht(char * setID, char * bim, char* mwa, int * myerror)
 
 	*myerror = NO_ERRORS;
 
+    // Init pointers
+    m_setidf_setid=NULL;
+    m_hash_table=NULL;
+    
+    // Init files
 	this->m_setidfile = setID;
-
 	this->m_bimfile = bim;
 	this->m_num_of_snps_insetid_org = 0;
 
-	char log_filename[1000];
-	memset(log_filename,'\0',sizeof(log_filename));
-	strcat(log_filename,mwa);
-	strcat(log_filename,"_LOG.txt");
-	this->m_log.open(log_filename);
+
+    
+    
+    std::string log_filename;
+    log_filename += mwa;
+    log_filename += "_LOG.txt";
+	this->m_log.open(log_filename.c_str());
 
 
 	this->upload_snpid_from_bim(myerror);
@@ -94,6 +99,7 @@ Hasht::Hasht(char * setID, char * bim, char* mwa, int * myerror)
 	if (*myerror != 0)
 		return;
 
+    // Job was done, remove id
 	for (size_t i = 0; i < m_num_of_snps; ++ i)
 		delete [] this->m_bimf_snpsid[i];
 	delete [] this->m_bimf_snpsid;
@@ -140,7 +146,7 @@ void Hasht::upload_snpid_from_setid_build_hash(int * myerror)
 	this->m_hash_table = new size_t[this->m_num_of_snps_insetid_org +1];
 	this->m_setidf_setid = new char*[this->m_num_of_snps_insetid_org +1];
 
-	this->m_setid.open(this->m_setidfile);
+	this->m_setid.open(this->m_setidfile.c_str());
 	if (!this->m_setid)
 	{
 		*myerror = CANT_OPEN_SETID_FILE4READ;
@@ -176,9 +182,11 @@ void Hasht::upload_snpid_from_setid_build_hash(int * myerror)
 				this->m_log << line << std::endl;
 			else
 			{
+                size_t nlength = tokens.at(0).length();
 				this->m_hash_table[index] = result_of_search;
-				m_setidf_setid[index] = new char[SNP_ID_SIZE];
-				strcpy (m_setidf_setid[index] , tokens.at(0).c_str()); //copy the setId
+				m_setidf_setid[index] = new char[nlength +1];
+                m_setidf_setid[index][nlength] = NULL;
+				strncpy (m_setidf_setid[index] , tokens.at(0).c_str(), nlength); //copy the setId
 				index ++;
 			}
 		}
@@ -196,7 +204,7 @@ int Hasht::Get_Num_of_SNPs_in_SetID(int * myerror){
 
 	std::ifstream temp_file;
 	std::string line;
-	temp_file.open(this->m_setidfile);
+	temp_file.open(this->m_setidfile.c_str());
 	if (!temp_file)
 	{
 		*myerror =  CANT_OPEN_SETID_FILE4READ;
@@ -251,9 +259,10 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 	std::vector<std::string> tokens;
 
 
-	this->m_bim.open(this->m_bimfile);
+	this->m_bim.open(this->m_bimfile.c_str());
 	if (!this->m_bim)
 	{
+        //printf("Error: %s cannot be opend!\n", this->m_bimfile.c_str());
 		*myerror = CANT_OPEN_BIM_FILE4READ;
 		return;
 	}
@@ -272,19 +281,19 @@ void Hasht::upload_snpid_from_bim(int * myerror)
 
  
 	m_snp_sets = new SNP_info[this->m_num_of_snps];
-	for (size_t j = 0; j < m_num_of_snps;++j)
+/*	for (size_t j = 0; j < m_num_of_snps;++j)
 	{
-		this->m_snp_sets[j].letters[0] = NULL;
-		this->m_snp_sets[j].letters[1] = NULL;
+
 		this->m_snp_sets[j].total_counter_per_letter[0] = 0;
 		this->m_snp_sets[j].total_counter_per_letter[1] = 0;
 		this->m_snp_sets[j].line_counter_per_letter[0] = 0;
 		this->m_snp_sets[j].line_counter_per_letter[1] = 0;
 
 	}
+*/
 	//----------------------------------------------
 
-	this->m_bim.open(this->m_bimfile);
+	this->m_bim.open(this->m_bimfile.c_str());
 	this->m_bim.seekg (0, std::ios::beg);
 	if (!this->m_bim)
 	{
@@ -319,15 +328,37 @@ void Hasht::upload_snpid_from_bim(int * myerror)
             
         }
         
-		strcpy (this->m_snp_sets[i].snp_id , tokens.at(1).c_str());
-		this->m_snp_sets[i].letters[0] = tokens.at(4).c_str()[0];
-		this->m_snp_sets[i].letters[1] = tokens.at(5).c_str()[0];
+        this->m_snp_sets[i].Chr = tokens.at(0);
+		this->m_snp_sets[i].snp_id =  tokens.at(1);
+        this->m_snp_sets[i].Pos = atol(tokens.at(0).c_str());
+        
+        this->m_snp_sets[i].A1 = tokens.at(4);
+        this->m_snp_sets[i].A1 = tokens.at(5);
+        
+        // Currently allele name should be one character.
+        // For INDEL, (name > 1), it uses I
+        /*
+        if(tokens.at(4).length() == 1){
+            this->m_snp_sets[i].letters[0] = tokens.at(4).c_str()[0];
+        } else {
+            this->m_snp_sets[i].letters[0] = 'I';
+        }
+        
+        if(tokens.at(5).length() == 1){
+            this->m_snp_sets[i].letters[1] = tokens.at(5).c_str()[0];
+        } else {
+            this->m_snp_sets[i].letters[1] = 'I';
+        }
+        */
+        
+        
 		this->m_snp_sets[i].flag = 0;
-
-		m_bimf_snpsid[i] = new char[SNP_ID_SIZE];
-		strcpy (m_bimf_snpsid[i] , tokens.at(1).c_str());
+        
+        size_t nlength = tokens.at(1).length();
+		m_bimf_snpsid[i] = new char[nlength+1];
+        m_bimf_snpsid[i][nlength] = NULL;
+		strncpy (m_bimf_snpsid[i] , tokens.at(1).c_str(), nlength);
         m_bimf_sorted[i] = i;
-
 
 	}
 	this->m_bim.close();

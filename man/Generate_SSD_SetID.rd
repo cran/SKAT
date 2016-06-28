@@ -7,7 +7,7 @@
  }
  \usage{
 	Generate_SSD_SetID(File.Bed, File.Bim, File.Fam, File.SetID,
-	 File.SSD, File.Info)
+	 File.SSD, File.Info, Is.FlipGenotype=TRUE)
  }
 \arguments{
       \item{File.Bed}{name of the binary ped file (BED).}
@@ -17,6 +17,7 @@
       The first column must be Set ID, and the second column must be SNP ID. There should be no header!! }
       \item{File.SSD}{name of the SSD file generated. }
       \item{File.Info}{name of the SSD info file generated. }
+      \item{Is.FlipGenotype}{internal use only, please do not change}
       
 }
 

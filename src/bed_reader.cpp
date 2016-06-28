@@ -60,10 +60,15 @@ so, in this code the indexes to read this file changed as following:
 //       in same directory as ".bed" file
 //===========================================================================
 BedFileReader::BedFileReader(char* filename, char* mapname, 
-							 char* famname, char* outfile, Hasht* ht, int* myerror, char* info)
+							 char* famname, char* outfile, Hasht* ht, int* myerror, char* info, int MAFConvert)
 {
 	*myerror = NO_ERRORS;
 
+    // Added SLEE
+    m_MAFConvert = MAFConvert;
+    std::string str;
+   
+    
 	this->m_filename = filename;
 	this->m_filename_bim = mapname;
 	this->m_filename_fam = famname;
@@ -71,7 +76,7 @@ BedFileReader::BedFileReader(char* filename, char* mapname,
 	//================================
 	std::string line;
 	this->m_line_counter = -1;
-	this->m_fam.open(this->m_filename_fam);
+	this->m_fam.open(this->m_filename_fam.c_str());
 	if (!this->m_fam)
 	{
 		*myerror = CANT_OPEN_FAM_FILE4READ;
@@ -86,54 +91,50 @@ BedFileReader::BedFileReader(char* filename, char* mapname,
 	//================================
 	if (info == NULL)
 	{
-		memset(str2,'\0',sizeof(str2));
-		strcpy (str2,filename);	
-		strcat (str2,".INFO.txt");
-		this->m_info_file = str2;
+        str = filename;
+        str += ".INFO.txt";
+		this->m_info_file = str;
 	}
 	else
 		this->m_info_file = info;
 
-	this->m_info.open(this->m_info_file);
+	this->m_info.open(this->m_info_file.c_str());
 	if (!this->m_info)
 	{
 		*myerror = CANT_OPEN_INFO_FILE4WRITE;
 		return;
 	}
 
-	memset(str,'\0',sizeof(str));
-	strcpy (str,this->m_info_file);	
-	strcat (str,".REWR");
+    str = this->m_info_file;
+    str += ".REWR";
+    
 	this->m_info_rewritten = str;
-	this->m_info_rewr.open(this->m_info_rewritten);
+	this->m_info_rewr.open(this->m_info_rewritten.c_str());
 	if (!this->m_info_rewr)
 	{
 		*myerror = CANT_OPEN_INFO_RWR_FILE4WRITE;
 		return;
 	}
 
-
-	memset(str3,'\0',sizeof(str3));
-	strcpy (str3,this->m_info_file);	
-	strcat (str3,".TEMP.txt");
-	this->m_file_temp_name = str3;
-
+    str = this->m_info_file;
+    str = this->m_info_file +".TEMP.txt";
+	this->m_file_temp_name = str;
 
 	this->m_snp_sets = ht->get_snps_sets(); 
 	this->m_approx_line_lenght = ht->m_num_of_snps; //CHECK IT
 
 	this->m_info << "-999" << "\tWindowSize" << std::endl;
-	this->m_info << "-999" << "\tOverlapSize" << std::endl;
+	this->m_info << m_MAFConvert << "\tMAFConvert" << std::endl;
 	this->m_info << ht->m_num_of_snps_insetid << "\tNumberOfSNPs" << std::endl;
 	this->m_info << this->m_line_counter << "\tNumberOfIndividuals" << std::endl;
 
 	this->m_info_rewr << "-999" << "\tWindowSize" << std::endl;
-	this->m_info_rewr << "-999" << "\tOverlapSize" << std::endl;
+	this->m_info_rewr << m_MAFConvert << "\tMAFConvert" << std::endl;
 	this->m_info_rewr << ht->m_num_of_snps_insetid << "\tNumberOfSNPs" << std::endl;
 	this->m_info_rewr << this->m_line_counter << "\tNumberOfIndividuals" << std::endl;
 
 	//================================
-	this->m_file.open(this->m_filename, std::ios::binary);
+	this->m_file.open(this->m_filename.c_str(), std::ios::binary);
 	if (!this->m_file)
 	{
 		*myerror = CANT_OPEN_BED_FILE4READ;
@@ -146,150 +147,19 @@ BedFileReader::BedFileReader(char* filename, char* mapname,
 	this->m_info_rewr.close();
 	//================================
 
-	int result0 = remove( this->m_file_temp_name );
+	int result0 = remove( this->m_file_temp_name.c_str() );
 	if (result0 < -1 ) // "-1" - file not exists; "0" - successfully removed
 	{
 		*myerror = CANT_REMOVE_PREV_INFOTEMP_FILE;
 		return;
 	}
-	int result1 = rename( this->m_info_file , this->m_file_temp_name );
+	int result1 = rename( this->m_info_file.c_str() , this->m_file_temp_name.c_str() );
 	if (result1 != 0)
 	{
 		*myerror = CANT_RENAME_INFO2INFOTEMP_FILE;
 		return;
 	}
-	int result2 = rename( this->m_info_rewritten , this->m_info_file );
-	if (result2 != 0)
-	{
-		*myerror = CANT_RENAME_INFOREWRITTEN2INFO_FILE;
-		return;
-	}
-}
-//===========================================================================
-//Constructor - to create BedFileReader object base on Moving Windows
-//Inputs:
-//filename - path to "*.bed" file
-//bim_file - path to "*.bim" file
-//fam_file - path to "*.fam" file
-//out_file - path to "*.mwa" file
-//win_size - moving window size
-//ovrlp_size - number of snps to overlap
-//encode_output - flag if encode output, 1 - encode, 0 - ASCII
-//myerror - allocated memory to put there the final information 
-//		if some error happen during the run.
-//info - path to future ".INFO" file, can work without it - will be created 
-//       in same directory as ".bed" file
-//===========================================================================
-
-BedFileReader::BedFileReader(char* filename, char* bim_file, 
-							 char* fam_file, char* out_file, 
-							 int win_size, int ovrlp_size,  int encode_output, int* myerror, char* info)
-{
-	*myerror = NO_ERRORS;
-
-	this->m_encode_output = encode_output;
-	this->m_win_size =  win_size;
-	this->m_ovrlp_size = ovrlp_size;
-
-	this->m_filename = filename;
-	this->m_file.open(this->m_filename, std::ios::binary);
-	if (!this->m_file)
-	{
-		*myerror = CANT_OPEN_BED_FILE4READ;
-		return;
-	}
-	this->m_filename_mwo = out_file;
-
-	if (info == NULL)
-	{
-		memset(str2,'\0',sizeof(str2));
-		strcpy (str2,filename);	
-		strcat (str2,".INFO.txt");
-		this->m_info_file = str2;
-	}
-	else
-		this->m_info_file = info;
-
-	this->m_info.open(this->m_info_file);
-	if (!this->m_info)
-	{
-		*myerror = CANT_OPEN_INFO_FILE4WRITE;
-		return;
-	}
-
-	memset(str,'\0',sizeof(str));
-	strcpy (str,this->m_info_file);	
-	strcat (str,".REWR");
-	this->m_info_rewritten = str;
-	this->m_info_rewr.open(this->m_info_rewritten);
-	if (!this->m_info_rewr)
-	{
-		*myerror = CANT_OPEN_INFO_RWR_FILE4WRITE;
-		return;
-	}
-
-	memset(str3,'\0',sizeof(str3));
-	strcpy (str3,this->m_info_file);	
-	strcat (str3,".TEMP.txt");
-	this->m_file_temp_name = str3;
-
-
-	this->m_info << this->m_win_size << "\tWindowSize" << std::endl;
-	this->m_info << this->m_ovrlp_size << "\tOverlapSize" << std::endl;
-
-	//read and count lines in *.FAM" - Number of individuals 
-	//read and count lines in *.BIM" - Number of snps
-	//m_approx_line_lenght - from .BIM
-
-
-	this->init(bim_file,fam_file,myerror);//read the first line from the file to estimate line length
-	if (*myerror != 0)
-		return;
-
-	this->m_info << this->m_approx_line_lenght << "\tNumberOfSNPs" << std::endl;
-	this->m_info << this->m_line_counter << "\tNumberOfIndividuals" << std::endl;
-
-	this->m_info_rewr << this->m_win_size << "\tWindowSize" << std::endl;
-	this->m_info_rewr << this->m_ovrlp_size << "\tOverlapSize" << std::endl;
-	this->m_info_rewr << this->m_approx_line_lenght << "\tNumberOfSNPs" << std::endl;
-	this->m_info_rewr << this->m_line_counter << "\tNumberOfIndividuals" << std::endl;
-
-
-	m_snp_sets = new SNP_info[m_approx_line_lenght];
-	for (size_t j = 0; j < m_approx_line_lenght;++j)
-	{
-		this->m_snp_sets[j].letters[0] = NULL;
-		this->m_snp_sets[j].letters[1] = NULL;
-		this->m_snp_sets[j].total_counter_per_letter[0] = 0;
-		this->m_snp_sets[j].total_counter_per_letter[1] = 0;
-		this->m_snp_sets[j].line_counter_per_letter[0] = 0;
-		this->m_snp_sets[j].line_counter_per_letter[1] = 0;
-
-	}
-	this->upload_snpid_from_bim(myerror);
-	if (*myerror != 0)
-		return;
-	this->read_data_and_update_temp_file(myerror);
-	if (*myerror != 0)
-		return;
-
-	this->m_file.close();
-	this->m_info_rewr.close();
-
-
-	int result0 = remove( this->m_file_temp_name );
-	if (result0 < -1 ) // "-1" - file not exists; "0" - successfully removed
-	{
-		*myerror = CANT_REMOVE_PREV_INFOTEMP_FILE;
-		return;
-	}
-	int result1 = rename( this->m_info_file , this->m_file_temp_name );
-	if (result1 != 0)
-	{
-		*myerror = CANT_RENAME_INFO2INFOTEMP_FILE;
-		return;
-	}
-	int result2 = rename( this->m_info_rewritten , this->m_info_file );
+	int result2 = rename( this->m_info_rewritten.c_str() , this->m_info_file.c_str() );
 	if (result2 != 0)
 	{
 		*myerror = CANT_RENAME_INFOREWRITTEN2INFO_FILE;
@@ -317,7 +187,7 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	//ht->m_setidf_setid;
 	//m_snp_sets;   m_snp_sets->snp_id; 
 
-	this->m_file_mwo.open(this->m_filename_mwo, std::ios::out|std::ios::binary);
+	this->m_file_mwo.open(this->m_filename_mwo.c_str(), std::ios::out|std::ios::binary);
 	if (!this->m_file_mwo)
 	{
 		*myerror = CANT_OPEN_MWA_FILE4WRITE;
@@ -363,7 +233,15 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	this->m_num_of_snps_insetid = ht->m_num_of_snps_insetid;
 	for (size_t j = 0; j < ht->m_num_of_snps_insetid; ++ j)
 	{
-		
+
+        /* added by SLEE */
+        /*
+        if(j % 10000 ==0){
+            
+            std::cout << j <<"/" << ht->m_num_of_snps_insetid << " read" <<'\xd' << std::flush ;
+
+        }
+        */
 		if (j == 0)
 		{
 			//start new set
@@ -379,6 +257,8 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 			this->m_info <<  set_counter << "\t" << (current - begin) << "\t" << ht->m_setidf_setid[j]; // << std::endl;
 			set_counter ++;
 			setSize = 0;
+                        
+            
 		}
 		buff[0] = '\0';
 		//moving inside of *.bed to reach specified location of specified snp - based on lookup table: ht->m_hash_table[j]
@@ -387,7 +267,8 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 		this->m_file.read(buff,this->m_size_of_esi); 
 		setSize ++;
 
-		this->m_file_mwo << this->m_snp_sets[ht->m_hash_table[j]].snp_id << " ";
+        std::string temp_id = this->m_snp_sets[ht->m_hash_table[j]].snp_id;
+		this->m_file_mwo << temp_id << " ";
 
 
 		for(size_t i=0; i<this->m_size_of_esi; i++)   //process the buff info
@@ -407,6 +288,14 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 
 		} //end of for(int i=0; i<this->m_size_of_esi; i++)   //process the buff info
 
+        // debug
+        /*
+        
+        for(size_t i=0; i<this->m_line_counter; i++){
+            
+            printf("%d-%d:[%d][%d]\n", j,i,temp_snp_info0[i], temp_snp_info1[i]);
+        }
+        */
 		//if (individuals_counter >= this->m_line_counter)
 		{
 			//Check who is MAGORITY/MINORITY
@@ -419,18 +308,23 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 				memset(encoded_snp_info,0,sizeof(encoded_snp_info));
 				
                 //printf("%d:%d-%d\n",ht->m_hash_table[j],  m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0], this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1]);
-                if (this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0] > this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1])
+                /* If m_MAFConvert==1 && 0 allele is the major allele */
+                /* Very important!*/
+                /* Be careful, total_counter_per_letter[0] < total_counter_per_letter[1] indicates 0 is the minor allele, so
+                 we need to encode for 0 (add minor allele vector for encode) */
+                
+                if (m_MAFConvert == 1 && this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[0] < this->m_snp_sets[ht->m_hash_table[j]].total_counter_per_letter[1])
 				{
-					//write snp information as encoded 
-					this->encode(temp_snp_info1,encoded_snp_info );
+					//write snp information as encoded
+                    // Add minor allele 
+					this->encode(temp_snp_info0,encoded_snp_info );
 					for (ii = 0; ii < this->m_size_of_esi; ++ii)
 					{
 						this->m_file_mwo << encoded_snp_info [ii] ; 
 					}
-				}
-				else
+				} else
 				{
-					this->encode(temp_snp_info0,encoded_snp_info );
+					this->encode(temp_snp_info1,encoded_snp_info );
 					for (ii = 0; ii < this->m_size_of_esi; ++ii)
 						this->m_file_mwo << encoded_snp_info [ii] ; 
 				}
@@ -475,7 +369,7 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	//  REWRITE INFO FILE
 	//==========================================================
 
-	this->m_infoi.open(this->m_info_file);
+	this->m_infoi.open(this->m_info_file.c_str());
 	if (!this->m_infoi)
 	{
 		*myerror = CANT_OPEN_INFO_FILE4READ;
@@ -498,281 +392,6 @@ void BedFileReader::read_data_and_create_mwo_used_hashtable(Hasht* ht,int* myerr
 	
 }
 
-//==============================================================
-//This function creates *.mwa file for Moving Window application
-//Inputs:
-//myerror - allocated memory to put there the final information 
-//		if some error happen during the run.
-//File "*.bed" read in chunks of 1000 bytes in "buff" untill end of file.
-//The overlapping part saved in "ovl_volume" and written to "*.mwa" at the begining of every set 
-//Able to write to *.mwa encoded data if this->m_encode_output == 1, or ASCII data if this->m_encode_output == 0
-//see more explanation inside the code
-//==============================================================
-void BedFileReader::read_data_and_update_temp_file(int* myerror)
-{
-	this->m_file_mwo.open(this->m_filename_mwo, std::ios::out|std::ios::binary);
-	if (!this->m_file_mwo)
-	{
-		*myerror = CANT_OPEN_MWA_FILE4WRITE;
-		return;
-	}
-	this->m_file_mwo.seekp(std::ios::beg); 
-	size_t ii;
-	size_t count_win_size = 1;
-	char buff[1000]; 
-	int bits_val[MY_CHAR_BIT];
-
-	//those two arrays hold countings of genotype per individual:
-	//see more explanation in "decode_byte" function
-	// temp_snp_info0 - vector of integers that holds counting for first character 
-	//					of genotype(for example for this snp in use "G" and "A")
-	//					temp_snp_info0 will count number of "G") per individual 
-	// temp_snp_info1 - vector of integers that holds counting for second character 
-	//					of genotype(for example for this snp in use "G" and "A")
-	//					temp_snp_info0 will count number of "A") per individual
-
-	//				temp_snp_info0[*individuals_counter - 1] = 2;
-	//				temp_snp_info1[*individuals_counter - 1] = 0;
-	//		    	//Homozegote 1 for example GG      write 20  (2 of "G", 0 of another character)
-
-	int* temp_snp_info0 = new int[this->m_line_counter];
-	int* temp_snp_info1 = new int[this->m_line_counter];
-	for (ii = 0; ii < this->m_line_counter; ++ii)
-	{
-		temp_snp_info0[ii] = 0; 
-		temp_snp_info1[ii] = 0; 
-	}
-
-	size_t end_of_file = 0;
-	this->m_file.read(buff,sizeof(char)*3); // three first bytes - permanent in bed file
-
-	size_t snp_set_ind = 0;
-
-
-	size_t individuals_counter = 0;
-	char* encoded_snp_info = new char[(this->m_line_counter+3)/4] ;
-	this->m_size_of_esi = (this->m_line_counter+3)/4;
-	//========OVERLAP====================
-	size_t snp_set_ind_for_ovlp = 0;
-	size_t bytes_counter_per_ovlp = 0;
-	size_t size_of_ovl_vol;
-	if (this->m_encode_output == 1) size_of_ovl_vol = this->m_size_of_esi * this->m_ovrlp_size;
-	else size_of_ovl_vol = this->m_line_counter * this->m_ovrlp_size;
-	char* ovl_volume = new char [size_of_ovl_vol];
-	memset(ovl_volume,'\0',sizeof(ovl_volume));
-	size_t ind4ovl_volume = 0;
-	//=========OFFSET===================
-	size_t set_counter = 1; 
-	size_t begin, current; 
-	begin = this->m_file_mwo.tellp();
-	current = this->m_file_mwo.tellp();
-	this->m_info <<"SET#\tOFFSET" << std::endl;
-	this->m_begin4rw = this->m_info.tellp();
-	this->m_info << set_counter  << "\t" << (current - begin) <<  std::endl;
-	set_counter ++;
-
-	while (!end_of_file)
-	{
-		memset(buff, '\0', sizeof(buff));
-		this->m_file.read(buff,sizeof(buff));
-
-		for(size_t i=0; i<1000; i++)   //process the buff info
-		{						
-			//===============================================================					
-			//=== This part converts Byte "buff[i]" to bits values "bits_val"
-			//=== for example byte buff[0] = "w" ->  bits_val = 11101110
-			memset(bits_val, NULL, sizeof(bits_val));
-			int j = MY_CHAR_BIT;  //8
-			while (j > 0)
-			{
-				-- j;
-				bits_val[j] = (buff[i]&(1 << j) ? 1 : 0);
-			}
-			//here interpret Bit information "bits_val" to snps and count it - decode it
-			decode_byte(bits_val, &individuals_counter, temp_snp_info0, temp_snp_info1, snp_set_ind);
-
-			//if collected full data for specific snp - write it to the file
-			if (individuals_counter >= this->m_line_counter)
-			{
-				//Check who is MAGORITY/MINORITY
-				//write data to output file from temp_snp_info0, temp_snp_info1)
-				//encode temp_snp_info0, temp_snp_info1;
-
-				if (count_win_size == this->m_win_size - this->m_ovrlp_size + 1 )
-					snp_set_ind_for_ovlp = snp_set_ind;
-
-				this->m_file_mwo << this->m_snp_sets[snp_set_ind].snp_id << " ";
-
-				if (this->m_encode_output == 1) //write to "*.mwa" encoded data
-				{
-					memset(encoded_snp_info,0,sizeof(encoded_snp_info));
-					//the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[1]
-					if (this->m_snp_sets[snp_set_ind].total_counter_per_letter[0] > this->m_snp_sets[snp_set_ind].total_counter_per_letter[1])
-					{
-						this->encode(temp_snp_info1,encoded_snp_info );
-						for (ii = 0; ii < this->m_size_of_esi; ++ii)
-						{
-							this->m_file_mwo << encoded_snp_info [ii] ; 
-						}
-					}
-					else //the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[0]
-					{
-						this->encode(temp_snp_info0,encoded_snp_info );
-						for (ii = 0; ii < this->m_size_of_esi; ++ii)
-							this->m_file_mwo << encoded_snp_info [ii] ; 
-					}//	else //the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[0]
-
-					if (count_win_size <= this->m_win_size &&
-						count_win_size >= this->m_win_size - this->m_ovrlp_size + 1 )
-					{ 
-						//saving data to overlap volume
-						for (ii = 0; ii < this->m_size_of_esi; ++ii)
-						{
-							ovl_volume[ind4ovl_volume] = encoded_snp_info [ii];
-							ind4ovl_volume++;
-						}
-					}
-				}//	if (this->m_encode_output == 1) //write to "*.mwa" encoded data
-
-				else //write to "*.mwa" ASCII data
-				{	
-					//the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[1]:
-					if (this->m_snp_sets[snp_set_ind].total_counter_per_letter[0] > this->m_snp_sets[snp_set_ind].total_counter_per_letter[1])
-					{
-						if (count_win_size <= this->m_win_size &&  count_win_size >= this->m_win_size - this->m_ovrlp_size + 1 )
-						{
-							//saving data to overlap volume
-							for (ii = 0; ii < this->m_line_counter; ++ii)
-							{
-								ovl_volume[ind4ovl_volume] = temp_snp_info1 [ii];
-								ind4ovl_volume++;
-							}
-						}
-						//print ASCII to *.mwa
-						for (ii = 0; ii < this->m_line_counter; ++ii)
-							this->m_file_mwo << temp_snp_info1 [ii] << " ";
-					}
-					else // the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[0]
-					{
-
-						if (count_win_size <= this->m_win_size &&  count_win_size >= this->m_win_size - this->m_ovrlp_size + 1 )
-						{
-							//saving data to overlap volume
-							for (ii = 0; ii < this->m_line_counter; ++ii)
-							{
-								ovl_volume[ind4ovl_volume] = temp_snp_info0 [ii];
-								ind4ovl_volume++;
-							}
-						}
-						//print ASCII to *.mwa
-						for (ii = 0; ii < this->m_line_counter; ++ii)
-							this->m_file_mwo << temp_snp_info0 [ii] << " ";
-					}//	else //the MINOR is this->m_snp_sets[snp_set_ind].total_counter_per_letter[0]
-
-
-				}//	else //write to "*.mwa" ASCII data
-
-				this->m_file_mwo << std::endl; //ENTER at the end of every line
-
-				if (count_win_size < this->m_win_size)
-					count_win_size ++;
-				else // count_win_size == this->m_win_size
-				{
-					this->m_file_mwo << std::endl; //ENTER - empty line between every two snp sets. 
-					// here added info of indexing to this->m_info  file;
-					current = this->m_file_mwo.tellp();
-					this->m_info <<  set_counter << "\t" << (current - begin) << std::endl;
-					set_counter ++;
-					//Writing ovl_volume buffer to file  - OVERLAP BUFFER
-					size_t ind ;
-					for (ii = 0; ii < this->m_ovrlp_size; ++ii)
-					{
-						this->m_file_mwo << this->m_snp_sets[snp_set_ind_for_ovlp + ii].snp_id << " ";
-						ind = 0;
-						while(ind < size_of_ovl_vol / this->m_ovrlp_size )
-						{
-							this->m_file_mwo << ovl_volume[ind+ii*size_of_ovl_vol/this->m_ovrlp_size];
-							ind ++; 
-							if (this->m_encode_output != 1) this->m_file_mwo << " ";
-
-						}
-						this->m_file_mwo << std::endl;
-					}
-					count_win_size = this->m_ovrlp_size + 1;
-					ind4ovl_volume = 0;
-					memset(ovl_volume,'\0',sizeof(ovl_volume));
-					bytes_counter_per_ovlp = 0;
-				}//	else // count_win_size == this->m_win_size
-
-				individuals_counter = 0;
-				for (ii = 0; ii < this->m_line_counter; ++ii)
-				{
-					temp_snp_info0[ii] = 0; 
-					temp_snp_info1[ii] = 0; 
-				}
-				snp_set_ind ++;
-				if(snp_set_ind == this->m_approx_line_lenght)
-				{
-					end_of_file = 1;
-					break;
-				}
-			}
-		}//for(int i=0; i<1000; i++)   //process the buff info
-	}//while (!end_of_file)
-	delete[] temp_snp_info0;
-	delete[] temp_snp_info1;
-	delete[] encoded_snp_info;
-	delete[] ovl_volume;
-
-	this->m_file_mwo << std::endl; //ENTER at the end of every line
-
-	this->m_file_mwo << '\0'; 
-	this->m_file_mwo.close();
-
-	this->m_info << "#=================================================#" << std::endl;
-	if (this->m_encode_output != 1) 
-	{
-		this->m_info << this->m_line_counter * 2 + 1 <<
-		"\tNumber_Of_Characters_PerSNP(ASCII Not_Includes_SnpID&SpaceAfter_IncludesNumOfIndividuals&SpacesBetween&\\n)" << std::endl;
-		this->m_info_rewr << this->m_line_counter * 2 + 1 <<
-		"\tNumber_Of_Characters_PerSNP(ASCII Not_Includes_SnpID&SpaceAfter_IncludesNumOfIndividuals&SpacesBetween&\\n)" << std::endl;
-	
-	}
-	else
-	{
-		this->m_info << this->m_size_of_esi + 1 << 
-		"\tDECODED NumberOfDECODEDbytesPerSNP(NotIncludesSnpID&SpaceAfter_Includes\\n) " << std::endl;
-		this->m_info_rewr << this->m_size_of_esi + 1 << 
-		"\tDECODED NumberOfDECODEDbytesPerSNP(NotIncludesSnpID&SpaceAfter_Includes\\n) " << std::endl;
-
-	}
-	this->m_info << set_counter - 1 << "\tTotalNumberOfSets" << std::endl;
-	this->m_info_rewr << set_counter - 1 << "\tTotalNumberOfSets" << std::endl;
-	m_set_counter = set_counter - 1;
-	this->m_info << '\0';
-	this->m_info.close();
-
-	//==========================================================
-	//  REWRITE INFO FILE
-	//==========================================================
-	this->m_infoi.open(this->m_info_file);
-	if (!this->m_infoi)
-	{
-		*myerror = CANT_OPEN_INFO_FILE4READ;
-		return;
-	}
-	this->m_infoi.seekg (this->m_begin4rw, std::ios::beg);
-	this->m_info_rewr <<"SET#\tOFFSET" << std::endl;
-	std::string line;
-	size_t kk = 0;
-	while (kk < m_set_counter ) 
-	{
-		getline(this->m_infoi, line);
-		kk ++;
-		this->m_info_rewr << line << std::endl;
-	}
-	this->m_infoi.close();
-}
 //==========================================================
 // This function converting(encoding) every 4 bytes of temp_snp_info to "a" 
 // "a"- array of 8 integers ("kind of" 8 bits) that will be converted to one encoded number
@@ -956,13 +575,13 @@ BedFileReader::~BedFileReader()
 //myerror - allocated memory to put there the final information 
 //		if some error happen during the run.
 //==========================================================
-void BedFileReader::init(char* bim_file, char* fam_file,int* myerror)
+void BedFileReader::init(const char* bim_file, const char* fam_file,int* myerror)
 {
 	this->m_filename_bim = bim_file;
 	//read mapfile, fill this->m_snp_sets[ii].snp_id; ii=0..this->m_approx_line_lenght
 	std::string line;
 	this->m_approx_line_lenght = -1;//0;
-	this->m_bim.open(this->m_filename_bim);
+	this->m_bim.open(this->m_filename_bim.c_str());
 	if (!this->m_bim)
 	{
 		*myerror = CANT_OPEN_BIM_FILE4READ;
@@ -978,7 +597,7 @@ void BedFileReader::init(char* bim_file, char* fam_file,int* myerror)
 
 	this->m_filename_fam = fam_file;
 	this->m_line_counter = -1;
-	this->m_fam.open(this->m_filename_fam);
+	this->m_fam.open(this->m_filename_fam.c_str());
 	if (!this->m_fam)
 	{
 		*myerror = CANT_OPEN_FAM_FILE4READ;
@@ -1006,7 +625,7 @@ void BedFileReader::upload_snpid_from_bim(int* myerror)
 {	
 	std::string line;
 	size_t ii = 0;
-	this->m_bim.open(this->m_filename_bim);
+	this->m_bim.open(this->m_filename_bim.c_str());
 	this->m_bim.seekg (0, std::ios::beg);
 	if (!this->m_bim)
 	{
@@ -1033,8 +652,11 @@ void BedFileReader::upload_snpid_from_bim(int* myerror)
 					break;
 				}
 			}
-			this->m_snp_sets[ii].letters[1] = line.at(line.size()-1);
-			this->m_snp_sets[ii].letters[0] = line.at(line.size()-3);               
+            
+            // Added by SLEE
+            // currently there is no need to save allele
+			//this->m_snp_sets[ii].letters[1] = line.at(line.size()-1);
+			//this->m_snp_sets[ii].letters[0] = line.at(line.size()-3);
 			break;
 			}
 		}

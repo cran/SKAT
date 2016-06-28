@@ -12,12 +12,7 @@
 #ifndef _INTERFACE_TO_R_H        
 #define _INTERFACE_TO_R_H 
 
-void Generate_MWA_MovingWindow(char* Bed, char* Bim, char* Fam, 
-							   char* Mwa, 
-							   int WindowSize, int Overlap , char* Info , int* Myerror );
-void Kill_MWA_MovingWindow();
-
-void Generate_MWA_SetID_File(char* Bed, char* Bim, char* Fam, char* SetID, char* Mwa, char* Info, int* Myerror );
+void Generate_MWA_SetID_File( char* Bed,  char* Bim,  char* Fam,  char* SetID,  char* Mwa,  char* Info, int MAFConvert, int* Myerror );
 void Kill_MWA_SetID_File();
 
 void Open_MWA(char* MWA_File, char* Info, int* Myerror); 

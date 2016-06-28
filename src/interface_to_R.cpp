@@ -22,35 +22,8 @@ static MwoFileReader* MWA_FILE_ID = NULL;
 static Hasht* hash_table = NULL;
 
 
-//	Interface definition.
-//	* indicates return value
-//===============================================================
-//	1. Generate MWA Files
-//===============================================================
-//Generate_MWA_MovingWindow(Bim, Bed,WindowSize,Overlap, MWA_File)
-	//Generate MWA file using moving windows. 
-	//Bim : Bim file name
-	//Bed : Bed file name
-	//WindowSize : Window Size (bp)
-	//Overlap : Overlap (bp)
-	//MWA_File : MWA file name which will be generated
 
-//USAGE FROM R:
-//Generate_MWA_MovingWindow(bed_file, bim_file, fam_file, mwa_file, win_size, ovrlp_size);
-//Kill_MWA_MovingWindow();
-
-void Generate_MWA_MovingWindow(char* Bed, char* Bim, char* Fam, 
-							   char* Mwa,
-							   int WindowSize, int Overlap , char* Info,  int* myerror) 
-{
-	MW = new BedFileReader(Bed, Bim, Fam, Mwa, WindowSize, Overlap, 1, myerror, Info);
-}
-
-void Kill_MWA_MovingWindow() 
-{
-	delete MW;
-}
-//===============================================================
+//==========================================================
 //Generate_MWA_SetID_File(Bim, Bed, SetID_File)
 	//Generate MWA file from SetID file. 
 	//Bim : Bim file name
@@ -62,13 +35,15 @@ void Kill_MWA_MovingWindow()
 //Kill_MWA_SetID_File();
 
 void Generate_MWA_SetID_File(char* Bed, char* Bim, char* Fam, 
-							 char* SetID, char* Mwa, char* Info, int* myerror) 
+							 char* SetID, char* Mwa, char* Info, int MAFConvert, int* myerror)
 {
 
+    
 	hash_table = new Hasht (SetID, Bim, Mwa, myerror);
 	if(*myerror != 0)
 		return;
-	MW = new BedFileReader(Bed,Bim,Fam,Mwa,hash_table,myerror,Info );
+
+    MW = new BedFileReader(Bed,Bim,Fam,Mwa,hash_table,myerror,Info, MAFConvert);
 }
 
 void Kill_MWA_SetID_File()

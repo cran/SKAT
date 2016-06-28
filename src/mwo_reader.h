@@ -31,11 +31,12 @@ class snp
 {
 private:
 public:	
-	char m_name[SNP_ID_SIZE];
+	//char m_name[SNP_ID_SIZE];
+    string m_name;
 	CDArray<char> m_char;
 
-	snp(){memset(m_name,'\0',sizeof(m_name));}
-	~snp(){}
+//	snp(){memset(m_name,'\0',sizeof(m_name));}
+
 
 
 };
@@ -99,7 +100,7 @@ public:
 
 
 private:
-	char* m_filename; 
+    std::string m_filename;
 	std::ifstream m_file;
 	std::ifstream m_infoin;
 	CDArray<snpset> m_snpsets;

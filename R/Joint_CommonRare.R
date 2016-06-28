@@ -197,6 +197,10 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 				OUT.Pvalue.Resampling[i,]<-re$p.value.resampling
 			}
 		}
+		if(floor(i/100)*100 == i){
+			cat("\r", i, "/", N.Set, "were done");
+		}
+
 	}
 
 	

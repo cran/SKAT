@@ -32,7 +32,7 @@ MwoFileReader::MwoFileReader(char* filename, int* myerror, char* info)
 	*myerror = NO_ERRORS;
 
 	this->m_filename = filename;
-	this->m_file.open(this->m_filename, std::ios::binary);
+	this->m_file.open(this->m_filename.c_str(), std::ios::binary);
 
 	if (!this->m_file)
 	{
@@ -42,12 +42,10 @@ MwoFileReader::MwoFileReader(char* filename, int* myerror, char* info)
     //===============================
 	if (info == NULL)
 	{
-		char set_filename[1000];
-		memset(set_filename,'\0',sizeof(set_filename));
-		int l = strlen(filename);
-		strncat(set_filename ,filename,l-3 );
-		strcat (set_filename,"bed.INFO.txt");
-		this->m_infoin.open(set_filename);
+        std::string set_filename;
+        set_filename += filename;
+        set_filename += "bed.INFO.txt";
+		this->m_infoin.open(set_filename.c_str());
 	}
 	else
 		this->m_infoin.open(info);
@@ -71,6 +69,7 @@ MwoFileReader::MwoFileReader(char* filename, int* myerror, char* info)
 	this->m_win_size = atoi(tokens.at(0).c_str());  //  this->m_win_size = 20; //	WindowSize
 
 	//OverlapSize
+    //SLEE add: now it is used for MAF convert status (-999 or 1: convert, 0 no convert)
 	tokens.clear(); getline(this->m_infoin, line);
 	Tokenize(line, tokens, "	");
 	this->m_ovlp_size = atoi(tokens.at(0).c_str());  //  this->m_ovlp_size = 2; //	OverlapSize
@@ -211,8 +210,10 @@ void MwoFileReader::get_set(size_t set_num,  int* Z,  size_t size, int* myerror,
 
 
 	//base on this->m_offsetarr
-	char temp_snp_id[SNP_ID_SIZE];
-	memset(temp_snp_id,'\0',sizeof(temp_snp_id));
+    string temp_snp_id;
+    temp_snp_id.reserve(1000);
+	//char temp_snp_id[SNP_ID_SIZE];
+	//memset(temp_snp_id,'\0',sizeof(temp_snp_id));
 	bool end_of_file = false;
 	char* buff = new char[1000];
 
@@ -221,7 +222,7 @@ void MwoFileReader::get_set(size_t set_num,  int* Z,  size_t size, int* myerror,
 	size_t snp_ind = 0;
 	snpset* ss = new snpset;
 	snp* msnp = new snp;
-	memset(msnp->m_name, '\0', sizeof(msnp->m_name));
+	//memset(msnp->m_name, '\0', sizeof(msnp->m_name));
 	
 	
 	char* ch = new char;
@@ -279,14 +280,18 @@ void MwoFileReader::get_set(size_t set_num,  int* Z,  size_t size, int* myerror,
 
 				if(buff[i] != ' ')
 				{
-					temp_snp_id[snp_id_ch_ind] = buff[i];//TODO read + add to temp_snp_id until ' '
-					snp_id_ch_ind++;
+					//temp_snp_id[snp_id_ch_ind] = buff[i];//TODO read + add to temp_snp_id until ' '
+					//snp_id_ch_ind++;
+                    temp_snp_id += buff[i];
 				}
 				else  // finished read snip_id - the string at the start of every line
 				{
-					temp_snp_id[snp_id_ch_ind] = '\0';
-					strncpy (msnp->m_name,temp_snp_id, SNP_ID_SIZE-1);
-					memset(temp_snp_id,'\0',sizeof(temp_snp_id));
+					//temp_snp_id[snp_id_ch_ind] = '\0';
+					//strncpy (msnp->m_name,temp_snp_id, SNP_ID_SIZE-1);
+					//memset(temp_snp_id,'\0',sizeof(temp_snp_id));
+                    
+                    msnp->m_name= temp_snp_id;
+                    temp_snp_id.clear();
 					snp_id_ch_ind = 0;
 					flag_snpid_done = 1;
 					flag_read_line_done = 0;
@@ -302,7 +307,6 @@ void MwoFileReader::get_set(size_t set_num,  int* Z,  size_t size, int* myerror,
 					flag_snpid_done = false;
 					ss->m_snp.Add(msnp);
 					msnp = new snp;
-					memset(msnp->m_name, '\0', sizeof(msnp->m_name));
 					snp_ind++;
 					char_counter = 0;
 				}
@@ -352,18 +356,17 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 
 	}
 	size_t Zind = 0;
-	char set_filename[1000];
+    std::string set_filename;
 	std::ofstream myout;
 
 	if (Is_MakeFile)
 	{
-		memset(set_filename,'\0',sizeof(set_filename));
-		strcpy (set_filename,this->m_filename);
-		strcat (set_filename,".SET");
-		char buffer[133];
+        set_filename = this->m_filename;
+        set_filename += ".SET";
+		char buffer[1000];
 		sprintf(buffer,"%d",set_num);
-		strcat (set_filename,buffer);
-		myout.open(set_filename , std::ios::binary);
+        set_filename += buffer;
+		myout.open(set_filename.c_str() , std::ios::binary);
 		if (!myout)
 		{
 			*myerror = WARNING_CANT_OPEN_FILE4WRITE_2PRINTSET;
@@ -387,8 +390,8 @@ void MwoFileReader::prepare_out_array_print_snpset_to_file(snpset* ss, int set_n
 				myout << ss->m_snp.GetAt(i)->m_name << " ";
 
 		if(SNPID != NULL){
-			int start_id = SNP_ID_SIZE * i;
-			strncpy(SNPID + start_id, ss->m_snp.GetAt(i)->m_name, SNP_ID_SIZE-1);
+			int start_id = SNP_ID_SIZE_MAX * i;
+			strncpy(SNPID + start_id, ss->m_snp.GetAt(i)->m_name.c_str(), SNP_ID_SIZE_MAX-1);
 			//printf("NAME: %s\n", ss->m_snp.GetAt(i)->m_name);
 					
 		}

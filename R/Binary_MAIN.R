@@ -406,6 +406,10 @@ SKATBinary.SSD.All = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
 				OUT.Pvalue.Resampling[i,]<-re$p.value.resampling
 			}
 		}
+		if(floor(i/100)*100 == i){
+			cat("\r", i, "/", N.Set, "were done");
+		}
+
 	}
 
 	

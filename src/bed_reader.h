@@ -27,23 +27,25 @@ using namespace std;
 class BedFileReader
 {
 public:
-	BedFileReader(char* f, char* m, char* fm, char* o, Hasht* ht, int* myerror, char* info = NULL);
-	BedFileReader(char* filename, char* bim_file, 
-							 char* fam_file, char* out_file, 
-							 int win_size, int ovrlp_size, int encode_output, int* myerror, char* info = NULL);
+	BedFileReader(char* f, char* m, char* fm, char* o, Hasht* ht, int* myerror, char* info = NULL, int MAFConvert=1);
+
 	~BedFileReader();
 	size_t m_set_counter; 
 	size_t m_num_of_snps_insetid;
 
 private:
 
-	char* m_filename; 
-	char* m_file_temp_name;
-	char* m_filename_mwo;
-	char* m_info_file;
-	char* m_filename_bim;
-	char* m_filename_fam;
+    // File names
+	std::string m_filename;
+	std::string m_filename_mwo;
+	std::string m_filename_bim;
+	std::string m_filename_fam;
 
+    std::string m_file_temp_name;
+    std::string m_info_file;
+ 	std::string m_info_rewritten;
+    
+    // streams for files
 	std::ifstream m_file;
 	std::ifstream m_bim;
 	std::ifstream m_fam;
@@ -54,11 +56,11 @@ private:
 	std::fstream m_file_mwo;
 
 
-	char* m_info_rewritten;
 	std::ofstream m_info_rewr;
 	size_t m_begin4rw; 
 
 	int m_encode_output;
+    int m_MAFConvert; // =1 change coding for minor allele =0 no change
 
 	size_t m_approx_line_lenght;//number of snps
 	SNP_info* m_snp_sets;
@@ -68,12 +70,8 @@ private:
 	size_t m_win_size;
 	size_t m_ovrlp_size;
 
-	char str[1000]; 
-	char str2[1000];
-	char str3[1000];
 
-	void init(char* bim_file, char* fam_file, int* myerror);
-	void read_data_and_update_temp_file(int* myerror);
+    void init(const char* bim_file, const char* fam_file, int* myerror);
 	void read_data_and_create_mwo_used_hashtable(Hasht* ht, int* myerror);
 	void upload_snpid_from_bim(int* myerror);
 	void decode_byte(int* bits_val,size_t* individuals_counter, int* temp_snp_info0, int* temp_snp_info1,size_t snp_set_ind);
