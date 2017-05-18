@@ -171,7 +171,7 @@ void SL_Binary_Boot1(int n, int ncase, double * pcase, int * buf1, int * buf2, i
 
 
 
-void SL_Binary_Boot(int * pn, int * pm, int *pncase, double * pcase, int * buf1, int * buf2, int *Z, int *err ){
+void SL_Binary_Boot_2(int * pn, int * pm, int *pncase, double * pcase, int * buf1, int * buf2, int *Z, int *err ){
 
 	int i, n, m, ncase, idx;
 	int * z_one;
@@ -303,7 +303,7 @@ int  CalTestStat_O(double * Z0, double *Z1, double * Z0_C, double * Z1_C,
     return n_r;
 }
 
-void ResampleSTAT(double * Z0, double *Z1, double * Z0_C, double * Z1_C, 
+void ResampleSTAT_1(double * Z0, double *Z1, double * Z0_C, double * Z1_C, 
                   double * teststat_Z0, double *teststat_Z1, double *pteststat_Z0_C, double *pteststat_Z1_C,
                   double * r_corr, int *pn_r, int *pk, int *pm, int * pn,
                   int * total_k, int * ncase_k, double * p1,

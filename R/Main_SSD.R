@@ -289,7 +289,7 @@ SKAT.SSD.All = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
 		}
 	}
 
-
+	pb <- txtProgressBar(min=0, max=N.Set, style=3)
 	for(i in 1:N.Set){
 		Is.Error<-TRUE
 		try1 = try(SKAT.SSD.OneSet_SetIndex(SSD.INFO=SSD.INFO, SetIndex=i, obj=obj, ..., obj.SNPWeight=obj.SNPWeight))
@@ -316,11 +316,13 @@ SKAT.SSD.All = function(SSD.INFO, obj, ..., obj.SNPWeight=NULL){
 			}
 		}
 		
-		if(floor(i/100)*100 == i){
-			cat("\r", i, "/", N.Set, "were done");
-		}
+		#if(floor(i/100)*100 == i){
+		#	cat("\r", i, "/", N.Set, "were done");
+		#}
+		setTxtProgressBar(pb, i)
 
 	}
+	close(pb)
 
 	
 	out.tbl<-data.frame(SetID=SSD.INFO$SetInfo$SetID, P.value=OUT.Pvalue, N.Marker.All=OUT.Marker, N.Marker.Test=OUT.Marker.Test)

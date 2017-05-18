@@ -79,13 +79,13 @@ SKAT(Z, obj, kernel = "linear.weighted", weights=weights)$p.value
 ###################################################
 ### code chunk number 8: SKAT41
 ###################################################
-#rho=0
+#rho=0, SKAT
 SKAT(Z, obj, r.corr=0)$p.value
 
 #rho=0.9
 SKAT(Z, obj, r.corr=0.9)$p.value
 
-#rho=1, burden test
+#rho=1, Burden test
 SKAT(Z, obj, r.corr=1)$p.value
 
 
@@ -94,7 +94,7 @@ SKAT(Z, obj, r.corr=1)$p.value
 ###################################################
 
 #Optimal Test
-SKAT(Z, obj, method="optimal.adj")$p.value
+SKAT(Z, obj, method="SKATO")$p.value
 
 
 
@@ -144,9 +144,45 @@ re<- SKAT(Z, obj, kernel = "linear.weighted")
 re$p.value	# SKAT p-value
 Get_Resampling_Pvalue(re)	# get resampling p-value
 
+detach(SKAT.example)
+
 
 ###################################################
-### code chunk number 13: SKAT_B1
+### code chunk number 13: SKATKin1
+###################################################
+data(SKAT.fam.example)
+attach(SKAT.fam.example)
+
+# K: kinship matrix 
+obj<-SKAT_NULL_emmaX(y ~ X, K=K)
+SKAT(Z, obj)$p.value
+
+# SKAT-O
+SKAT(Z, obj, method="SKATO")$p.value	
+
+detach(SKAT.fam.example)
+
+
+###################################################
+### code chunk number 14: SKATX1
+###################################################
+data(SKAT.example.ChrX)
+attach(SKAT.example.ChrX)
+
+Z = SKAT.example.ChrX$Z
+#############################################################
+#	Compute the P-value of SKAT 
+
+# binary trait
+obj.x<-SKAT_Null_Model_ChrX(y ~ x1 +x2 + Gender, SexVar="Gender", out_type="D", data=SKAT.example.ChrX)
+
+# run SKAT-O
+SKAT_ChrX(Z, obj.x, method="SKATO")$p.value
+detach(SKAT.example.ChrX)
+
+
+###################################################
+### code chunk number 15: SKAT_B1
 ###################################################
 # To run this code, first download and unzip example files
 
@@ -167,7 +203,7 @@ Generate_SSD_SetID(File.Bed, File.Bim, File.Fam, File.SetID, File.SSD, File.Info
 
 
 ###################################################
-### code chunk number 14: SKAT_B2
+### code chunk number 16: SKAT_B2
 ###################################################
 FAM<-Read_Plink_FAM(File.Fam, Is.binary=FALSE)
 y<-FAM$Phenotype
@@ -183,12 +219,22 @@ SSD.INFO$nSample
 SSD.INFO$nSets
 
 obj<-SKAT_Null_Model(y ~ 1, out_type="C")
+
+
+###################################################
+### code chunk number 17: SKAT_B21
+###################################################
 out<-SKAT.SSD.All(SSD.INFO, obj)
+
+
+###################################################
+### code chunk number 18: SKAT_B22
+###################################################
 out
 
 
 ###################################################
-### code chunk number 15: SKAT_B2Cov
+### code chunk number 19: SKAT_B2Cov
 ###################################################
 File.Cov<-"./Example1.Cov"
 FAM_Cov<-Read_Plink_FAM_Cov(File.Fam, File.Cov, Is.binary=FALSE)
@@ -202,24 +248,43 @@ X2 = FAM_Cov$X2
 y<-FAM_Cov$Phenotype
 
 obj<-SKAT_Null_Model(y ~ X1 + X2, out_type="C")
+
+
+###################################################
+### code chunk number 20: SKAT_B2Cov1
+###################################################
 out<-SKAT.SSD.All(SSD.INFO, obj)
+
+
+###################################################
+### code chunk number 21: SKAT_B2Cov2
+###################################################
 out
 
 
 ###################################################
-### code chunk number 16: SKAT_B2Weight
+### code chunk number 22: SKAT_B2Weight
 ###################################################
 
 # Custom weight
 # File: Example1_Weight.txt
 obj.SNPWeight<-Read_SNP_WeightFile("./Example1_Weight.txt")
 
+
+###################################################
+### code chunk number 23: SKAT_B2Weight1
+###################################################
 out<-SKAT.SSD.All(SSD.INFO, obj, obj.SNPWeight=obj.SNPWeight)
+
+
+###################################################
+### code chunk number 24: SKAT_B2Weight2
+###################################################
 out
 
 
 ###################################################
-### code chunk number 17: SKAT_B2Save
+### code chunk number 25: SKAT_B2Save
 ###################################################
 
 output.df = out$results
@@ -228,11 +293,15 @@ write.table(output.df, file="./save.txt", col.names=TRUE, row.names=FALSE)
 
 
 ###################################################
-### code chunk number 18: SKAT_B3
+### code chunk number 26: SKAT_B3
 ###################################################
 obj<-SKAT_Null_Model(y ~ 1, out_type="C", n.Resampling=1000, type.Resampling="bootstrap")
 out<-SKAT.SSD.All(SSD.INFO, obj)
 
+
+###################################################
+### code chunk number 27: SKAT_B31
+###################################################
 # No gene is significant with controling FWER = 0.05
 Resampling_FWER(out,FWER=0.05)
 
@@ -241,7 +310,7 @@ Resampling_FWER(out,FWER=0.5)
 
 
 ###################################################
-### code chunk number 19: SKAT_B4
+### code chunk number 28: SKAT_B4
 ###################################################
 
 obj<-SKAT_Null_Model(y ~ 1, out_type="C")
@@ -261,25 +330,29 @@ SKAT(Z, obj, weights=weights)$p.value
 
 
 ###################################################
-### code chunk number 20: SKAT_B5
+### code chunk number 29: SKAT_B5
 ###################################################
 
 # test all genes in SSD file
 obj<-SKAT_Null_Model(y ~ X1 + X2, out_type="C")
 out<-SKAT_CommonRare.SSD.All(SSD.INFO, obj)
-out
-
 
 
 
 ###################################################
-### code chunk number 21: SKAT_B5
+### code chunk number 30: SKAT_B51
+###################################################
+out
+
+
+###################################################
+### code chunk number 31: SKAT_B5
 ###################################################
 Close_SSD()
 
 
 ###################################################
-### code chunk number 22: SKAT_BB1
+### code chunk number 32: SKAT_BB1
 ###################################################
 
 # File names
@@ -304,19 +377,26 @@ SSD.INFO<-Open_SSD(File.SSD, File.Info)
 obj<-SKAT_Null_Model(Phenotype ~ COV1 + COV2, out_type="D", data=FAM, Adjustment=FALSE)
 
 
+###################################################
+### code chunk number 33: SKAT_BB1
+###################################################
 # SKAT
 out.skat<-SKATBinary.SSD.All(SSD.INFO, obj, method="SKAT")
 
 # SKAT-O
 out.skato<-SKATBinary.SSD.All(SSD.INFO, obj, method="SKATO")
 
+
+###################################################
+### code chunk number 34: SKAT_BB2
+###################################################
 # First 5 variant sets, SKAT
 out.skat$results[1:5,]
 
 
 
 ###################################################
-### code chunk number 23: SKAT_BB2
+### code chunk number 35: SKAT_BB2
 ###################################################
 
 # Effective number of test is smaller than 30 (number of variant sets)
@@ -329,7 +409,7 @@ QQPlot_Adj(out.skat$results$P.value, out.skat$results$MAP)
 
 
 ###################################################
-### code chunk number 24: data
+### code chunk number 36: data
 ###################################################
 data(SKAT.haplotypes)
 names(SKAT.haplotypes)
@@ -338,7 +418,7 @@ attach(SKAT.haplotypes)
 
 
 ###################################################
-### code chunk number 25: SKAT_P1
+### code chunk number 37: SKAT_P1
 ###################################################
 set.seed(500)
 out.c<-Power_Continuous(Haplotype,SNPInfo$CHROM_POS, SubRegion.Length=5000,    
@@ -355,7 +435,7 @@ Get_RequiredSampleSize(out.b, Power=0.8)
 
 
 ###################################################
-### code chunk number 26: SKAT_P2
+### code chunk number 38: SKAT_P2
 ###################################################
 set.seed(500)
 out.c<-Power_Continuous_R(Haplotype,SNPInfo$CHROM_POS, SubRegion.Length=5000,    

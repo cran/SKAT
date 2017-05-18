@@ -23,7 +23,7 @@
  *  Kernel : output n by n matrix
  * ******************************************************/
 
-void Kernel_IBS(int * Z, int * pn, int * pp, double * Kernel){
+void Kernel_IBS_1(int * Z, int * pn, int * pp, double * Kernel){
 
     int i,j,k,n,p,diff;
     double temp;
@@ -75,7 +75,7 @@ void Kernel_IBS(int * Z, int * pn, int * pp, double * Kernel){
  * *****************************************************/
 
 
-void Kernel_IBS_Weight(int * Z, int * pn, int * pp, int *UseGivenWeight ,  double * weight, double * Kernel){
+void Kernel_IBS_Weight_1(int * Z, int * pn, int * pp, int *UseGivenWeight ,  double * weight, double * Kernel){
 
     int i,j,k,n,p,diff,temp1;
     double temp, w_total;
@@ -151,7 +151,7 @@ void Kernel_IBS_Weight(int * Z, int * pn, int * pp, int *UseGivenWeight ,  doubl
  *  Kernel : output n by n matrix
  * ******************************************************/
 
-void Kernel_2wayIX(int * Z, int * pn, int * pp, double * Kernel){
+void Kernel_2wayIX_1(int * Z, int * pn, int * pp, double * Kernel){
 
     int i,j,k,n,p,diff;
     double temp, temp1, temp2;
@@ -181,4 +181,5 @@ void Kernel_2wayIX(int * Z, int * pn, int * pp, double * Kernel){
         }
     }
 }
+
 
