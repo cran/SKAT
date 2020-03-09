@@ -7,7 +7,9 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
 , r.corr, mu, res.moments = NULL, Q.sim=NULL){
 
 	n<-length(pi_1)
-  	D  = diag(pi_1)   
+	D=Matrix(0 ,nrow=length(pi_1), ncol=length(pi_1),sparse=TRUE)
+	diag(D)=pi_1
+ 
 
 	# Weighted Linear Kernel 
 	if (kernel == "linear.weighted") {
@@ -27,7 +29,7 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
 
   	Q.Temp = t(res)%*%Z
   	Q = Q.Temp %*% t(Q.Temp)/2
-
+	Q=as.numeric(Q)
   	Q.res = NULL
   	if(n.Resampling > 0){
   		Q.Temp.res = t(res.out)%*%Z
@@ -42,7 +44,9 @@ KMTest.logistic.Linear.VarMatching = function(res, Z, X1, kernel, weights = NULL
   		Q.sim = rowSums(rbind(Q.Temp.res1^2))/2
 
 	} 
-
+	
+	Q.res=as.numeric(Q.res)
+	
 	Q.all<-c(Q,Q.res)
 	p_all<-mu
 
@@ -100,7 +104,7 @@ SKAT_PValue_Logistic_VarMatching<-function(Q, Z1, p_all, Q.sim, type="Other"){
 	if(param$varQ == 0){
 		p.value<-rep(1, length(Q))
 	
-	} else if(class(param) == "QuantileAdj"){
+	} else if(Check_Class(param,  "QuantileAdj")){
 		p.value<-SKAT_Logistic_PVal_QuantileAdj(Q, param)
 	} else {
 		Q.Norm<-(Q - param$muQ)/sqrt(param$varQ)
@@ -187,7 +191,7 @@ SKAT_Logistic_VarMatching_GetParam1<-function(Z1, p_all, Q.sim, type="Other"){
 	if(type != "OnlySim"){
 
 		try1<-try(Get_Lambda_U_From_Z(Z1),silent = TRUE)
-		if(class(try1) == "try-error"){
+		if(Is_TryError(try1)){
 			type="OnlySim"
 		} else {
 			out.svd = try1
@@ -276,7 +280,7 @@ SKAT_Logistic_VarMatching_QuantileAdj_Param<-function(Q.sim, param){
 	#ratio<-mean(max(Quant1[1:5]/Quant2[1:5]), Quant[1]/Quant[2])
 	ratio<-mean(c(max(Quant1[1:5]/Quant2[1:5]), Quant1[1]/Quant2[1]))
 	
-	if(class(fun1) == "try-error"){
+	if(Is_TryError(fun1)){
 		out.s = NULL
 	} else {
 		out.s<-list(fun1=fun1, maxq=maxq, minq=minq, ratio=ratio)

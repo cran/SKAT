@@ -1,5 +1,5 @@
 
-SKAT_Scale_Genotypes= function(obj.res, Z1, Z2, weights.beta=c(1,25), weights.beta2=c(1,1), weights=NULL, r.corr1, r.corr2){
+SKAT_Scale_Genotypes= function(obj.res, Z1, Z2, weights.beta=c(1,25), weights.beta2=c(1,1), weights1=NULL, weights2=NULL, r.corr1, r.corr2){
 
 	if(obj.res$out_type == "C"){
 		s2 = obj.res$s2
@@ -18,16 +18,18 @@ SKAT_Scale_Genotypes= function(obj.res, Z1, Z2, weights.beta=c(1,25), weights.be
 	p.m1<-dim(Z1)[2]
 	p.m2<-dim(Z2)[2]	
 
-	if(is.null(weights)){
+	if(is.null(weights1)){
 		MAF<-colMeans(Z1)/2
-		weights<-Beta.Weights(MAF,weights.beta)
+		weights1<-Beta.Weights(MAF,weights.beta)
 	}
 	
 	# Weights for rare variants, but no weights for common variants	
-	Z1 = t(t(Z1) * (weights))
-	
-	MAF2<-colMeans(Z2)/2
-	weights2<-Beta.Weights(MAF2,weights.beta2)
+	Z1 = t(t(Z1) * (weights1))
+
+	if(is.null(weights2)){ 	
+	  MAF2<-colMeans(Z2)/2
+	  weights2<-Beta.Weights(MAF2,weights.beta2)
+	}
 	Z2 = t(t(Z2) * (weights2))
 	
 	
@@ -139,14 +141,14 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 	Is.Resampling = FALSE
 	n.Resampling = 0
 	
-	if(class(obj) == "SKAT_NULL_Model"){
+	if(Check_Class(obj, "SKAT_NULL_Model")){
 		if(obj$n.Resampling > 0){
 			Is.Resampling = TRUE
 			n.Resampling = obj$n.Resampling
 
 			OUT.Pvalue.Resampling<-matrix(rep(0,n.Resampling*N.Set),ncol=n.Resampling)
 		}
-	} else if(class(obj) == "SKAT_NULL_Model_ADJ"){
+	} else if(Check_Class(obj, "SKAT_NULL_Model_ADJ")){
 		if(obj$re1$n.Resampling > 0){
 			Is.Resampling = TRUE
 			n.Resampling = obj$re1$n.Resampling
@@ -159,7 +161,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 	for(i in 1:N.Set){
 		Is.Error<-TRUE
 		try1<-try(Get_Genotypes_SSD(SSD.INFO, i),silent = TRUE)
-		if(class(try1) != "try-error"){
+		if(!Is_TryError(try1)){
 			Z<-try1
 			Is.Error<-FALSE
 			
@@ -174,7 +176,7 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 			Is.Error<-TRUE
 			try2<-try(SKAT_CommonRare(Z,obj, ...),silent = TRUE)
 			
-			if(class(try2) != "try-error"){
+			if(!Is_TryError(try2)){
 				re<-try2
 				Is.Error<-FALSE
 			} else {
@@ -215,18 +217,18 @@ SKAT_CommonRare.SSD.All = function(SSD.INFO, obj, ...){
 
 
 
-SKAT_CommonRare<-function(Z, obj, weights.beta.rare=c(1,25), weights.beta.common=c(0.5,0.5), method="C",
+SKAT_CommonRare<-function(Z, obj, weights.beta.rare=c(1,25), weights.beta.common=c(0.5,0.5), weights=NULL, method="C",
 r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_dosage=FALSE, missing_cutoff=0.15, estimate_MAF=1, SetID1=NULL){
 
 	
 	# This function only can be used for SNPs
 	is_check_genotype=TRUE
 	
-	if(class(obj) == "SKAT_NULL_Model_ADJ"){
+	if(Check_Class(obj, "SKAT_NULL_Model_ADJ")){
 
 		obj.res=obj$re1
 
-	} else if(class(obj) == "SKAT_NULL_Model"){
+	} else if(Check_Class(obj,  "SKAT_NULL_Model")){
 
 		obj.res=obj
 		
@@ -257,7 +259,7 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		obj.res$n.all=n
 	}
 	# no max_maf cutoff
-	out<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, id_include=obj.res$id_include, SetID=SetID1, weights=NULL, weights.beta=c(1,1), 
+	out<-SKAT_MAIN_Check_Z(Z, obj.res$n.all, id_include=obj.res$id_include, SetID=SetID1, weights=weights, weights.beta=c(1,1), 
 	impute.method="fixed", is_check_genotype=is_check_genotype, is_dosage=is_dosage, missing_cutoff, max_maf=1, estimate_MAF=estimate_MAF)
 	if(out$return ==1){
 		out$param$n.marker<-m
@@ -271,13 +273,16 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 	
 	Z.org<-Z
 	Z<-out$Z.test
+	weights.org<-weights
+	weights<-out$weights
+	
 	m.test<-ncol(Z)
 	
 	# Since I already used ID include.
 	obj.res$n.all =nrow(Z) 
 	obj.res$id_include = 1:nrow(Z)	
 	
-	if(class(obj) == "SKAT_NULL_Model_ADJ"){
+	if(Check_Class(obj, "SKAT_NULL_Model_ADJ")){
 		obj$re1$id_include = obj.res$id_include
 		obj$re1$n.all = obj.res$n.all
 	} else {
@@ -303,7 +308,7 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		# Run SKAT with common variants
 		Z.common<-cbind(Z[,id.common])
-		re<-SKAT_1(Z.common, obj, weights.beta=weights.beta.common, weights = NULL, r.corr=r.corr.common
+		re<-SKAT_1(Z.common, obj, weights.beta=weights.beta.common, weights = weights, r.corr=r.corr.common
 		, is_check_genotype=is_check_genotype, is_dosage = TRUE, missing_cutoff=1, max_maf=1, SetID = SetID1)
 		
 			
@@ -313,7 +318,7 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		# Run SKAT with rare variants
 		Z.rare<-cbind(Z[,id.rare])
-		re<-SKAT_1(Z.rare, obj, weights.beta=weights.beta.rare, weights = NULL, r.corr=r.corr.rare
+		re<-SKAT_1(Z.rare, obj, weights.beta=weights.beta.rare, weights = weights, r.corr=r.corr.rare
 		, is_check_genotype=is_check_genotype, is_dosage = TRUE, missing_cutoff=1, max_maf=1, SetID = SetID1)
 		
 		is.run=TRUE
@@ -325,8 +330,13 @@ r.corr.rare=0, r.corr.common=0, CommonRare_Cutoff=NULL, test.type="Joint", is_do
 		
 		Z.rare<-cbind(Z[,id.rare])
 		Z.common<-cbind(Z[,id.common])
+		weights1 = weights2 = NULL
+		if(!is.null(weights.org)){
+		  weights1 = weights[id.rare]
+		  weights2 = weights[id.common]
+		}
 		obj.scale<-SKAT_Scale_Genotypes(obj.res, Z.rare, Z.common, r.corr1=r.corr.rare, r.corr2=r.corr.common, 
-			weights.beta=weights.beta.rare, weights.beta2=weights.beta.common )
+			weights.beta=weights.beta.rare, weights.beta2=weights.beta.common, weights1=weights1, weights2=weights2 )
 		
 		if(method=="C"){
 			
@@ -726,7 +736,7 @@ SKAT_CR_Optimal = function(res,Z1, Z2, X1, s2 = 0, pi_1=NULL, res.out=NULL, n.Re
 	Z1.Q<-try(as.matrix(qr.Q(out.QR)), silent = TRUE)
 	Z1.R<-try(as.matrix(qr.R(out.QR)), silent = TRUE)
 	
-	if(class(Z1.Q) == "try-error" || class(Z1.R) == "try_error"){
+	if(Is_TryError(Z1.Q) || Is_TryError(Z1.R)){
 
 		cat("A")
 		out.QR<-qr(Z1, LAPACK = TRUE)	
@@ -734,7 +744,7 @@ SKAT_CR_Optimal = function(res,Z1, Z2, X1, s2 = 0, pi_1=NULL, res.out=NULL, n.Re
 		Z1.Q<-try(as.matrix(qr.Q(out.QR)), silent = TRUE)
 		Z1.R<-try(as.matrix(qr.R(out.QR)), silent = TRUE)
 
-		if(class(Z1.Q) == "try-error" || class(Z1.R) == "try_error"){
+		if(Is_TryError(Z1.Q) || Is_TryError(Z1.R)){
 
 			stop("QR decomposition error!")	
 		

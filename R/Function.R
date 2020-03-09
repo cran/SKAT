@@ -107,7 +107,10 @@ Get_Liu_Params_Mod_Lambda<-function(lambda){
 }
 
 Get_Liu_PVal<-function(Q, W, Q.resampling = NULL){
-    
+	##added by Zhangchen, for sparse matrix, 12.17.2018
+    	Q=as.matrix(Q)
+	W=as.matrix(W)
+	if (length(Q.resampling)>0){Q.resampling=as.matrix(Q.resampling)}
 
 	Q.all<-c(Q,Q.resampling)
 
@@ -135,7 +138,11 @@ Get_Liu_PVal<-function(Q, W, Q.resampling = NULL){
 }
 
 Get_Liu_PVal.MOD<-function(Q, W, Q.resampling = NULL){
-    
+	##added by Zhangchen, for sparse matrix, 12.17.2018
+    	Q=as.matrix(Q)
+	W=as.matrix(W)
+	if (length(Q.resampling)>0){Q.resampling=as.matrix(Q.resampling)}
+	
 	Q.all<-c(Q,Q.resampling)
 
 	A1<-W/2
@@ -195,7 +202,11 @@ Get_Liu_PVal.MOD.Lambda.Zero<-function(Q, muQ, muX, sigmaQ, sigmaX, l, d){
 
 
 Get_Davies_PVal<-function(Q, W, Q.resampling = NULL){
-    
+    	##added by Zhangchen, for sparse matrix, 12.17.2018
+    	Q=as.matrix(Q)
+	W=as.matrix(W)
+	if (length(Q.resampling)>0){Q.resampling=as.matrix(Q.resampling)}
+	
 	K<-W/2
 	
 	Q.all<-c(Q,Q.resampling)
@@ -267,7 +278,7 @@ Get_Lambda_U_From_Z<-function(Z1){
 
 	try1<-try(svd(Z1),silent = TRUE)
 	
-	if(class(try1) == "try-error"){
+	if(Is_TryError(try1)){
 		stop("SVD error!");
 	} else {
 		out.svd = try1
@@ -366,11 +377,11 @@ SKAT_Get_MAF<-function(Z,id_include=NULL, Is.chrX=FALSE, SexVar=NULL){
 			id.female<-intersect(id.female, id_include)
 		}
 		
-		n.male<-length(id.male)
-		n.female<-length(id.female)
-		
+		n.male.v<-colSums(!is.na(as.matrix(Z[id.male,])))
+		n.female.v<-colSums(!is.na(as.matrix(Z[id.female,])))
+
 		id.all<-union(id.male, id.female)
-		MAF<-colSums(cbind(Z[id.all,]))/(2*n.female+n.male)
+		MAF<-colSums(cbind(Z[id.all,]), na.rm = TRUE)/(2*n.female.v+n.male.v)
 				
 	}	
 	
@@ -527,4 +538,20 @@ Get_Resampling_Bin<-function(ncase, prob, n.Resampling){
 	return(out)
 
 }
+
+Check_Class<-function(obj, class_type){
+  re<-TRUE
+  if(!any(class(obj) %in% class_type)){
+    re<-FALSE
+  }
+  return(re)
+}
+
+Is_TryError<-function(obj){
+  
+  re<-Check_Class(obj, "try-error")
+  return(re)
+}
+
+# obj<-Z; class_type=c("matrix", "temp1"); Check_Class(obj, class_type)
 
