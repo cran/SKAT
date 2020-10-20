@@ -1,14 +1,14 @@
 Package: SKAT
 Type: Package
 Title: SNP-Set (Sequence) Kernel Association Test
-Version: 2.0.0
-Date: 2020-03-07
+Version: 2.0.1
+Date: 2020-10-20
 Author: Seunggeun (Shawn) Lee and Zhangchen Zhao, with contributions from Larisa Miropolsky and Michael Wu
 Maintainer: Seunggeun (Shawn) Lee <lee7801@snu.ac.kr>
 Description: Functions for kernel-regression-based association tests including Burden test, SKAT and SKAT-O. These methods aggregate individual SNP score statistics in a SNP set and efficiently compute SNP-set level p-values.
 License: GPL (>= 2)
 Depends: R (>= 2.13.0), Matrix, SPAtest
 NeedsCompilation: yes
-Packaged: 2020-03-09 00:07:35 UTC; leeshawn
+Packaged: 2020-10-20 08:16:08 UTC; lee7801
 Repository: CRAN
-Date/Publication: 2020-03-09 12:10:02 UTC
+Date/Publication: 2020-10-20 09:40:03 UTC
