@@ -1,9 +1,10 @@
 
 SKAT = function(Z,obj, kernel = "linear.weighted", method="davies", weights.beta=c(1,25)
-, weights = NULL, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, missing_cutoff=0.15, max_maf = 1, estimate_MAF=1){
+, weights = NULL, impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE
+, missing_cutoff=0.15, max_maf = 1, estimate_MAF=1){
 
 
-	if(kernel != "linear" && kernel != "linear.weighted"){
+	if(any(kernel != "linear") && any(kernel != "linear.weighted")){
 
 		if(Check_Class(obj, "SKAT_NULL_Model_ADJ")){
 			msg<-sprintf("The small sample adjustment only can be applied for linear and linear.weighted kernel in the current version of SKAT! No adjustment is applied")
@@ -130,6 +131,7 @@ SKAT_MAIN_Check_Z_Impute<-function(Z, id_include,impute.method, SetID, Is.chrX=F
 	IDX.Err<-which(MAF > 0.5)	
 	if(length(IDX.Err) > 0){
 		
+	  warning(MAF[IDX.Err])
 		msg<-sprintf("ERROR! genotype flipping")
 		stop(msg)
 		
@@ -147,10 +149,11 @@ SKAT_MAIN_Check_Z_Impute<-function(Z, id_include,impute.method, SetID, Is.chrX=F
 
 
 SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impute.method, is_check_genotype
-, is_dosage, missing_cutoff, max_maf, estimate_MAF=1, Is.chrX=FALSE, SexVar=NULL){
+, is_dosage, missing_cutoff, max_maf, estimate_MAF=1, Is.chrX=FALSE, SexVar=NULL, Is.ChrY=FALSE){
 
 	#############################################
 	# Check parameters
+
 
   # changed by SLEE 12/23/2019
   if(!Check_Class(Z, c("matrix", "dgCMatrix"))){
@@ -161,6 +164,10 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		impute.method="fixed"
 	}
 
+  if(is.null(colnames(Z))){
+    colnames(Z)<-sprintf("VAR%d", 1:ncol(Z))
+  }
+  
 
 	#####################################################
 	# Check Z
@@ -180,6 +187,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		id_include<-1:length(id_include)
 	}
 
+ 
 	##############################################
 	# Check Missing 
 
@@ -241,7 +249,8 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 
 	MAF<-SKAT_Get_MAF(Z, id_include=NULL, Is.chrX=Is.chrX, SexVar=SexVar)
 	MAF1<-SKAT_Get_MAF(Z, id_include=id_include, Is.chrX=Is.chrX, SexVar=SexVar)
-	
+
+
 	###########################################
 	# Check non-polymorphic
 	if(length(which(MAF1 > 0)) == 0){
@@ -293,7 +302,7 @@ SKAT_MAIN_Check_Z<-function(Z, n, id_include, SetID, weights, weights.beta, impu
 		}
 
 	}	
-	
+
 	if( dim(Z)[2] == 1){
 
 		if(is.null(SetID)){
@@ -322,7 +331,7 @@ SKAT_Check_RCorr<-function(kernel, r.corr){
 	if(length(r.corr) == 1 && r.corr[1] == 0){
 		return(1)
 	}
-	if(kernel != "linear" && kernel != "linear.weighted"){
+	if(any(kernel != "linear") && any(kernel != "linear.weighted")){
 		stop("Error: non-zero r.corr only can be used with linear or linear.weighted kernels")
 	}
 
@@ -395,7 +404,15 @@ SKAT_Check_Method<-function(method,r.corr, n=NULL, m=NULL){
 
 }
 
+SingleSNP_INFO<-function(Z){
+  
 
+  snplist<-colSums(Z)
+  names(snplist)<-colnames(Z)
+
+  return(snplist)
+  
+}
 
 
 SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="davies", weights.beta=c(1,25), weights = NULL
@@ -442,8 +459,8 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 
 
 	if(obj.res$out_type == "C"){
-		  #if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
-		  if( kernel =="linear" || kernel == "linear.weighted"){
+
+		  if( any(kernel =="linear") || any(kernel == "linear.weighted")){
 		    re = SKAT.linear.Linear(obj.res$res,out.z$Z.test
 			,obj.res$X1, kernel, out.z$weights,obj.res$s2,method
 			,obj.res$res.out, obj.res$n.Resampling,r.corr=r.corr, IsMeta=IsMeta)
@@ -454,8 +471,7 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 		  }
 	} else if (obj.res$out_type == "D"){
 
-		#if( (kernel =="linear" || kernel == "linear.weighted") && n > m){
-		if( kernel =="linear" || kernel == "linear.weighted"){
+		if( any(kernel =="linear") || any(kernel == "linear.weighted")){
 			re = SKAT.logistic.Linear(obj.res$res, out.z$Z.test
 			,obj.res$X1, kernel, out.z$weights, obj.res$pi_1,method
 			,obj.res$res.out, obj.res$n.Resampling,r.corr=r.corr, IsMeta=IsMeta)
@@ -468,6 +484,8 @@ SKAT_With_NullModel = function(Z, obj.res, kernel = "linear.weighted", method="d
 
 	re$param$n.marker<-m
 	re$param$n.marker.test<-dim(out.z$Z.test)[2]
+  re$test.snp.mac<-SingleSNP_INFO(out.z$Z.test)
+    
 	return(re)
 
 }
@@ -542,6 +560,8 @@ impute.method = "fixed", r.corr=0, is_check_genotype=TRUE, is_dosage = FALSE, mi
 
 	re$param$n.marker<-m
 	re$param$n.marker.test<-dim(out.z$Z.test)[2]
+	re$test.snp.mac<-SingleSNP_INFO(out.z$Z.test)
+	
 	return(re)
 
 

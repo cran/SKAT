@@ -11,7 +11,7 @@ SKAT_Null_Model(formula, data=NULL, out_type="C", n.Resampling=0
 , type.Resampling="bootstrap", Adjustment=TRUE)
 
 SKAT_Null_Model_ChrX(formula, SexVar, data=NULL, out_type="C", n.Resampling=0
-, type.Resampling="bootstrap", Adjustment=TRUE)
+, type.Resampling="bootstrap", Adjustment=TRUE, Model.Y=FALSE)
 	
 
  }
@@ -24,6 +24,7 @@ SKAT_Null_Model_ChrX(formula, SexVar, data=NULL, out_type="C", n.Resampling=0
       \item{Adjustment}{If TRUE, a small sample adjustment will be applied when the sample size < 2000 and the trait is binary (default=TRUE). See details}      
 
 	  \item{SexVar}{a sex variable name in ``formula''.}
+	  \item{Model.Y}{indicator variable whether the model will be also used for ChrY. It should be TRUE if you want to use SKAT_ChrY function}
 }
 \value{
 	This function returns an object that has model parameters and residuals of the NULL model of no association between genetic variables and outcome phenotypes. 
@@ -59,13 +60,12 @@ SKATBinary. We recommend to use SKATBinary function instead of SKAT when your tr
 
 
 data(SKAT.example)
-attach(SKAT.example)
-
+Z<-SKAT.example$Z
 #############################################################
 #	Compute the P-value of SKAT 
 
 # binary trait
-obj<-SKAT_Null_Model(y.b ~ X, out_type="D")
+obj<-SKAT_Null_Model(y.b ~ X, out_type="D", data=SKAT.example)
 SKAT(Z, obj, kernel = "linear.weighted")$p.value
 
 
@@ -73,7 +73,7 @@ SKAT(Z, obj, kernel = "linear.weighted")$p.value
 # 	When you have no covariate to adjust.
 
 # binary trait
-obj<-SKAT_Null_Model(y.b ~ 1, out_type="D")
+obj<-SKAT_Null_Model(y.b ~ 1, out_type="D", data=SKAT.example)
 SKAT(Z, obj, kernel = "linear.weighted")$p.value
 
 
@@ -83,11 +83,11 @@ SKAT(Z, obj, kernel = "linear.weighted")$p.value
 IDX<-c(1:100,1001:1100)
 
 # With-adjustment
-obj<-SKAT_Null_Model(y.b[IDX] ~ X[IDX,],out_type="D")
+obj<-SKAT_Null_Model(y.b[IDX] ~ X[IDX,],out_type="D", data=SKAT.example)
 SKAT(Z[IDX,], obj, kernel = "linear.weighted")$p.value
 
 # Without-adjustment
-obj<-SKAT_Null_Model(y.b[IDX] ~ X[IDX,],out_type="D", Adjustment=FALSE)
+obj<-SKAT_Null_Model(y.b[IDX] ~ X[IDX,],out_type="D", Adjustment=FALSE, data=SKAT.example)
 SKAT(Z[IDX,], obj, kernel = "linear.weighted")$p.value
 
 #########################################################

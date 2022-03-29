@@ -77,6 +77,8 @@
 	\item{param$n.marker.test}{a number of SNPs used for the test. It can be different from param$n.marker when 
 	some markers are monomorphic or have higher missing rates than the missing_cutoff. } 
 	\item{method.bin}{a type of method to be used to compute the p-value.}
+	\item{test.snp.mac}{a vector of minor allele count (MAC) of the snps tested. The name is SNP-ID. } 
+
 }
 \details{
 
@@ -113,10 +115,9 @@ An efficient resampling method for calibrating single and gene-based rare varian
 
 
 data(SKATBinary.example)
-attach(SKATBinary.example)
+Z<-SKATBinary.example$Z
 
-
-obj<-SKAT_Null_Model(y ~ x1 + x2, out_type="D")
+obj<-SKAT_Null_Model(y ~ x1 + x2, out_type="D", data=SKATBinary.example)
 
 # run SKAT (default method) with Hybrid
 out = SKATBinary(Z, obj)
