@@ -1,4 +1,4 @@
-17c3d3f8ae7365772518472d9ce40a48 *DESCRIPTION
+a3b35faf3ceeef91c33c24e59928f9fb *DESCRIPTION
 3593f0aaf8aef2b5eb7fd90010b25494 *NAMESPACE
 c44a76349594ace62702f5859d959567 *R/Binary_Etc.R
 a6fe180df2cc48fb56065100f36c9777 *R/Binary_Function.R
@@ -30,16 +30,16 @@ d2cf0df47e14ac6e21f3edbcda41b928 *R/SKAT_Optimal_VarMatching.R
 dde08031c874c94007bc84909c2b6b1b *R/SSD.R
 33b6f074d28879da59108d92a0c86c14 *R/Sparse.R
 4ef48983a8262bfb662bb7f6179b3999 *R/X_Chrom.R
-03cd4c890b63ee3c5995e4f5a22e8d87 *build/vignette.rds
-c2f73a9cef081be54ea1e57f4ed85c6f *data/SKAT.example.ChrX.rda
-909fcbb3f956a004451ae660fe2edc1b *data/SKAT.example.rda
-80d63e0f64aacd98b90bd49a0a6211c3 *data/SKAT.fam.example.rda
-151f3d88c6cff80e08cf9f145b9d712e *data/SKAT.haplotypes.rda
-1a13aaaa53a8f557d3e57211ef5752df *data/SKATBinary.example.rda
+38985a2582fd6566586a3b1175bfc2ef *build/vignette.rds
+c4fe1107eb15521fa3fed0ffdb3a77b1 *data/SKAT.example.ChrX.rda
+76e055dd63111923dd47b2a80855063b *data/SKAT.example.rda
+b9e2ebf0f5b7a8ef8de0f5ef8ccf034f *data/SKAT.fam.example.rda
+e7d50081063a80c7b465d69f8cbccf2b *data/SKAT.haplotypes.rda
+f1002b4e0f50d768e00f08ff567105c5 *data/SKATBinary.example.rda
 6daf2405b55d75521ac6cdbfd13f441d *data/datalist
 3ac9562fde3940fd94221571e22b246d *inst/doc/SKAT.R
 08fef54f3853bc9c481e7c32111420db *inst/doc/SKAT.Rnw
-10e316563d3dc07d691eee133c0101dd *inst/doc/SKAT.pdf
+2de6b8335bfbee1a8f7388a8364b1c71 *inst/doc/SKAT.pdf
 70bfc72058b01b3dca52f5e99eec5b04 *man/Close_SSD.rd
 4f24d4ddd05f88a294a14f0a0d662ec7 *man/Generate_SSD_SetID.rd
 30336c24e6f274be4e7392a7a015eaec *man/Get_ENT.rd
@@ -64,7 +64,7 @@ bf8830aa7bc8b775634cfbb361b6e807 *man/SKAT.rd
 4cce1abb7b1cb557ae2360f40d25d94e *man/SKATBinary.rd
 e537f4314c997a9a3d463c7f39574de5 *man/SKATBinary_Robust.rd
 af2380a722e1c232e2f8bf8c83e90b99 *man/SKATBinary_Single.rd
-825a3cb8f7a192532cd369958079c224 *man/SKAT_ChrX.rd
+aa0bb1a9278c916051b99abb844ad216 *man/SKAT_ChrX.rd
 39cf55807b3638c3db8ce50cf27211e6 *man/SKAT_CommonRare.rd
 9baefaa9035fc40eff156d9ed40ba946 *man/SKAT_CommonRare_Robust.rd
 16b94f8f54434fc0d28fc9dc4efec1b3 *man/SKAT_NULL_emmaX.rd
@@ -92,7 +92,7 @@ db13b2bf907bfb45123a4b30a72eea5f *src/bed_reader.h
 83169d99151d9e9671f9d75309e2097d *src/interface_to_R.cpp
 be3032949397db9890337f219e1a2f72 *src/interface_to_R.h
 5e5ab8a6183c058e4ecdf8a0dbb63155 *src/kernel_func.cpp
-ff2d20141923b1dd39cbddf19505f35f *src/mwo_reader.cpp
+c514fd6717a844859a865b4b6db230ce *src/mwo_reader.cpp
 63027286332242701d87f09650599103 *src/mwo_reader.h
 dd3d814ef398b50510fd12d79494b8c6 *src/qfc.cpp
 b172f613af381af31aa20912270fa94c *src/setid_bim_index.cpp

@@ -1,22 +1,14 @@
 Package: SKAT
 Type: Package
 Title: SNP-Set (Sequence) Kernel Association Test
-Version: 2.2.4
-Date: 2022-03-29
-Authors@R: c(person("Seunggeun (Shawn)", "Lee", role = c("aut", "cre", "cph"), email = "lee7801@snu.ac.kr"),
-             person("Zhangchen", "Zhao", role = c("aut")),
-             person("Larisa", "Miropolsky", role = c("aut")),
-             person("Michael", "Wu", role = c("aut")))
+Version: 2.2.5
+Date: 2023-01-12
+Author: Seunggeun (Shawn) Lee and Zhangchen Zhao, with contributions from Larisa Miropolsky and Michael Wu
 Maintainer: Seunggeun (Shawn) Lee <lee7801@snu.ac.kr>
-Description: Functions for kernel-regression-based association tests including Burden test, SKAT and SKAT-O. These methods aggregate individual SNP score statistics in a SNP set and efficiently compute SNP-set level p-values. Methods  available in this package include SKAT described in Micheal Wu, Seunggeun Lee et al. (2011) <doi:10.1016/j.ajhg.2011.05.029>, SKAT-O in Seunggeun Lee et al. (2012) <doi:10.1093/biostatistics/kxs014>, combined test of rare and common variants in Iuliana Ionita-Laza and Seunggeun Lee et al. (2013) <doi:10.1016/j.ajhg.2013.04.015>, efficient resampling for binary traits in Seunggeun Lee et al. (2016) <doi:10.1093/biostatistics/kxv033>, and robust test for binary traits in Zhangchen Zhao et al. (2020) <doi:10.1016/j.ajhg.2019.11.012>.
+Description: Functions for kernel-regression-based association tests including Burden test, SKAT and SKAT-O. These methods aggregate individual SNP score statistics in a SNP set and efficiently compute SNP-set level p-values.
 License: GPL (>= 2)
 Depends: R (>= 2.13.0), Matrix, SPAtest, RSpectra
-LazyData: yes
 NeedsCompilation: yes
-Packaged: 2022-03-29 08:45:25 UTC; lee7801
-Author: Seunggeun (Shawn) Lee [aut, cre, cph],
-  Zhangchen Zhao [aut],
-  Larisa Miropolsky [aut],
-  Michael Wu [aut]
+Packaged: 2023-01-15 06:18:28 UTC; seunggeunlee
 Repository: CRAN
-Date/Publication: 2022-03-29 12:50:07 UTC
+Date/Publication: 2023-01-15 15:50:09 UTC

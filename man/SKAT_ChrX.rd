@@ -86,6 +86,9 @@ obj.x<-SKAT_Null_Model_ChrX(y ~ x1 +x2 + Gender,
 # SKAT
 SKAT_ChrX(Z, obj.x, kernel = "linear.weighted")
 
+# Burden
+SKAT_ChrX(Z, obj.x, kernel = "linear.weighted", r.corr=1)
+
 # SKAT-O
 SKAT_ChrX(Z, obj.x, kernel = "linear.weighted", method="SKATO")
 
@@ -93,14 +96,11 @@ SKAT_ChrX(Z, obj.x, kernel = "linear.weighted", method="SKATO")
 # Fit the Y chromosome function
 # In this example, since male has only one copy of X (and Y), we reuse X chromosome genotype matrix.
 
-
 # binary trait
-# since it would take > 10 sec with adjustment, set Adjustment=FALSE
-obj.x<-SKAT_Null_Model_ChrX(y ~ x1 +x2 + Gender, Adjustment=FALSE,
+obj.x<-SKAT_Null_Model_ChrX(y ~ x1 +x2 + Gender, 
   SexVar="Gender", out_type="D", Model.Y=TRUE, data=SKAT.example.ChrX)
 
-# SKAT
-SKAT_ChrY(Z, obj.x, kernel = "linear.weighted")
+SKAT_ChrY(Z, obj.x, kernel = "linear.weighted", method="SKATO")
 
 
 
